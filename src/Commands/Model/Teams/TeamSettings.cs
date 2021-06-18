@@ -65,7 +65,7 @@ namespace PnP.PowerShell.Commands.Model.Teams
             GroupId = team.GroupId;
             DisplayName = team.DisplayName;
             Description = team.Description;
-            Visibility = team.Visibility.Value;
+            Visibility = team.Visibility;
             Archived = team.IsArchived;
             Classification = team.Classification;
             AllowGiphy = team.FunSettings.AllowGiphy;
@@ -88,7 +88,7 @@ namespace PnP.PowerShell.Commands.Model.Teams
             AllowCreatePrivateChannels = team.MemberSettings.AllowCreatePrivateChannels;            
         }
 
-        public Team ToTeam()
+        public Team ToTeam(GroupVisibility groupVisibility)
         {
             return new Team
             {
@@ -124,7 +124,8 @@ namespace PnP.PowerShell.Commands.Model.Teams
                 DiscoverySettings = new TeamDiscoverySettings
                 {
                     ShowInTeamsSearchAndSuggestions = ShowInTeamsSearchAndSuggestions
-                }
+                },
+                Visibility = groupVisibility
             };
         }
 

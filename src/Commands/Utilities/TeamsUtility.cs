@@ -72,7 +72,7 @@ namespace PnP.PowerShell.Commands.Utilities
             {
                 team.DisplayName = group.DisplayName;
                 team.MailNickname = group.MailNickname;
-                team.Visibility = group.Visibility;
+                team.Visibility = group.Visibility;                
                 return team;
             }
             else
@@ -91,7 +91,7 @@ namespace PnP.PowerShell.Commands.Utilities
             // Get Settings
             try
             {
-                var team = await GraphHelper.GetAsync<Team>(httpClient, $"v1.0/teams/{groupId}", accessToken, false);
+                var team = await GraphHelper.GetAsync<Team>(httpClient, $"v1.0/teams/{groupId}", accessToken, false, true);
                 if (team != null)
                 {
                     team.GroupId = groupId;
@@ -164,7 +164,7 @@ namespace PnP.PowerShell.Commands.Utilities
             }
             if (group != null)
             {
-                Team team = teamCI.ToTeam();
+                Team team = teamCI.ToTeam(group.Visibility);
                 var retry = true;
                 var iteration = 0;
                 while (retry)
@@ -214,7 +214,7 @@ namespace PnP.PowerShell.Commands.Utilities
                 else
                 {
                     // find the user in the organization
-                    var collection = await GraphHelper.GetAsync<RestResultCollection<User>>(httpClient, "v1.0/myorganization/users?$filter=mail eq '{owner}'&$select=Id", accessToken);
+                    var collection = await GraphHelper.GetAsync<RestResultCollection<User>>(httpClient, $"v1.0/users?$filter=mail eq '{owner}'&$select=Id", accessToken);
                     if (collection != null)
                     {
                         if (collection.Items.Any())
@@ -407,14 +407,14 @@ namespace PnP.PowerShell.Commands.Utilities
             var collection = await GraphHelper.GetAsync<RestResultCollection<TeamChannelMember>>(httpClient, $"v1.0/teams/{groupId}/channels/{channelId}/members", accessToken);
             if (collection != null && collection.Items.Any())
             {
-                users.AddRange(collection.Items.Select(m => new User() { DisplayName = m.DisplayName, Id = m.UserId, UserPrincipalName = m.email, UserType = m.Roles[0].ToLower() }));
+                users.AddRange(collection.Items.Select(m => new User() { DisplayName = m.DisplayName, Id = m.UserId, UserPrincipalName = m.email, UserType = m.Roles.Count > 0 ? m.Roles[0].ToLower() : "" }));
             }
             while (collection.NextLink != null)
             {
                 collection = await GraphHelper.GetAsync<RestResultCollection<TeamChannelMember>>(httpClient, collection.NextLink, accessToken);
                 if (collection != null && collection.Items.Any())
                 {
-                    users.AddRange(collection.Items.Select(m => new User() { DisplayName = m.DisplayName, Id = m.UserId, UserPrincipalName = m.email, UserType = m.Roles[0].ToLower() }));
+                    users.AddRange(collection.Items.Select(m => new User() { DisplayName = m.DisplayName, Id = m.UserId, UserPrincipalName = m.email, UserType = m.Roles.Count > 0 ? m.Roles[0].ToLower() : "" }));
                 }
             }
             if (selectedRole != null)
