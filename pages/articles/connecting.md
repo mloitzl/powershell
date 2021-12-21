@@ -19,7 +19,13 @@ This will launch a device login flow that will ask you to consent to the applica
 After that you can authenticate using
 
 ```powershell
-Connect-PnPOnline -Url "https://[yourtenant].sharepoint.com" -Credentials (Get-Credential)
+Connect-PnPOnline -Url https://[yourtenant].sharepoint.com -Credentials (Get-Credential)
+```
+
+or in case the account you would like to use has MFA or any other authentication provider configured for it, instead use:
+
+```powershell
+Connect-PnPOnline -Url https://[yourtenant].sharepoint.com -Interactive
 ```
 
 ### Connect by using your own Azure AD Application
@@ -40,12 +46,12 @@ Note if you are using Credential Based Authentication, you will need to make a c
 Connect-PnPOnline -Url "https://[yourtenant.sharepoint.com] -Credentials (Get-Credential) -ClientId [clientid]
 ```
 
-## Connect interactively logging in with support for MFA
+## Connect interactively using WebLogin supporting MFA
 
-One of the easiest methods to use supporting MFA and any other potential authentication providers that may be in use. This is ideal if you occasionally want to manually run scripts:
+One of the easiest methods to use. However, notice that this connection method will have its limitation as we will utility cookie based authentication. For instance, we will not be able to make calls to the Microsoft Graph behind the scenes. 
 
 ```powershell
-Connect-PnPOnline -Url https://tenant.sharepoint.com -Interactive
+Connect-PnPOnline -Url https://tenant.sharepoint.com -UseWebLogin
 ```
 
 ## Connect using a ClientId and PFX certificate stored on your local machine
