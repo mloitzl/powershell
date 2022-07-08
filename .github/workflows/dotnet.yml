@@ -13,5 +13,5 @@ jobs:
 
     steps:
     - name: Script
-    - run: |
+      run: |
         echo "Hello World!"
