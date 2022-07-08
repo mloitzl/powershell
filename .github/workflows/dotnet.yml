@@ -16,4 +16,4 @@ jobs:
       - name: Script
         run: |
           echo "Hello World!"
-          echo "${{ secrets.EZORED_AWS_KEY_ID }}"
+          echo "${{ secrets.SECRET1 }}"
