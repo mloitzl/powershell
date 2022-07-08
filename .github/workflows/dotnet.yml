@@ -2,7 +2,7 @@ name: .NET
 
 on:
   push:
-    branches: [ "dev" ]
+    branches: [ "dev","workflows" ]
   pull_request:
     branches: [ "dev" ]
 
@@ -12,6 +12,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Script
-      run: |
-        echo "Hello World!"
+      - name: Script
+        run: |
+          echo "Hello World!"
