@@ -1,6 +1,5 @@
 ﻿using Microsoft.SharePoint.Client;
-using web = Microsoft.SharePoint.Client.Web;
-
+using Csomweb = Microsoft.SharePoint.Client.Web;
 using PnP.PowerShell.Commands.InvokeAction;
 using System;
 using System.Collections.Generic;
@@ -13,19 +12,19 @@ namespace PnP.PowerShell.Commands
     public class InvokeWebAction : PnPWebCmdlet
     {
         [Parameter(Mandatory = false)]
-        public web[] Webs;
+        public Csomweb[] Webs;
 
         [Parameter(Mandatory = false)]
-        public Action<web> WebAction;
+        public Action<Csomweb> WebAction;
 
         [Parameter(Mandatory = false)]
-        public Func<web, bool> ShouldProcessWebAction;
+        public Func<Csomweb, bool> ShouldProcessWebAction;
 
         [Parameter(Mandatory = false)]
-        public Action<web> PostWebAction;
+        public Action<Csomweb> PostWebAction;
 
         [Parameter(Mandatory = false)]
-        public Func<web, bool> ShouldProcessPostWebAction;
+        public Func<Csomweb, bool> ShouldProcessPostWebAction;
 
         [Parameter(Mandatory = false)]
         public string[] WebProperties;
@@ -74,7 +73,7 @@ namespace PnP.PowerShell.Commands
                 return;
             }
 
-            InvokeActionParameter<web> webActions = new InvokeActionParameter<web>()
+            InvokeActionParameter<Csomweb> webActions = new InvokeActionParameter<Csomweb>()
             {
                 Action = WebAction,
                 ShouldProcessAction = ShouldProcessWebAction,
@@ -102,7 +101,7 @@ namespace PnP.PowerShell.Commands
             InvokeAction.InvokeWebAction invokeAction;
             if (string.IsNullOrEmpty(ListName))
             {
-                IEnumerable<web> websToProcess;
+                IEnumerable<Csomweb> websToProcess;
                 if (Webs == null || Webs.Length == 0)
                     websToProcess = new[] { CurrentWeb };
                 else

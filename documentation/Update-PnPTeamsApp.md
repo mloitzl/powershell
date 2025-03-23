@@ -20,10 +20,12 @@ Updates an existing app in the Teams App Catalog.
 ## SYNTAX
 
 ```powershell
-Update-PnPTeamsApp -Identity <TeamsAppPipeBind> -Path <String>  [<CommonParameters>]
+Update-PnPTeamsApp -Identity <TeamsAppPipeBind> -Path <String>  
 ```
 
 ## DESCRIPTION
+
+Allows to update an existing app in the Teams App Catalog.
 
 ## EXAMPLES
 

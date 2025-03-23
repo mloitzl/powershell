@@ -4,10 +4,12 @@ using PnP.PowerShell.Commands.Base;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 using PnP.PowerShell.Commands.Utilities;
 
-namespace PnP.PowerShell.Commands.Graph
+namespace PnP.PowerShell.Commands.Planner
 {
     [Cmdlet(VerbsCommon.Set, "PnPPlannerBucket")]
-    [RequiredMinimalApiPermissions("Group.ReadWrite.All")]
+    [RequiredApiApplicationPermissions("graph/Tasks.ReadWrite")]
+    [RequiredApiApplicationPermissions("graph/Tasks.ReadWrite.All")]
+    [RequiredApiApplicationPermissions("graph/Group.ReadWrite.All")]
     public class SetPlannerBucket : PnPGraphCmdlet
     {
         private const string ParameterName_BYGROUP = "By Group";
@@ -33,17 +35,17 @@ namespace PnP.PowerShell.Commands.Graph
         {
             if (ParameterSetName == ParameterName_BYGROUP)
             {
-                var groupId = Group.GetGroupId(Connection, AccessToken);
+                var groupId = Group.GetGroupId(GraphRequestHelper);
                 if (groupId != null)
                 {
-                    var planId = Plan.GetIdAsync(Connection, AccessToken, groupId).GetAwaiter().GetResult();
+                    var planId = Plan.GetId(GraphRequestHelper, groupId);
                     if (planId != null)
                     {
 
-                        var bucket = Bucket.GetBucket(Connection, AccessToken, planId);
+                        var bucket = Bucket.GetBucket(GraphRequestHelper, planId);
                         if (bucket != null)
                         {
-                            WriteObject(PlannerUtility.UpdateBucketAsync(Connection, AccessToken, Name, bucket.Id).GetAwaiter().GetResult());
+                            WriteObject(PlannerUtility.UpdateBucket(GraphRequestHelper, Name, bucket.Id));
                         }
                         else
                         {
@@ -62,10 +64,10 @@ namespace PnP.PowerShell.Commands.Graph
             }
             else
             {
-                var bucket = Bucket.GetBucket(Connection, AccessToken, PlanId);
+                var bucket = Bucket.GetBucket(GraphRequestHelper, PlanId);
                 if (bucket != null)
                 {
-                    WriteObject(PlannerUtility.UpdateBucketAsync(Connection, AccessToken, Name, bucket.Id).GetAwaiter().GetResult());
+                    WriteObject(PlannerUtility.UpdateBucket(GraphRequestHelper, Name, bucket.Id));
                 }
                 else
                 {

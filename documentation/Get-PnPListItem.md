@@ -18,28 +18,30 @@ Retrieves list items
 ```powershell
 Get-PnPListItem [-List] <ListPipeBind> [-FolderServerRelativeUrl <String>] [-Fields <String[]>]
  [-PageSize <Int32>] [-ScriptBlock <ScriptBlock>][-IncludeContentType <SwitchParameter>][-Connection <PnPConnection>]
- [<CommonParameters>]
+ 
 ```
 
 ### By Id
 ```powershell
 Get-PnPListItem [-List] <ListPipeBind> [-Id <Int32>] [-Fields <String[]>] [-IncludeContentType <SwitchParameter>]
- [-Connection <PnPConnection>] [<CommonParameters>]
+ [-Connection <PnPConnection>] 
 ```
 
 ### By Unique Id
 ```powershell
-Get-PnPListItem [-List] <ListPipeBind> [-UniqueId <Guid>] [-Fields <String[]>] [-IncludeContentType <SwitchParameter>] [-Connection <PnPConnection>] [<CommonParameters>]
+Get-PnPListItem [-List] <ListPipeBind> [-UniqueId <Guid>] [-Fields <String[]>] [-IncludeContentType <SwitchParameter>] [-Connection <PnPConnection>] 
 ```
 
 ### By Query
 ```powershell
 Get-PnPListItem [-List] <ListPipeBind> [-Query <String>] [-FolderServerRelativeUrl <String>]
  [-PageSize <Int32>] [-IncludeContentType <SwitchParameter>] [-ScriptBlock <ScriptBlock>] [-Connection <PnPConnection>]
- [<CommonParameters>]
+ 
 ```
 
 ## DESCRIPTION
+
+Allows to retrieve list items.
 
 ## EXAMPLES
 
@@ -80,7 +82,7 @@ Retrieves all available fields of list items based on the CAML query specified
 
 ### EXAMPLE 6
 ```powershell
-Get-PnPListItem -List Tasks -Query "<View><ViewFields><FieldRef Name='Title'/><FieldRef Name='Modified'/></ViewFields><Query><Where><Geq><FieldRef Name='Modified'/><Value Type='DateTime'><Today/></Value></Eq></Where></Query></View>"
+Get-PnPListItem -List Tasks -Query "<View><ViewFields><FieldRef Name='Title'/><FieldRef Name='Modified'/></ViewFields><Query><Where><Eq><FieldRef Name='Modified'/><Value Type='DateTime'><Today/></Value></Eq></Where></Query></View>"
 ```
 
 Retrieves all list items modified today, retrieving the columns 'Title' and 'Modified'. When you use -Query, you can add a `<ViewFields>` clause to retrieve specific columns (since you cannot use -Fields)

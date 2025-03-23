@@ -17,22 +17,24 @@ Set Auditing setting for a site
 ### Enable all
 ```powershell
 Set-PnPAuditing [-EnableAll] [-RetentionTime <Int32>] [-TrimAuditLog] [-Connection <PnPConnection>]
- [<CommonParameters>]
+ 
 ```
 
 ### Disable All
 ```powershell
-Set-PnPAuditing [-DisableAll] [-Connection <PnPConnection>] [<CommonParameters>]
+Set-PnPAuditing [-DisableAll] [-Connection <PnPConnection>] 
 ```
 
 ### Specific flags
 ```powershell
 Set-PnPAuditing [-RetentionTime <Int32>] [-TrimAuditLog] [-EditItems] [-CheckOutCheckInItems] [-MoveCopyItems]
  [-DeleteRestoreItems] [-EditContentTypesColumns] [-SearchContent] [-EditUsersPermissions]
- [-Connection <PnPConnection>] [<CommonParameters>]
+ [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
+
+Allows to modify Auditing setting for a site.
 
 ## EXAMPLES
 

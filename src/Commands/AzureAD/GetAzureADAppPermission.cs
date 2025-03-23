@@ -1,16 +1,16 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Management.Automation;
 using PnP.PowerShell.Commands.Attributes;
 using PnP.PowerShell.Commands.Base;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 using PnP.PowerShell.Commands.Model;
-using PnP.PowerShell.Commands.Utilities.REST;
+using System.Collections.Generic;
+using System.Linq;
+using System.Management.Automation;
 
 namespace PnP.PowerShell.Commands.AzureAD
 {
     [Cmdlet(VerbsCommon.Get, "PnPAzureADAppPermission")]
-    [RequiredMinimalApiPermissions("Application.Read.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/Application.Read.All")]
+    [Alias("Get-PnPEntraIDAppPermission")]
     public class GetAzureADAppPermission : PnPGraphCmdlet
     {
         [Parameter(Mandatory = false)]
@@ -20,12 +20,17 @@ namespace PnP.PowerShell.Commands.AzureAD
         {
             if (ParameterSpecified(nameof(Identity)))
             {
-                WriteObject(ConvertToPSObject(Identity.GetApp(this, Connection, AccessToken)));
+                var app = Identity.GetApp(GraphRequestHelper);
+                if (app == null)
+                {
+                    LogError(new PSArgumentException("Azure AD App not found"));
+                }
+                WriteObject(ConvertToPSObject(app));
             }
             else
             {
                 List<PSObject> apps = new List<PSObject>();
-                var result = GraphHelper.GetResultCollectionAsync<AzureADApp>(Connection, "/v1.0/applications", AccessToken).GetAwaiter().GetResult();
+                var result = GraphRequestHelper.GetResultCollection<AzureADApp>("/v1.0/applications");
                 if (result != null && result.Any())
                 {
                     apps.AddRange(result.Select(p => ConvertToPSObject(p)));

@@ -1646,7 +1646,7 @@
         "id": "f6a3db3e-f7e8-4ed2-a414-557c8c9830be",
         "isEnabled": true,
         "isAdmin": true,
-        "consentDescription": "Allows the app to read the memberships of hidden groups or administrative units on your behalf, for those hidden groups or adminstrative units that you have access to.",
+        "consentDescription": "Allows the app to read the memberships of hidden groups or administrative units on your behalf, for those hidden groups or administrative units that you have access to.",
         "consentDisplayName": "Read your hidden memberships",
         "value": "Member.Read.Hidden"
       },
@@ -2741,6 +2741,26 @@
         "value": "InformationProtectionPolicy.Read"
       },
       {
+        "adminConsentDescription": "Allows the application to read any data from Records Management, such as configuration, labels, and policies on behalf of the signed-in user.",
+        "adminConsentDisplayName": "Read Records Management configuration, labels, and policies.",
+        "id": "07f995eb-fc67-4522-ad66-2b8ca8ea3efd",
+        "isEnabled": true,
+        "isAdmin": false,
+        "consentDescription": "Allows the application to read any data from Records Management, such as configuration, labels, and policies on behalf of the signed-in user.",
+        "consentDisplayName": "Read Records Management configuration, labels, and policies.",
+        "value": "RecordsManagement.Read.All"
+      },
+      {
+        "adminConsentDescription": "Allows the application to create, update and delete any data from Records Management, such as configuration, labels, and policies on behalf of the signed-in user.",
+        "adminConsentDisplayName": "Read and write Records Management configuration, labels, and policies",
+        "id": "f2833d75-a4e6-40ab-86d4-6dfe73c97605",
+        "isEnabled": true,
+        "isAdmin": false,
+        "consentDescription": "Allows the application to create, update and delete any data from Records Management, such as configuration, labels, and policies on behalf of the signed-in user.",
+        "consentDisplayName": "Read and write Records Management configuration, labels, and policies.",
+        "value": "RecordsManagement.ReadWrite.All"
+      },
+      {
         "adminConsentDescription": "Allows the app to manage hybrid identity service configuration by creating, viewing, updating and deleting on-premises published resources, on-premises agents and agent groups, on behalf of the signed-in user.",
         "adminConsentDisplayName": "Manage on-premises published resources",
         "id": "8c4d5184-71c2-4bf8-bb9d-bc3378c9ad42",
@@ -2849,6 +2869,46 @@
         "consentDescription": "Allows the app to read email in the signed-in user's mailbox except body, previewBody, attachments and any extended properties.",
         "consentDisplayName": "Read user basic mail",
         "value": "Mail.ReadBasic"
+      },
+      {
+        "adminConsentDescription": "Allow the application to access files explicitly permissioned to the application on behalf of the signed in user.  The specific files and the permissions granted will be configured in SharePoint Online or OneDrive.",
+        "adminConsentDisplayName": "Access selected Files, on behalf of the signed-in user",
+        "id": "ef2779dc-ef1b-4211-8310-8a0ac2450081",
+        "isEnabled": true,
+        "isAdmin": false,
+        "consentDescription": "Allow the application to access files explicitly permissioned to the application on behalf of the signed in user.  The specific files and the permissions granted will be configured in SharePoint Online or OneDrive.",
+        "consentDisplayName": "Access selected Files, on behalf of the signed-in user",
+        "value": "Files.SelectedOperations.Selected"
+      },
+      {
+        "adminConsentDescription": "Allow the application to access a subset of listitems on behalf of the signed in user.  The specific listitems and the permissions granted will be configured in SharePoint Online.",
+        "adminConsentDisplayName": "Access selected ListItems, on behalf of the signed-in user",
+        "id": "d6d361b3-211a-4191-9fa7-15f72de4aac4",
+        "isEnabled": true,
+        "isAdmin": false,
+        "consentDescription": "Allow the application to access a subset of listitems on behalf of the signed in user.  The specific listitems and the permissions granted will be configured in SharePoint Online.",
+        "consentDisplayName": "Access selected ListItems, on behalf of the signed-in user",
+        "value": "ListItems.SelectedOperations.Selected"
+      },
+      {
+        "adminConsentDescription": "Allow the application to access a subset of lists on behalf of the signed in user.  The specific lists and the permissions granted will be configured in SharePoint Online.",
+        "adminConsentDisplayName": "Access selected Lists, on behalf of the signed-in user",
+        "id": "033b51ee-d6fa-4add-b627-ee680c7212b5",
+        "isEnabled": true,
+        "isAdmin": false,
+        "consentDescription": "Allow the application to access a subset of lists on behalf of the signed in user.  The specific lists and the permissions granted will be configured in SharePoint Online.",
+        "consentDisplayName": "Access selected Lists, on behalf of the signed-in user",
+        "value": "Lists.SelectedOperations.Selected"
+      },
+      {
+        "adminConsentDescription": "Allows the app to read and query audit logs from all services, on behalf of a signed-in user",
+        "adminConsentDisplayName": "Read audit logs data from all services",
+        "id": "1d9e7ac3-0eca-442c-82f9-e92625af6e6d",
+        "isEnabled": true,
+        "isAdmin": false,
+        "consentDescription": "Allows the app to read and query audit logs from all services, on your behalf",
+        "consentDisplayName": "Read audit logs data from all services",
+        "value": "AuditLogsQuery.Read.All"
       }
     ],
     "applicationScopesList": [
@@ -5205,6 +5265,72 @@
         "isEnabled": true,
         "isAdmin": false,
         "value": "Mail.ReadBasic.All"
+      },
+      {
+        "allowedMemberTypes": [
+          "Application"
+        ],
+        "consentDescription": "Allows the app to create, read, update and delete all users' tasks and task lists in your organization, without a signed-in user.",
+        "consentDisplayName": "Read and write all users' tasks and tasklists",
+        "id": "44e666d1-d276-445b-a5fc-8815eeb81d55",
+        "isEnabled": true,
+        "isAdmin": false,
+        "value": "Tasks.ReadWrite.All"
+      },
+      {
+        "allowedMemberTypes": [
+          "Application"
+        ],
+        "consentDescription": "Allows the app to read all users' tasks and task lists in your organization, without a signed-in user.",
+        "consentDisplayName": "Read all users' tasks and tasklist",
+        "id": "f10e1f91-74ed-437f-a6fd-d6ae88e26c1f",
+        "isEnabled": true,
+        "isAdmin": false,
+        "value": "Tasks.Read.All"
+      },
+      {
+        "allowedMemberTypes": [
+          "Application"
+        ],
+        "consentDescription": "Allows the app to read and query your audit log activities, without a signed-in user.",
+        "consentDisplayName": "Read audit logs data from all services",
+        "id": "5e1e9171-754d-478c-812c-f1755a9a4c2d",
+        "isEnabled": true,
+        "isAdmin": false,
+        "value": "AuditLogsQuery.Read.All"
+      },
+      {
+        "allowedMemberTypes": [
+          "Application"
+        ],
+        "consentDescription": "Allow the application to access a subset of files without a signed in user.  The specific files and the permissions granted will be configured in SharePoint Online or OneDrive.",
+        "consentDisplayName": "Access selected Files without a signed in user.",
+        "id": "bd61925e-3bf4-4d62-bc0b-06b06c96d95c",
+        "isEnabled": true,
+        "isAdmin": false,
+        "value": "Files.SelectedOperations.Selected"
+      },
+      {
+        "allowedMemberTypes": [
+          "Application"
+        ],
+        "consentDescription": "Allow the application to access a subset of listitems without a signed in user.  The specific listitems and the permissions granted will be configured in SharePoint Online.",
+        "consentDisplayName": "Access selected ListItems without a signed in user.",
+        "id": "de4e4161-a10a-4dfd-809c-e328d89aefeb",
+        "isEnabled": true,
+        "isAdmin": false,
+        "value": "ListItems.SelectedOperations.Selected"
+      },
+      {
+        "allowedMemberTypes": [
+          "Application"
+        ],
+        "consentDescription": "Allow the application to access a subset of lists without a signed in user.  The specific lists and the permissions granted will be configured in SharePoint Online.",
+        "consentDisplayName": "Access selected Lists without a signed in user.",
+        "id": "23c5a9bd-d900-4ecf-be26-a0689755d9e5",
+        "isEnabled": true,
+        "isAdmin": false,
+        "value": "Lists.SelectedOperations.Selected"
       }
     ]
   }

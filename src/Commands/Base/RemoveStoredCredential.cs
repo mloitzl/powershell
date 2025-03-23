@@ -1,11 +1,10 @@
 ﻿using System.Management.Automation;
 
-
 namespace PnP.PowerShell.Commands.Base
 {
     [Cmdlet(VerbsCommon.Remove, "PnPStoredCredential")]
     [OutputType(typeof(void))]
-    public class RemoveStoredCredential : PSCmdlet
+    public class RemoveStoredCredential : BasePSCmdlet
     {
         [Parameter(Mandatory = true)]
         public string Name;
@@ -18,17 +17,17 @@ namespace PnP.PowerShell.Commands.Base
             var cred = Utilities.CredentialManager.GetCredential(Name);
             if (cred != null)
             {
-                if (Force || ShouldContinue($"Remove credential {Name}?", "Confirm"))
+                if (Force || ShouldContinue($"Remove credential {Name}?", Properties.Resources.Confirm))
                 {
                     if (!Utilities.CredentialManager.RemoveCredential(Name))
                     {
-                        WriteError(new ErrorRecord(new System.Exception($"Credential {Name} not removed"), "CREDENTIALNOTREMOVED", ErrorCategory.WriteError, Name));
+                        LogError($"Credential {Name} not removed");
                     }
                 }
             }
             else
             {
-                WriteError(new ErrorRecord(new System.Exception($"Credential {Name} not found"), "CREDENTIALNOTFOUND", ErrorCategory.ObjectNotFound, Name));
+                LogError($"Credential {Name} not found");
             }
         }
     }

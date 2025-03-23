@@ -1,9 +1,6 @@
 ﻿using System.Management.Automation;
 using Microsoft.SharePoint.Client;
 
-using PnP.PowerShell.Commands.Enums;
-using System;
-
 namespace PnP.PowerShell.Commands.Principals
 {
     [Cmdlet(VerbsCommon.New, "PnPGroup")]
@@ -29,18 +26,10 @@ namespace PnP.PowerShell.Commands.Principals
         public SwitchParameter AllowMembersEditMembership;
 
         [Parameter(Mandatory = false)]
-        [Obsolete("This is done by default. Use DisallowMembersViewMembership to disallow group members viewing membership")]
-        public SwitchParameter OnlyAllowMembersViewMembership;
-
-        [Parameter(Mandatory = false)]
         public SwitchParameter DisallowMembersViewMembership;
 
         [Parameter(Mandatory = false)]
         public string RequestToJoinEmail;
-
-        [Parameter(Mandatory = false)] // Not promoted to use anymore. Use Set-PnPGroup
-        [Obsolete("Use Set-PnPGroup.")]
-        public AssociatedGroupType SetAssociatedGroup = AssociatedGroupType.None;
 
         protected override void ExecuteCmdlet()
         {
@@ -70,13 +59,6 @@ namespace PnP.PowerShell.Commands.Principals
                 group.AllowMembersEditMembership = true;
                 dirty = true;
             }
-#pragma warning disable 618
-            if (OnlyAllowMembersViewMembership)
-#pragma warning restore 618
-            {
-                group.OnlyAllowMembersViewMembership = true;
-                dirty = true;
-            }
             if (DisallowMembersViewMembership)
             {
                 group.OnlyAllowMembersViewMembership = false;
@@ -86,6 +68,30 @@ namespace PnP.PowerShell.Commands.Principals
             {
                 group.RequestToJoinLeaveEmailSetting = RequestToJoinEmail;
                 dirty = true;
+            }
+
+            if (!string.IsNullOrEmpty(Description))
+            {
+                var groupItem = CurrentWeb.SiteUserInfoList.GetItemById(group.Id);
+                CurrentWeb.Context.Load(groupItem, g => g["Notes"]);
+                CurrentWeb.Context.ExecuteQueryRetry();
+
+                var groupDescription = groupItem["Notes"]?.ToString();
+
+                if (groupDescription != Description)
+                {
+                    groupItem["Notes"] = Description;
+                    groupItem.Update();
+                    dirty = true;
+                }
+
+                var plainTextDescription = Framework.Utilities.PnPHttpUtility.ConvertSimpleHtmlToText(Description, int.MaxValue);
+                if (group.Description != plainTextDescription)
+                {
+                    //If the description is more than 512 characters long a server exception will be thrown.
+                    group.Description = plainTextDescription;                    
+                    dirty = true;
+                }
             }
 
             if (dirty)
@@ -113,32 +119,6 @@ namespace PnP.PowerShell.Commands.Principals
                     ClientContext.ExecuteQueryRetry();
                 }
             }
-
-
-#pragma warning disable CS0618 // Type or member is obsolete
-            if (SetAssociatedGroup != AssociatedGroupType.None)
-
-            {
-                switch (SetAssociatedGroup)
-                {
-                    case AssociatedGroupType.Visitors:
-                        {
-                            web.AssociateDefaultGroups(null, null, group);
-                            break;
-                        }
-                    case AssociatedGroupType.Members:
-                        {
-                            web.AssociateDefaultGroups(null, group, null);
-                            break;
-                        }
-                    case AssociatedGroupType.Owners:
-                        {
-                            web.AssociateDefaultGroups(group, null, null);
-                            break;
-                        }
-                }
-            }
-#pragma warning restore CS0618 // Type or member is obsolete
 
             ClientContext.ExecuteQueryRetry();
             WriteObject(group);

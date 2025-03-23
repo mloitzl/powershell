@@ -1,6 +1,5 @@
 ﻿using System.Management.Automation;
 using Microsoft.SharePoint.Client;
-
 using PnP.PowerShell.Commands.Enums;
 
 namespace PnP.PowerShell.Commands
@@ -40,7 +39,7 @@ namespace PnP.PowerShell.Commands
                 }
                 else
                 {
-                    WriteWarning("Tenant app catalog is not available on this tenant.");
+                    LogWarning("Tenant app catalog is not available on this tenant.");
                 }
             }
             else
@@ -55,7 +54,7 @@ namespace PnP.PowerShell.Commands
                 }
                 else
                 {
-                    WriteWarning("Site Collection App Catalog is not available on this site.");
+                    LogWarning("Site Collection App Catalog is not available on this site.");
                 }
             }
         }

@@ -1,5 +1,4 @@
 ﻿using Microsoft.SharePoint.Client;
-
 using PnP.PowerShell.Commands.Base;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 using System;
@@ -8,7 +7,7 @@ using System.Management.Automation;
 namespace PnP.PowerShell.Commands.Admin
 {
     [Cmdlet(VerbsCommon.Set, "PnPHubSite")]
-    public class SetHubSite : PnPAdminCmdlet
+    public class SetHubSite : PnPSharePointOnlineAdminCmdlet
     {
         [Parameter(Position = 0, ValueFromPipeline = true, Mandatory = true)]
         public HubSitePipeBind Identity { get; set; }
@@ -40,7 +39,7 @@ namespace PnP.PowerShell.Commands.Admin
         protected override void ExecuteCmdlet()
         {
             var hubSiteProperties = Identity.GetHubSite(Tenant);
-            ClientContext.Load(hubSiteProperties);
+            AdminContext.Load(hubSiteProperties);
             if (ParameterSpecified(nameof(Title)))
             {
                 hubSiteProperties.Title = Title;
@@ -74,7 +73,7 @@ namespace PnP.PowerShell.Commands.Admin
                 hubSiteProperties.ParentHubSiteId = ParentHubSiteId;
             }
             hubSiteProperties.Update();
-            ClientContext.ExecuteQueryRetry();
+            AdminContext.ExecuteQueryRetry();
         }
     }
 }

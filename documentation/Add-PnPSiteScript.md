@@ -20,10 +20,12 @@ Creates a new Site Script on the current tenant
 ## SYNTAX
 
 ```powershell
-Add-PnPSiteScript -Title <String> [-Description <String>] -Content <String> [-Connection <PnPConnection>] [<CommonParameters>]
+Add-PnPSiteScript -Title <String> [-Description <String>] -Content <String> [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
+
+Allows to add a Site Script on the current tenant.
 
 ## EXAMPLES
 
@@ -66,7 +68,7 @@ Accept wildcard characters: False
 ```
 
 ### -Content
-A JSON string containing the site script. See https://docs.microsoft.com/sharepoint/dev/declarative-customization/site-design-json-schema for documentation on how to create such a JSON schema.
+A JSON string containing the site script. See https://learn.microsoft.com/sharepoint/dev/declarative-customization/site-design-json-schema for documentation on how to create such a JSON schema.
 
 ```yaml
 Type: String
@@ -101,21 +103,6 @@ Type: String
 Parameter Sets: (All)
 
 Required: True
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -WhatIf
-Shows what would happen if the cmdlet runs. The cmdlet is not run.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: wi
-
-Required: False
 Position: Named
 Default value: None
 Accept pipeline input: False

@@ -17,10 +17,12 @@ Creates a communication site object
 ```powershell
 New-PnPTenantSequenceCommunicationSite -Url <String> -Title <String> [-Language <UInt32>] [-Owner <String>]
  [-Description <String>] [-Classification <String>] [-SiteDesignId <String>] [-HubSite]
- [-AllowFileSharingForGuestUsers] [-TemplateIds <String[]>]   [<CommonParameters>]
+ [-AllowFileSharingForGuestUsers] [-TemplateIds <String[]>]   
 ```
 
 ## DESCRIPTION
+
+Allows to create a new communication site object.
 
 ## EXAMPLES
 
@@ -157,21 +159,6 @@ Type: String
 Parameter Sets: (All)
 
 Required: True
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -WhatIf
-Shows what would happen if the cmdlet runs. The cmdlet is not run.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: wi
-
-Required: False
 Position: Named
 Default value: None
 Accept pipeline input: False

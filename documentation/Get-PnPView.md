@@ -16,10 +16,12 @@ Returns one or all views from a list
 
 ```powershell
 Get-PnPView [-List] <ListPipeBind> [-Identity <ViewPipeBind>] 
- [-Connection <PnPConnection>] [-Includes <String[]>] [<CommonParameters>]
+ [-Connection <PnPConnection>] [-Includes <String[]>] 
 ```
 
 ## DESCRIPTION
+
+Allows to retrieve list of views from a list. By using `Identity` option it is possible to retrieve a specific view.
 
 ## EXAMPLES
 
@@ -88,6 +90,19 @@ Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
+### -Includes
+Optionally allows properties to be retrieved for the returned list view which are not included in the response by default
+
+```yaml
+Type: String[]
+Parameter Sets: (All)
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 
 ## RELATED LINKS

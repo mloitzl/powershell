@@ -1,15 +1,15 @@
 ﻿
+using PnP.PowerShell.Commands.Attributes;
 using PnP.PowerShell.Commands.Base;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 using PnP.PowerShell.Commands.Utilities;
-using PnP.PowerShell.Commands.Attributes;
 using System.Management.Automation;
 
-namespace PnP.PowerShell.Commands.Graph
+namespace PnP.PowerShell.Commands.Teams
 {
     [Cmdlet(VerbsCommon.Get, "PnPTeamsApp")]
-    [RequiredMinimalApiPermissions("Directory.Read.All")]
-
+    [RequiredApiApplicationPermissions("graph/Directory.Read.All")]
+    [RequiredApiApplicationPermissions("graph/Directory.ReadWrite.All")]
     [TokenType(TokenType = TokenType.Delegate)]
     public class GetTeamsApp : PnPGraphCmdlet
     {
@@ -20,7 +20,7 @@ namespace PnP.PowerShell.Commands.Graph
         {
             if (ParameterSpecified(nameof(Identity)))
             {
-                var app = Identity.GetApp(Connection, AccessToken);
+                var app = Identity.GetApp(GraphRequestHelper);
                 if (app != null)
                 {
                     WriteObject(app);
@@ -28,7 +28,7 @@ namespace PnP.PowerShell.Commands.Graph
             }
             else
             {
-                WriteObject(TeamsUtility.GetAppsAsync(AccessToken, Connection).GetAwaiter().GetResult(), true);
+                WriteObject(TeamsUtility.GetApps(GraphRequestHelper), true);
             }
         }
     }

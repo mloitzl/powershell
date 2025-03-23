@@ -16,10 +16,12 @@ Returns the available languages on the current web
 
 ```powershell
 Get-PnPAvailableLanguage [[-Identity] <WebPipeBind>] [-Connection <PnPConnection>] [-Includes <String[]>]
- [<CommonParameters>]
+ 
 ```
 
 ## DESCRIPTION
+
+Allows to retrieve available languages from the current site.
 
 ## EXAMPLES
 
@@ -57,6 +59,20 @@ Required: False
 Position: 0
 Default value: None
 Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
+### -Includes
+Optionally allows properties to be retrieved for the returned web language which are not included in the response by default
+
+```yaml
+Type: String[]
+Parameter Sets: (All)
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 

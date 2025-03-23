@@ -21,10 +21,12 @@ Grant additional permissions to the permissions already in place to associate si
 
 ```powershell
 Grant-PnPHubSiteRights [-Identity] <HubSitePipeBind> -Principals <String[]> [-Connection <PnPConnection>]
- [<CommonParameters>]
+ 
 ```
 
 ## DESCRIPTION
+
+Allows to add additional permissions to existing once to associate sites to Hub Sites for specified users.
 
 ## EXAMPLES
 

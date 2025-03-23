@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Management.Automation;
+﻿using System.Management.Automation;
 using Microsoft.SharePoint.Client;
 
 using PnP.PowerShell.Commands.Base.PipeBinds;
@@ -29,7 +28,7 @@ namespace PnP.PowerShell.Commands.Principals
                 // Get group by name using Core SDK because of
                 // case sensitivity difference between Core SDK and CSOM
                 // Loads group using CSOM to bypass a breaking change
-                var pnpGroup = Identity.GetGroup(PnPContext);
+                var pnpGroup = Identity.GetGroup(Connection.PnPContext);
 
                 if (pnpGroup != null)
                 {

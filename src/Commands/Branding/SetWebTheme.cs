@@ -10,7 +10,6 @@ using PnP.PowerShell.Commands.Utilities;
 namespace PnP.PowerShell.Commands.Branding
 {
     [Cmdlet(VerbsCommon.Set, "PnPWebTheme")]
-
     public class SetWebTheme : PnPWebCmdlet
     {
         [Parameter(Mandatory = false, Position = 0, ValueFromPipeline = true)]
@@ -22,7 +21,7 @@ namespace PnP.PowerShell.Commands.Branding
         protected override void ExecuteCmdlet()
         {
             var url = CurrentWeb.EnsureProperty(w => w.Url);
-            var tenantUrl = UrlUtilities.GetTenantAdministrationUrl(ClientContext.Url);
+            var tenantUrl = Connection.TenantAdminUrl ?? UrlUtilities.GetTenantAdministrationUrl(ClientContext.Url);
             using (var tenantContext = ClientContext.Clone(tenantUrl))
             {
                 var tenant = new Tenant(tenantContext);

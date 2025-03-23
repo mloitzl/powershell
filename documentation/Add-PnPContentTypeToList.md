@@ -16,10 +16,12 @@ Adds a new content type to a list
 
 ```powershell
 Add-PnPContentTypeToList -List <ListPipeBind> -ContentType <ContentTypePipeBind> [-DefaultContentType]
- [-Connection <PnPConnection>] [<CommonParameters>]
+ [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
+
+Allows to add content type to list. By specifying `-DefaultContentType` option it is possible set the newly added content type as default.
 
 ## EXAMPLES
 

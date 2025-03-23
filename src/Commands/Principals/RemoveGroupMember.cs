@@ -1,33 +1,30 @@
-﻿using System.Linq;
-using System.Management.Automation;
-using Microsoft.SharePoint.Client;
+﻿using System.Management.Automation;
 using PnP.Core;
-using PnP.PowerShell.Commands.Attributes;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 
 namespace PnP.PowerShell.Commands.Principals
 {
     [Cmdlet(VerbsCommon.Remove, "PnPGroupMember")]
-    
+    [OutputType(typeof(void))]    
     public class RemoveUserFromGroup : PnPWebCmdlet
     {
 
         [Parameter(Mandatory = true)]
         public string LoginName = string.Empty;
 
-        [Parameter(Mandatory = true)]
+        [Parameter(Mandatory = true, ValueFromPipeline = true)]
         [Alias("Identity")]
         public GroupPipeBind Group;
 
         protected override void ExecuteCmdlet()
         {
-            var group = Group.GetGroup(PnPContext);
+            var group = Group.GetGroup(Connection.PnPContext);
 
             if (group != null)
             {
                 try
                 {
-                    var user = PnPContext.Web.EnsureUser(LoginName);
+                    var user = Connection.PnPContext.Web.EnsureUser(LoginName);
                     group.RemoveUser(user.Id);
                 }
                 catch (PnP.Core.SharePointRestServiceException ex)

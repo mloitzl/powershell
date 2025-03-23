@@ -6,7 +6,7 @@ namespace PnP.PowerShell.Commands.Site
 {
     [Cmdlet(VerbsCommon.Set, "PnPStructuralNavigationCacheSiteState")]
     [OutputType(typeof(void))]
-    public class SetStructuralNavigationCacheSiteState : PnPAdminCmdlet
+    public class SetStructuralNavigationCacheSiteState : PnPSharePointOnlineAdminCmdlet
     {
         [Parameter(Mandatory = false, ValueFromPipeline = true)]
         public string SiteUrl;
@@ -22,7 +22,7 @@ namespace PnP.PowerShell.Commands.Site
                 url = SiteUrl;
             }
             this.Tenant.SetSPOStructuralNavigationCacheSiteState(url,IsEnabled);
-            ClientContext.ExecuteQueryRetry();
+            AdminContext.ExecuteQueryRetry();
         }
     }
 }

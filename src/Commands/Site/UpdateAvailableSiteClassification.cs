@@ -8,9 +8,10 @@ using System.Management.Automation;
 namespace PnP.PowerShell.Commands.Site
 {
     [Cmdlet(VerbsData.Update, "PnPAvailableSiteClassification")]
-    [RequiredMinimalApiPermissions("Directory.ReadWrite.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/Directory.ReadWrite.All")]
     [Alias("Update-SiteClassification")]
     [WriteAliasWarning("Please use 'Update-PnPAvailableSiteClassification'. The alias 'Update-PnPSiteClassification' will be removed in a future release.")]
+    [OutputType(typeof(void))]
     public class UpdateAvailableSiteClassification : PnPGraphCmdlet
     {
         const string ParameterSet_SETTINGS = "Settings";
@@ -37,7 +38,7 @@ namespace PnP.PowerShell.Commands.Site
 
                 if (ParameterSetName == ParameterSet_SETTINGS)
                 {
-                    if(siteClassificationSettings.Classifications != Settings.Classifications)
+                    if (siteClassificationSettings.Classifications != Settings.Classifications)
                     {
                         siteClassificationSettings.Classifications = Settings.Classifications;
                         changed = true;
@@ -75,7 +76,7 @@ namespace PnP.PowerShell.Commands.Site
                         }
                         else
                         {
-                            WriteError(new ErrorRecord(new InvalidOperationException("You are trying to set the default classification to a value that is not available in the list of possible values. Use Get-PnPAvailableSiteClassification see which site classifications you can use."), "SITECLASSIFICATION_DEFAULTVALUE_INVALID", ErrorCategory.InvalidArgument, null));
+                            LogError("You are trying to set the default classification to a value that is not available in the list of possible values. Use Get-PnPAvailableSiteClassification see which site classifications you can use.");
                         }
                     }
                     if (ParameterSpecified(nameof(UsageGuidelinesUrl)))
@@ -86,7 +87,7 @@ namespace PnP.PowerShell.Commands.Site
                             changed = true;
                         }
                     }
-                }                
+                }
                 if (changed)
                 {
                     PnP.Framework.Graph.SiteClassificationsUtility.UpdateSiteClassificationsSettings(AccessToken, siteClassificationSettings);
@@ -96,7 +97,7 @@ namespace PnP.PowerShell.Commands.Site
             {
                 if (ex.Message == @"Missing DirectorySettingTemplate for ""Group.Unified""")
                 {
-                    WriteError(new ErrorRecord(new InvalidOperationException("Site Classification is not enabled for this tenant. Use Enable-PnPSiteClassification to enable classifications."), "SITECLASSIFICATION_NOT_ENABLED", ErrorCategory.ResourceUnavailable, null));
+                    LogError(new InvalidOperationException("Site Classification is not enabled for this tenant. Use Enable-PnPSiteClassification to enable classifications."));
                 }
                 else
                 {

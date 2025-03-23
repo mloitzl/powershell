@@ -21,18 +21,18 @@ Submit up a new user profile bulk import job.
 
 ```powershell
 New-PnPUPABulkImportJob [-Folder] <String> [-Path] <String> [-UserProfilePropertyMapping] <Hashtable>
- [-IdProperty] <String> [[-IdType] <ImportProfilePropertiesUserIdType>] [-Wait] [-Verbose] [-Connection <PnPConnection>]
- [<CommonParameters>]
+ [-IdProperty] <String> [[-IdType] <ImportProfilePropertiesUserIdType>] [-Wait] [-Verbose] [-Connection <PnPConnection>] [-WhatIf]
+ 
 ```
 
 ```powershell
 New-PnPUPABulkImportJob -Url <String> [-UserProfilePropertyMapping] <Hashtable>
- [-IdProperty] <String> [[-IdType] <ImportProfilePropertiesUserIdType>] [-Wait] [-Verbose] [-Connection <PnPConnection>]
- [<CommonParameters>]
+ [-IdProperty] <String> [[-IdType] <ImportProfilePropertiesUserIdType>] [-Wait] [-Verbose] [-Connection <PnPConnection>] [-WhatIf]
+ 
 ```
 
 ## DESCRIPTION
-See https://docs.microsoft.com/sharepoint/dev/solution-guidance/bulk-user-profile-update-api-for-sharepoint-online for information on the API and how the bulk import process works.
+See https://learn.microsoft.com/sharepoint/dev/solution-guidance/bulk-user-profile-update-api-for-sharepoint-online for information on the API and how the bulk import process works.
 
 ## EXAMPLES
 
@@ -173,6 +173,21 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -WhatIf
+Shows what would happen if the cmdlet runs. The cmdlet is not run.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: wi
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Wait
 Adding this parameter will cause the script to start the user profile sync operation and wait with proceeding with the rest of the script until the user profiles have been imported into the SharePoint Online user profile. It can take a long time for the user profile sync operation to complete. It will check every 30 seconds for the current status of the job, to avoid getting throttled. The check interval is non configurable.
 
@@ -206,4 +221,4 @@ Accept wildcard characters: False
 ## RELATED LINKS
 
 [Microsoft 365 Patterns and Practices](https://aka.ms/m365pnp)
-[Bulk update custom user profile properties for SharePoint Online](https://docs.microsoft.com/sharepoint/dev/solution-guidance/bulk-user-profile-update-api-for-sharepoint-online)
+[Bulk update custom user profile properties for SharePoint Online](https://learn.microsoft.com/sharepoint/dev/solution-guidance/bulk-user-profile-update-api-for-sharepoint-online)

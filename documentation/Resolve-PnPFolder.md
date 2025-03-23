@@ -16,7 +16,7 @@ Returns a folder from a given site relative path, and will create it if it does 
 
 ```powershell
 Resolve-PnPFolder [-SiteRelativePath] <String> [-Connection <PnPConnection>]
- [-Includes <String[]>] [<CommonParameters>]
+ [-Includes <String[]>] 
 ```
 
 ## DESCRIPTION
@@ -56,6 +56,20 @@ Parameter Sets: (All)
 
 Required: True
 Position: 0
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Includes
+Optionally allows properties to be retrieved for the folder which are not included in the response by default
+
+```yaml
+Type: String[]
+Parameter Sets: (All)
+
+Required: False
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

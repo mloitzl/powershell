@@ -17,16 +17,18 @@ Adds a wiki page
 ### WithContent
 ```powershell
 Add-PnPWikiPage -ServerRelativePageUrl <String> -Content <String> 
- [-Connection <PnPConnection>] [<CommonParameters>]
+ [-Connection <PnPConnection>] 
 ```
 
 ### WithLayout
 ```powershell
 Add-PnPWikiPage -ServerRelativePageUrl <String> -Layout <WikiPageLayout> 
- [-Connection <PnPConnection>] [<CommonParameters>]
+ [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
+
+Allows to add a wiki page.
 
 ## EXAMPLES
 

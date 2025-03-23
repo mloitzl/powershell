@@ -20,10 +20,12 @@ Removes members from a particular Azure Active Directory group. This can be a se
 ## SYNTAX
 
 ```powershell
-Remove-PnPAzureADGroupMember -Identity <AzureADGroupPipeBind> -Users <String[]> [<CommonParameters>]
+Remove-PnPAzureADGroupMember -Identity <AzureADGroupPipeBind> -Users <String[]> 
 ```
 
 ## DESCRIPTION
+
+Allows to remove members from Azure Active Directory group.
 
 ## EXAMPLES
 
@@ -67,4 +69,4 @@ Accept wildcard characters: False
 ## RELATED LINKS
 
 [Microsoft 365 Patterns and Practices](https://aka.ms/m365pnp)
-[Microsoft Graph documentation](https://docs.microsoft.com/graph/api/group-delete-members)
+[Microsoft Graph documentation](https://learn.microsoft.com/graph/api/group-delete-members)

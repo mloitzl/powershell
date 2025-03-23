@@ -7,16 +7,11 @@ using PnP.PowerShell.Commands.Base.PipeBinds;
 using PnP.Framework.Modernization.Transform;
 using PnP.Framework.Modernization.Publishing;
 using PnP.Framework.Modernization.Telemetry.Observers;
-using PnP.PowerShell.ALC;
 using PnP.Framework.Modernization.Cache;
-using PnP.PowerShell.Commands.Attributes;
 
 namespace PnP.PowerShell.Commands.Pages
 {
-    [Cmdlet(VerbsData.Export, "PnPPageMapping")]
-    [Alias("Export-PnPClientSidePageMapping")]
-    [WriteAliasWarning("Please use 'Export-PnPPageMapping'. The alias 'Export-PnPClientSidePageMapping' will be removed in the 1.5.0 release")]
-
+    [Cmdlet(VerbsData.Export, "PnPPageMapping")]    
     public class ExportPageMapping : PnPWebCmdlet
     {
         private Assembly sitesCoreAssembly;
@@ -152,8 +147,8 @@ namespace PnP.PowerShell.Commands.Pages
         {
             get
             {
-                string codeBase = Assembly.GetExecutingAssembly().CodeBase;
-                UriBuilder uri = new UriBuilder(codeBase);
+                string location = Assembly.GetExecutingAssembly().Location;
+                UriBuilder uri = new UriBuilder(location);
                 string path = Uri.UnescapeDataString(uri.Path);
                 return Path.GetDirectoryName(path);
             }

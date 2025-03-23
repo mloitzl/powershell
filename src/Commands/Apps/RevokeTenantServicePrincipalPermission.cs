@@ -10,8 +10,7 @@ using System.Management.Automation;
 namespace PnP.PowerShell.Commands.Apps
 {
     [Cmdlet(VerbsSecurity.Revoke, "PnPTenantServicePrincipalPermission")]
-    [RequiredMinimalApiPermissions("Directory.ReadWrite.All")]
-
+    [RequiredApiDelegatedOrApplicationPermissions("graph/Directory.ReadWrite.All")]
     public class RevokeTenantServicePrincipal : PnPGraphCmdlet
     {
         [Parameter(Mandatory = true)]
@@ -25,16 +24,15 @@ namespace PnP.PowerShell.Commands.Apps
 
         protected override void ExecuteCmdlet()
         {
-
-            var tenantUrl = UrlUtilities.GetTenantAdministrationUrl(ClientContext.Url);
+            var tenantUrl = Connection.TenantAdminUrl ?? UrlUtilities.GetTenantAdministrationUrl(ClientContext.Url);
             using (var tenantContext = ClientContext.Clone(tenantUrl))
             {
                 var spoWebAppServicePrincipal = new SPOWebAppServicePrincipal(tenantContext);
                 var appId = spoWebAppServicePrincipal.EnsureProperty(a => a.AppId);
-                var results = GraphHelper.GetAsync<RestResultCollection<ServicePrincipal>>(Connection, $"/v1.0/servicePrincipals?$filter=appId eq '{appId}'&$select=id", AccessToken).GetAwaiter().GetResult();
+                var results = GraphRequestHelper.Get<RestResultCollection<ServicePrincipal>>($"/v1.0/servicePrincipals?$filter=appId eq '{appId}'&$select=id");
                 if (results.Items.Any())
                 {
-                    if (Force || ShouldContinue($"Revoke permission {Scope}?", "Continue"))
+                    if (Force || ShouldContinue($"Revoke permission {Scope}?", Properties.Resources.Confirm))
                     {
                         var servicePrincipal = results.Items.First();
                         spoWebAppServicePrincipal.GrantManager.Remove(servicePrincipal.Id, Resource, Scope);

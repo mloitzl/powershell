@@ -18,10 +18,12 @@ Returns a taxonomy term group
 Get-PnPTermGroup
  [-Identity <TaxonomyTermGroupPipeBind>]
  [-TermStore <TaxonomyTermStorePipeBind>]
- [-Connection <PnPConnection>] [-Includes <String[]>] [<CommonParameters>]
+ [-Connection <PnPConnection>] [-Includes <String[]>] 
 ```
 
 ## DESCRIPTION
+
+Allows to retrieve a taxonomy term group.
 
 ## EXAMPLES
 
@@ -70,6 +72,20 @@ Term store to use; if not specified the default term store is used.
 Type: TaxonomyTermStorePipeBind
 Parameter Sets: (All)
 Aliases: TermStoreName
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Includes
+Optionally allows properties to be retrieved for the returned term group(s) which are not included in the response by default
+
+```yaml
+Type: String[]
+Parameter Sets: (All)
 
 Required: False
 Position: Named

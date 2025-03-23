@@ -8,6 +8,7 @@ using PnP.PowerShell.Commands.Attributes;
 using PnP.PowerShell.Commands.Base;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 using PnP.PowerShell.Commands.Model;
+using PnP.PowerShell.Commands.Utilities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -18,8 +19,8 @@ using System.Management.Automation;
 namespace PnP.PowerShell.Commands.Provisioning.Tenant
 {
     [Cmdlet(VerbsLifecycle.Invoke, "PnPTenantTemplate")]
-    [RequiredMinimalApiPermissions("Group.ReadWrite.All")]
-    public class InvokeTenantTemplate : PnPAdminCmdlet
+    [RequiredApiDelegatedOrApplicationPermissions("graph/Group.ReadWrite.All")]
+    public class InvokeTenantTemplate : PnPSharePointOnlineAdminCmdlet
     {
         private const string ParameterSet_PATH = "By Path";
         private const string ParameterSet_OBJECT = "By Object";
@@ -166,7 +167,7 @@ namespace PnP.PowerShell.Commands.Provisioning.Tenant
                         {
                             if (!warningsShown.Contains(message))
                             {
-                                WriteWarning(message);
+                                LogWarning(message);
                                 warningsShown.Add(message);
                             }
                             break;
@@ -294,7 +295,7 @@ namespace PnP.PowerShell.Commands.Provisioning.Tenant
                 }
                 catch
                 {
-                    throw new PSInvalidOperationException($"Your template contains artifacts that require an access token for https://{Connection.GraphEndPoint}. Please provide consent to the PnP Management Shell application first by executing: Register-PnPManagementShellAccess");
+                    throw new PSInvalidOperationException($"Your template contains artifacts that require an access token for https://{Connection.GraphEndPoint}. Please provide consent to the EntraID application first by executing: Register-PnPEntraIDApp or Register-PnPEntraIDAppForInteractiveLogin");
                 }
             }
 
@@ -335,9 +336,9 @@ namespace PnP.PowerShell.Commands.Provisioning.Tenant
             }
             if (System.IO.File.Exists(Path))
             {
-                return ReadTenantTemplate.LoadProvisioningHierarchyFromFile(Path, (e) =>
+                return ProvisioningHelper.LoadTenantTemplateFromFile(Path, (e) =>
                  {
-                     WriteError(new ErrorRecord(e, "TEMPLATENOTVALID", ErrorCategory.SyntaxError, null));
+                     LogError(e);
                  });
             }
             else

@@ -10,16 +10,18 @@ online version: https://pnp.github.io/powershell/cmdlets/Get-PnPTenantSequenceSi
 # Get-PnPTenantSequenceSite
 
 ## SYNOPSIS
-Returns one ore more sites from a tenant template
+Returns one or more sites from a tenant template
 
 ## SYNTAX
 
 ```powershell
 Get-PnPTenantSequenceSite -Sequence <ProvisioningSequence> [-Identity <ProvisioningSitePipeBind>] 
-  [<CommonParameters>]
+  
 ```
 
 ## DESCRIPTION
+
+Allows to retrieve list of sites from tenant template sequence.
 
 ## EXAMPLES
 
@@ -76,21 +78,6 @@ Type: ProvisioningSequence
 Parameter Sets: (All)
 
 Required: True
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -WhatIf
-Shows what would happen if the cmdlet runs. The cmdlet is not run.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: wi
-
-Required: False
 Position: Named
 Default value: None
 Accept pipeline input: False

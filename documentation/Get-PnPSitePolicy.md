@@ -16,10 +16,12 @@ Retrieves all or a specific site policy
 
 ```powershell
 Get-PnPSitePolicy [-AllAvailable] [-Name <String>] [-Connection <PnPConnection>]
- [<CommonParameters>]
+ 
 ```
 
 ## DESCRIPTION
+
+Allows to retrieve site policies.
 
 ## EXAMPLES
 

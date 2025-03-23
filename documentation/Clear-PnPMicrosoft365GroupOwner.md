@@ -20,10 +20,12 @@ Removes all current owners from a particular Microsoft 365 Group (aka Unified Gr
 ## SYNTAX
 
 ```powershell
-Clear-PnPMicrosoft365GroupOwner -Identity <Microsoft365GroupPipeBind> [<CommonParameters>]
+Clear-PnPMicrosoft365GroupOwner -Identity <Microsoft365GroupPipeBind> 
 ```
 
 ## DESCRIPTION
+
+Allows to remove all current owners from a specified Microsoft 365 Group.
 
 ## EXAMPLES
 
@@ -53,4 +55,4 @@ Accept wildcard characters: False
 ## RELATED LINKS
 
 [Microsoft 365 Patterns and Practices](https://aka.ms/m365pnp)
-[Microsoft Graph documentation](https://docs.microsoft.com/graph/api/group-delete-owners)
+[Microsoft Graph documentation](https://learn.microsoft.com/graph/api/group-delete-owners)

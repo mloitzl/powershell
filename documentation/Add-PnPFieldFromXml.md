@@ -16,10 +16,12 @@ Adds a field to a list or as a site column based upon a CAML/XML field definitio
 
 ```powershell
 Add-PnPFieldFromXml [-List <ListPipeBind>] [-FieldXml] <String> 
- [-Connection <PnPConnection>] [<CommonParameters>]
+ [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
+
+Allows to add new field by specifying its definition in CAML/XML format to list or site columns.
 
 ## EXAMPLES
 
@@ -56,7 +58,7 @@ Accept wildcard characters: False
 ```
 
 ### -FieldXml
-CAML snippet containing the field definition. See https://docs.microsoft.com/sharepoint/dev/schema/field-element-list
+CAML snippet containing the field definition. See https://learn.microsoft.com/sharepoint/dev/schema/field-element-list
 
 ```yaml
 Type: String
@@ -88,4 +90,4 @@ Accept wildcard characters: False
 ## RELATED LINKS
 
 [Microsoft 365 Patterns and Practices](https://aka.ms/m365pnp)
-[Field CAML documentation](https://docs.microsoft.com/sharepoint/dev/schema/field-element-list)
+[Field CAML documentation](https://learn.microsoft.com/sharepoint/dev/schema/field-element-list)

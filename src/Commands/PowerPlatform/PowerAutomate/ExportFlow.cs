@@ -1,7 +1,8 @@
-﻿using PnP.PowerShell.Commands.Attributes;
-using PnP.PowerShell.Commands.Base;
+﻿using PnP.PowerShell.Commands.Base;
 using PnP.PowerShell.Commands.Base.PipeBinds;
+using PnP.PowerShell.Commands.Utilities;
 using PnP.PowerShell.Commands.Utilities.REST;
+using System;
 using System.Management.Automation;
 using System.Net.Http;
 using System.Text.Json;
@@ -9,14 +10,13 @@ using System.Text.Json;
 namespace PnP.PowerShell.Commands.PowerPlatform.PowerAutomate
 {
     [Cmdlet(VerbsData.Export, "PnPFlow")]
-    [RequiredMinimalApiPermissions("https://management.azure.com//.default")]
-    public class ExportFlow : PnPGraphCmdlet
+    public class ExportFlow : PnPAzureManagementApiCmdlet
     {
         private const string ParameterSet_ASJSON = "As Json";
         private const string ParameterSet_ASPACKAGE = "As ZIP Package";
 
-        [Parameter(Mandatory = true, ParameterSetName = ParameterSet_ASPACKAGE)]
-        [Parameter(Mandatory = true, ParameterSetName = ParameterSet_ASJSON)]
+        [Parameter(Mandatory = false, ParameterSetName = ParameterSet_ASPACKAGE)]
+        [Parameter(Mandatory = false, ParameterSetName = ParameterSet_ASJSON)]
         public PowerPlatformEnvironmentPipeBind Environment;
 
         [Parameter(Mandatory = true, ParameterSetName = ParameterSet_ASPACKAGE)]
@@ -58,7 +58,7 @@ namespace PnP.PowerShell.Commands.PowerPlatform.PowerAutomate
                 }
                 if (System.IO.File.Exists(OutPath))
                 {
-                    if (!Force && !ShouldContinue($"File '{OutPath}' exists. Overwrite?", "Export Flow"))
+                    if (!Force && !ShouldContinue($"File '{OutPath}' exists. Overwrite?", Properties.Resources.Confirm))
                     {
                         // Exit cmdlet
                         return;
@@ -66,7 +66,7 @@ namespace PnP.PowerShell.Commands.PowerPlatform.PowerAutomate
                 }
             }
 
-            var environmentName = Environment.GetName();
+            var environmentName = ParameterSpecified(nameof(Environment)) ? Environment.GetName() : PowerPlatformUtility.GetDefaultEnvironment(ArmRequestHelper, Connection.AzureEnvironment)?.Name;
             var flowName = Identity.GetName();
 
             if (AsZipPackage)
@@ -77,7 +77,8 @@ namespace PnP.PowerShell.Commands.PowerPlatform.PowerAutomate
                     $"/providers/Microsoft.Flow/flows/{flowName}"
                 }
                 };
-                var wrapper = RestHelper.PostAsync<Model.PowerPlatform.PowerAutomate.FlowExportPackageWrapper>(Connection.HttpClient, $"https://api.bap.microsoft.com/providers/Microsoft.BusinessAppPlatform/environments/{environmentName}/listPackageResources?api-version=2016-11-01", AccessToken, payload: postData).GetAwaiter().GetResult();
+                string baseUrl = PowerPlatformUtility.GetBapEndpoint(Connection.AzureEnvironment);
+                var wrapper = RestHelper.Post<Model.PowerPlatform.PowerAutomate.FlowExportPackageWrapper>(Connection.HttpClient, $"{baseUrl}/providers/Microsoft.BusinessAppPlatform/environments/{environmentName}/listPackageResources?api-version=2016-11-01", AccessToken, payload: postData);
 
                 if (wrapper.Status == Model.PowerPlatform.PowerAutomate.Enums.FlowExportStatus.Succeeded)
                 {
@@ -110,7 +111,7 @@ namespace PnP.PowerShell.Commands.PowerPlatform.PowerAutomate
                         resources = wrapper.Resources
                     };
 
-                    var resultElement = RestHelper.PostAsync<JsonElement>(Connection.HttpClient, $"https://api.bap.microsoft.com/providers/Microsoft.BusinessAppPlatform/environments/{environmentName}/exportPackage?api-version=2016-11-01", AccessToken, payload: exportPostData).GetAwaiter().GetResult();
+                    var resultElement = RestHelper.Post<JsonElement>(Connection.HttpClient, $"{baseUrl}/providers/Microsoft.BusinessAppPlatform/environments/{environmentName}/exportPackage?api-version=2016-11-01", AccessToken, payload: exportPostData);
                     if (resultElement.TryGetProperty("status", out JsonElement statusElement))
                     {
                         if (statusElement.GetString() == "Succeeded")
@@ -122,6 +123,7 @@ namespace PnP.PowerShell.Commands.PowerPlatform.PowerAutomate
                                     var packageLink = valueElement.GetString();
                                     using (var requestMessage = new HttpRequestMessage(HttpMethod.Get, packageLink))
                                     {
+                                        requestMessage.Version = new Version(2, 0);
                                         //requestMessage.Headers.Add("Authorization", $"Bearer {AccessToken}");
                                         var response = Connection.HttpClient.SendAsync(requestMessage).GetAwaiter().GetResult();
                                         var byteArray = response.Content.ReadAsByteArrayAsync().GetAwaiter().GetResult();
@@ -155,13 +157,14 @@ namespace PnP.PowerShell.Commands.PowerPlatform.PowerAutomate
                     // Errors have been reported in the export request result
                     foreach (var error in wrapper.Errors)
                     {
-                        WriteVerbose($"Export failed for {flowName} with error {error.Code}: {error.Message}");
+                        LogDebug($"Export failed for {flowName} with error {error.Code}: {error.Message}");
                     }
                 }
             }
             else
             {
-                var json = RestHelper.PostAsync(Connection.HttpClient, $"https://management.azure.com/providers/Microsoft.ProcessSimple/environments/{environmentName}/flows/{flowName}/exportToARMTemplate?api-version=2016-11-01", AccessToken).GetAwaiter().GetResult();
+                string baseUrl = PowerPlatformUtility.GetPowerAutomateEndpoint(Connection.AzureEnvironment);
+                var json = RestHelper.Post(Connection.HttpClient, $"{baseUrl}/providers/Microsoft.ProcessSimple/environments/{environmentName}/flows/{flowName}/exportToARMTemplate?api-version=2016-11-01", AccessToken);
                 WriteObject(json);
             }
         }

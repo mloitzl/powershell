@@ -7,7 +7,7 @@ using System.Management.Automation;
 namespace PnP.PowerShell.Commands.Microsoft365Groups
 {
     [Cmdlet(VerbsCommon.Remove, "PnPMicrosoft365GroupMember")]
-    [RequiredMinimalApiPermissions("Group.ReadWrite.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/Group.ReadWrite.All")]
     public class RemoveMicrosoft365GroupMember : PnPGraphCmdlet
     {
         [Parameter(Mandatory = true, ValueFromPipeline = true)]
@@ -18,7 +18,7 @@ namespace PnP.PowerShell.Commands.Microsoft365Groups
 
         protected override void ExecuteCmdlet()
         {
-            Microsoft365GroupsUtility.RemoveMembersAsync(Connection, Identity.GetGroupId(Connection, AccessToken), Users, AccessToken).GetAwaiter().GetResult();
+            Microsoft365GroupsUtility.RemoveMembers(GraphRequestHelper, Identity.GetGroupId(GraphRequestHelper), Users);
         }
     }
 }

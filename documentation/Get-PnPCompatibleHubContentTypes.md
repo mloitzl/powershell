@@ -2,7 +2,7 @@
 Module Name: PnP.PowerShell
 schema: 2.0.0
 applicable: SharePoint Online
-online version: https://pnp.github.io/powershell/cmdlets/Add-PnPContentTypesFromContentTypeHub.html
+online version: https://pnp.github.io/powershell/cmdlets/Get-PnPCompatibleHubContentTypes.html
 external help file: PnP.PowerShell.dll-Help.xml
 title: Get-PnPCompatibleHubContentTypes
 ---
@@ -20,10 +20,12 @@ Returns the list of content types present in content type hub site that can be a
 ## SYNTAX
 
 ```powershell
- Get-PnPCompatibleHubContentTypes -WebUrl <String> [-ListUrl <String>] [-Connection <PnPConnection>] [<CommonParameters>]
+ Get-PnPCompatibleHubContentTypes -WebUrl <String> [-ListUrl <String>] [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
+
+Allows to retrieve list of content types present in content type hub site that are possible to be added to the current site or given list.
 
 ## EXAMPLES
 

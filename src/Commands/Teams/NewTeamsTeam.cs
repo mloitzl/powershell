@@ -7,13 +7,12 @@ using PnP.PowerShell.Commands.Model.Graph;
 using PnP.PowerShell.Commands.Model.Teams;
 using PnP.PowerShell.Commands.Utilities;
 using System;
-using System.Linq;
 using System.Management.Automation;
 
-namespace PnP.PowerShell.Commands.Graph
+namespace PnP.PowerShell.Commands.Teams
 {
     [Cmdlet(VerbsCommon.New, "PnPTeamsTeam")]
-    [RequiredMinimalApiPermissions("Group.ReadWrite.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/Group.ReadWrite.All")]
     public class NewTeamsTeam : PnPGraphCmdlet
     {
         private const string ParameterSet_EXISTINGGROUP = "For an existing group";
@@ -32,10 +31,6 @@ namespace PnP.PowerShell.Commands.Graph
         [Parameter(Mandatory = false, ParameterSetName = ParameterSet_NEWGROUP)]
         [ValidateLength(0, 1024)]
         public string Description;
-
-        [Obsolete("Please use the -Owners parameter instead. The -Owner parameter has been deprecated and will be removed in a future version.")]
-        [Parameter(Mandatory = false, ParameterSetName = ParameterAttribute.AllParameterSets)]
-        public string Owner;
 
         [Parameter(Mandatory = false, ParameterSetName = ParameterAttribute.AllParameterSets)]
         public bool? AllowAddRemoveApps;
@@ -141,25 +136,17 @@ namespace PnP.PowerShell.Commands.Graph
                 AllowCreatePrivateChannels = AllowCreatePrivateChannels
             };
 
-#pragma warning disable 612, 618 // Disables the obsolete warning for the compiler output
-            if (!string.IsNullOrWhiteSpace(Owner))
-            {
-                // Adding Owner parameter to the Owners array for backwards compatibility
-                Owners = Owners != null ? Owners.Concat(new[] { Owner }).ToArray() : new[] { Owner };
-            }
-#pragma warning restore 612, 618
-
             var contextSettings = Connection.Context.GetContextSettings();
             if (contextSettings.Type == Framework.Utilities.Context.ClientContextType.AzureADCertificate)
             {
                 if (SensitivityLabels != null && SensitivityLabels.Length > 0)
                 {
                     SensitivityLabels = null;
-                    WriteWarning("Adding sensitivity labels in App-only context is not supported by Graph API, so it will be skipped in Team creation");
+                    LogWarning("Adding sensitivity labels in App-only context is not supported by Graph API, so it will be skipped in Team creation");
                 }
             }
 
-            WriteObject(TeamsUtility.NewTeamAsync(AccessToken, Connection, GroupId, DisplayName, Description, Classification, MailNickName, (GroupVisibility)Enum.Parse(typeof(GroupVisibility), Visibility.ToString()), teamCI, Owners, Members, SensitivityLabels, Template, ResourceBehaviorOptions).GetAwaiter().GetResult());
+            WriteObject(TeamsUtility.NewTeam(GraphRequestHelper, GroupId, DisplayName, Description, Classification, MailNickName, (GroupVisibility)Enum.Parse(typeof(GroupVisibility), Visibility.ToString()), teamCI, Owners, Members, SensitivityLabels, Template, ResourceBehaviorOptions));
         }
     }
 }

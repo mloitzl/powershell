@@ -16,10 +16,12 @@ Checks if a list item is a record
 
 ```powershell
 Test-PnPListItemIsRecord [-List] <ListPipeBind> -Identity <ListItemPipeBind> 
- [-Connection <PnPConnection>] [<CommonParameters>]
+ [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
+
+Allows to check if the specified list item is a record.
 
 ## EXAMPLES
 

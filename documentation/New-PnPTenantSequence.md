@@ -15,10 +15,12 @@ Creates a new tenant sequence object
 ## SYNTAX
 
 ```powershell
-New-PnPTenantSequence [-Id <String>]   [<CommonParameters>]
+New-PnPTenantSequence [-Id <String>]   
 ```
 
 ## DESCRIPTION
+
+Allows to create a new tenant sequence object.
 
 ## EXAMPLES
 
@@ -59,21 +61,6 @@ Optional Id of the sequence
 ```yaml
 Type: String
 Parameter Sets: (All)
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -WhatIf
-Shows what would happen if the cmdlet runs. The cmdlet is not run.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: wi
 
 Required: False
 Position: Named

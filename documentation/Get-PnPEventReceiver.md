@@ -16,7 +16,7 @@ Returns registered event receivers
 
 ```powershell
 Get-PnPEventReceiver [-List <ListPipeBind>] [-Scope <EventReceiverScope>] [-Identity <EventReceiverPipeBind>] 
- [-Connection <PnPConnection>] [-Includes <String[]>] [<CommonParameters>]
+ [-Connection <PnPConnection>] [-Includes <String[]>] 
 ```
 
 ## DESCRIPTION
@@ -142,6 +142,20 @@ Accepted values: Web, Site, All
 Required: False
 Position: Named
 Default value: Web
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Includes
+Optionally allows properties to be retrieved for the returned event receiver which are not included in the response by default
+
+```yaml
+Type: String[]
+Parameter Sets: (All)
+
+Required: False
+Position: Named
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

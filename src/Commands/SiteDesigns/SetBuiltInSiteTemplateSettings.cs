@@ -10,7 +10,8 @@ using System.Management.Automation;
 namespace PnP.PowerShell.Commands
 {
     [Cmdlet(VerbsCommon.Set, "PnPBuiltInSiteTemplateSettings")]
-    public class SetBuiltInSiteTemplateSettings : PnPAdminCmdlet
+    [OutputType(typeof(BuiltInSiteTemplateSettings))]
+    public class SetBuiltInSiteTemplateSettings : PnPSharePointOnlineAdminCmdlet
     {
         private const string ByIdentityParamSet = "ByIdentity";
         private const string ByTemplateParamSet = "ByTemplate";
@@ -39,7 +40,7 @@ namespace PnP.PowerShell.Commands
 
                 if (!ParameterSpecified(nameof(WhatIf)))
                 {
-                    WriteVerbose($"Setting built in site template settings for template with Id {Identity.Id.Value} to become {(IsHidden ? "hidden" : "visible")}");
+                    LogDebug($"Setting built in site template settings for template with Id {Identity.Id.Value} to become {(IsHidden ? "hidden" : "visible")}");
 
                     templateSetting = Tenant.SetTenantOutOfBoxSiteTemplateSettings(new TenantOutOfBoxSiteTemplateSettings
                     {
@@ -49,7 +50,7 @@ namespace PnP.PowerShell.Commands
                 }
                 else
                 {
-                    WriteVerbose($"Omitting setting built in site template settings for template with Id {Identity.Id.Value} to become {(IsHidden ? "hidden" : "visible")} as {nameof(WhatIf)} has been provided");
+                    LogDebug($"Omitting setting built in site template settings for template with Id {Identity.Id.Value} to become {(IsHidden ? "hidden" : "visible")} as {nameof(WhatIf)} has been provided");
                 }
             }
             
@@ -59,7 +60,7 @@ namespace PnP.PowerShell.Commands
 
                 if (!ParameterSpecified(nameof(WhatIf)))
                 {
-                    WriteVerbose($"Setting built in site template settings for template with Id {template.Key} to become {(IsHidden ? "hidden" : "visible")}");
+                    LogDebug($"Setting built in site template settings for template with Id {template.Key} to become {(IsHidden ? "hidden" : "visible")}");
 
                     templateSetting = Tenant.SetTenantOutOfBoxSiteTemplateSettings(new TenantOutOfBoxSiteTemplateSettings
                     {
@@ -69,21 +70,21 @@ namespace PnP.PowerShell.Commands
                 }
                 else
                 {
-                    WriteVerbose($"Omitting setting built in site template settings for template with Id {template.Key} to become {(IsHidden ? "hidden" : "visible")} as {nameof(WhatIf)} has been provided");
+                    LogDebug($"Omitting setting built in site template settings for template with Id {template.Key} to become {(IsHidden ? "hidden" : "visible")} as {nameof(WhatIf)} has been provided");
                 }
             }
 
             if (ParameterSpecified(nameof(WhatIf))) return;
 
-            ClientContext.ExecuteQueryRetry();
+            AdminContext.ExecuteQueryRetry();
 
             if(templateSetting == null || templateSetting.Value == null)
             {
-                WriteVerbose("Invalid response received");
+                LogDebug("Invalid response received");
                 return;
             }
 
-            WriteVerbose("Mapping response to BuiltInSiteTemplateSettings result");
+            LogDebug("Mapping response to BuiltInSiteTemplateSettings result");
 
             var response = new BuiltInSiteTemplateSettings
             {

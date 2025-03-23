@@ -3,15 +3,13 @@ using System.Linq;
 using PnP.PowerShell.Commands.Base;
 using System.Management.Automation;
 using Microsoft.SharePoint.Client;
-using System;
-using PnP.PowerShell.Commands.Enums;
 using PnP.PowerShell.Commands.Base.PipeBinds;
-using System.Collections.Generic;
 
 namespace PnP.PowerShell.Commands
 {
     [Cmdlet(VerbsData.Update, "PnPSiteDesignFromWeb", DefaultParameterSetName = ParameterSet_ALLCOMPONENTS)]
-    public class UpdateSiteDesignFromWeb : PnPAdminCmdlet
+    [OutputType(typeof(TenantSiteDesign))]
+    public class UpdateSiteDesignFromWeb : PnPSharePointOnlineAdminCmdlet
     {
         private const string ParameterSet_BASICCOMPONENTS = "Basic components";
         private const string ParameterSet_ALLCOMPONENTS = "All components";
@@ -72,7 +70,7 @@ namespace PnP.PowerShell.Commands
             var siteDesign = siteDesigns[0];
 
             // Generate site script
-            WriteVerbose($"Generating site script from {Url}");
+            LogDebug($"Generating site script from {Url}");
 
             var tenantSiteScriptSerializationInfo = new TenantSiteScriptSerializationInfo
             {
@@ -84,7 +82,7 @@ namespace PnP.PowerShell.Commands
                 IncludeTheme = IncludeTheme || IncludeAll
             };
             var generatedSiteScript = Tenant.GetSiteScriptFromSite(Url, tenantSiteScriptSerializationInfo);
-            ClientContext.ExecuteQueryRetry();
+            AdminContext.ExecuteQueryRetry();
 
             var siteScript = generatedSiteScript.Value.JSON;
 
@@ -98,33 +96,33 @@ namespace PnP.PowerShell.Commands
                 if (siteDesign.SiteScriptIds.Length > 1)
                 {
                     // Multiple site scripts in the site design
-                    WriteVerbose($"Site design provided through the Identity parameter contains {siteDesign.SiteScriptIds.Length} site scripts. The first one will be overwritten with a new template from the site.");
+                    LogDebug($"Site design provided through the Identity parameter contains {siteDesign.SiteScriptIds.Length} site scripts. The first one will be overwritten with a new template from the site.");
                 }
                 else
                 {
                     // One site script exists in the site design, which is the expected scenario
-                    WriteVerbose($"Site design provided through the Identity parameter contains {siteDesign.SiteScriptIds.Length} site script. It will be overwritten with a new template from the site.");
+                    LogDebug($"Site design provided through the Identity parameter contains {siteDesign.SiteScriptIds.Length} site script. It will be overwritten with a new template from the site.");
                 }
 
                 // Update an existing site script
                 try
                 {
-                    var script = Tenant.GetSiteScript(ClientContext, siteDesign.SiteScriptIds.First());
+                    var script = Tenant.GetSiteScript(AdminContext, siteDesign.SiteScriptIds.First());
                     script.Content = siteScript;
                     Tenant.UpdateSiteScript(script);
-                    ClientContext.ExecuteQueryRetry();
+                    AdminContext.ExecuteQueryRetry();
                 }
                 catch(Microsoft.SharePoint.Client.ServerException e) when (e.ServerErrorTypeName == "System.IO.FileNotFoundException")
                 {
                     // Thrown when a site script is still referenced in the site design, but the actual site script has been removed. This likely means the site design is now in an orphaned state and cannot be used anymore. Going to try anyway.
-                    WriteVerbose($"Site design provided through the Identity parameter contains a reference to site script {siteDesign.SiteScriptIds.First()} which no longer exists. Will try to add it as a new site script but it likely will fail as the site design is now orphaned. Remove the site design and create a new one if it keeps failing.");
+                    LogDebug($"Site design provided through the Identity parameter contains a reference to site script {siteDesign.SiteScriptIds.First()} which no longer exists. Will try to add it as a new site script but it likely will fail as the site design is now orphaned. Remove the site design and create a new one if it keeps failing.");
                     addAsNewSiteScript = true;
                 }
             }
             else
             {
                 // No site scripts in the site design
-                WriteVerbose($"Site design provided through the Identity parameter does not contain any site scripts yet. Adding a new site script to the site design.");
+                LogDebug($"Site design provided through the Identity parameter does not contain any site scripts yet. Adding a new site script to the site design.");
                 addAsNewSiteScript = true;
             }
             
@@ -139,13 +137,13 @@ namespace PnP.PowerShell.Commands
                 };
 
                 var addedSiteScript = Tenant.CreateSiteScript(siteScriptCreationInfo);
-                ClientContext.Load(addedSiteScript);
-                ClientContext.ExecuteQueryRetry();
+                AdminContext.Load(addedSiteScript);
+                AdminContext.ExecuteQueryRetry();
 
                 // Connect the site script to the site design
                 siteDesign.SiteScriptIds = new[] { addedSiteScript.Id };
                 Tenant.UpdateSiteDesign(siteDesign);
-                ClientContext.ExecuteQueryRetry();
+                AdminContext.ExecuteQueryRetry();
             } 
 
             WriteObject(siteDesign);

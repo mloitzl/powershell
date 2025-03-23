@@ -1,18 +1,16 @@
 ﻿using Microsoft.Online.SharePoint.TenantAdministration;
 using Microsoft.SharePoint.Client;
-
 using PnP.PowerShell.Commands.Base;
-using System.Management.Automation;
 using PnP.Framework.Sites;
-using PnP.PowerShell.Commands.Base.PipeBinds;
+using System.Management.Automation;
 using System;
 
 namespace PnP.PowerShell.Commands.Admin
 {
     [Cmdlet(VerbsCommon.Add, "PnPMicrosoft365GroupToSite")]
-    public class AddMicrosoft365GroupToSite: PnPAdminCmdlet
+    public class AddMicrosoft365GroupToSite: PnPSharePointOnlineAdminCmdlet
     {
-        [Parameter(Mandatory = true)]
+        [Parameter(Mandatory = false)]
         public string Url;
 
         [Parameter(Mandatory = true)]
@@ -38,6 +36,7 @@ namespace PnP.PowerShell.Commands.Admin
 
         [Parameter(Mandatory = false)]
         public string[] Owners;
+
         protected override void ExecuteCmdlet()
         {            
             var groupifyInformation = new TeamSiteCollectionGroupifyInformation()
@@ -54,6 +53,11 @@ namespace PnP.PowerShell.Commands.Admin
             if (ParameterSpecified(nameof(HubSiteId)))
             {
                 groupifyInformation.HubSiteId = HubSiteId;
+            }
+
+            if (!ParameterSpecified(nameof(Url)))
+            {
+                Url = Connection.Url;
             }
 
             Tenant.GroupifySite(Url, groupifyInformation);

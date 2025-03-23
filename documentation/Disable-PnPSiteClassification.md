@@ -20,10 +20,12 @@ Disables Site Classifications for the tenant
 ## SYNTAX
 
 ```powershell
-Disable-PnPSiteClassification [<CommonParameters>]
+Disable-PnPSiteClassification 
 ```
 
 ## DESCRIPTION
+
+Allows to disable site classifications for the tenant.
 
 ## EXAMPLES
 
@@ -33,8 +35,6 @@ Disable-PnPSiteClassification
 ```
 
 Disables Site Classifications for your tenant.
-
-## PARAMETERS
 
 ## RELATED LINKS
 

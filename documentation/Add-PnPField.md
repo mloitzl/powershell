@@ -19,20 +19,19 @@ Add a field
 Add-PnPField [-List <ListPipeBind>] -DisplayName <String> -InternalName <String> -Type <FieldType>
  [-Id <Guid>] [-Formula <String>] [-Choices <String>] [-AddToDefaultView] [-Required] [-Group <String>] [-ClientSideComponentId <Guid>]
  [-ClientSideComponentProperties <String>] [-AddToAllContentTypes] [-Connection <PnPConnection>]
- [<CommonParameters>]
 ```
 
 ### Add field reference to list
 ```powershell
 Add-PnPField -List <ListPipeBind> -Field <FieldPipeBind> [-Connection <PnPConnection>]
- [<CommonParameters>]
+ 
 ```
 
 ### Add field to web
 ```powershell
 Add-PnPField -DisplayName <String> -InternalName <String> -Type <FieldType> [-Id <Guid>] [-Formula <String>] [-Choices <String>]
- [-ClientSideComponentId <Guid>] [-ClientSideComponentProperties <String>] 
- [-Connection <PnPConnection>] [<CommonParameters>]
+ [-ClientSideComponentId <Guid>] [-ClientSideComponentProperties <String>]
+ [-Connection <PnPConnection>]
 ```
 
 ## DESCRIPTION
@@ -42,7 +41,7 @@ Adds a field (a column) to a list or as a site column. To add a column of type M
 
 ### EXAMPLE 1
 ```powershell
-Add-PnPField -Type Calculated -InternalName "C1" -DisplayName "C1" -Formula ="[Title]"
+Add-PnPField -Type Calculated -InternalName "C1" -DisplayName "C1" -Formula "=[Title]"
 ```
 
 Adds a new calculated site column with the formula specified
@@ -74,6 +73,13 @@ Add-PnPField -Type Choice -Choices "PnP","Parker","Sharing Is Caring" -DisplayNa
 ```
 
 This will add a site column of type Choice (only one choice value can be chosen at the same time) called "My Test Column" with three choice values.
+
+### EXAMPLE 6
+```powershell
+Add-PnPField -Type Calculated -ResultType Number -DisplayName "My Calculated Column" -InternalName "MyCalcCol" -Formula "=Today()"
+```
+
+This will add a site column of type Calculated called "My Calculated Column" which contains todays date.
 
 ## PARAMETERS
 
@@ -284,7 +290,7 @@ Accept wildcard characters: False
 ```
 
 ### -Type
-The type of the field like Choice, Note, MultiChoice. For a complete list of field types visit https://docs.microsoft.com/dotnet/api/microsoft.sharepoint.client.fieldtype
+The type of the field like Choice, Note, Calculate, MultiChoice. For a complete list of field types visit https://learn.microsoft.com/dotnet/api/microsoft.sharepoint.client.fieldtype
 
 ```yaml
 Type: FieldType
@@ -298,10 +304,6 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-
-
 ## RELATED LINKS
 
 [Microsoft 365 Patterns and Practices](https://aka.ms/m365pnp)
-
-

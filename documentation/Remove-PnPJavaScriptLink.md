@@ -16,10 +16,12 @@ Removes a JavaScript link or block from a web or sitecollection
 
 ```powershell
 Remove-PnPJavaScriptLink [[-Identity] <UserCustomActionPipeBind>] [-Force] [-Scope <CustomActionScope>]
- [-Connection <PnPConnection>]   [<CommonParameters>]
+ [-Connection <PnPConnection>]   
 ```
 
 ## DESCRIPTION
+
+Allows to remove JavaScript link or block from a web or sitecollection.
 
 ## EXAMPLES
 
@@ -132,23 +134,6 @@ Define if the JavaScriptLink is to be found at the web or site collection scope.
 Type: CustomActionScope
 Parameter Sets: (All)
 Accepted values: Web, Site, All
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-
-
-### -WhatIf
-Shows what would happen if the cmdlet runs. The cmdlet is not run.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: wi
 
 Required: False
 Position: Named

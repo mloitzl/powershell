@@ -8,7 +8,8 @@ using System.Management.Automation;
 namespace PnP.PowerShell.Commands.Principals
 {
     [Cmdlet(VerbsData.Export, "PnPUserInfo")]
-    public class ExportUserInfo : PnPAdminCmdlet
+    [OutputType(typeof(PSObject))]
+    public class ExportUserInfo : PnPSharePointOnlineAdminCmdlet
     {
         [Parameter(Mandatory = true)]
         public string LoginName;
@@ -19,20 +20,20 @@ namespace PnP.PowerShell.Commands.Principals
         protected override void ExecuteCmdlet()
         {
             var siteUrl = Connection.Url;
-            if(ParameterSpecified(Site))
+            if (ParameterSpecified(nameof(Site)))
             {
                 siteUrl = Site;
             }
-            var hostUrl = ClientContext.Url;
+            var hostUrl = AdminContext.Url;
             if (hostUrl.EndsWith("/"))
             {
                 hostUrl = hostUrl.Substring(0, hostUrl.Length - 1);
             }
-            var site = this.Tenant.GetSiteByUrl(siteUrl);
-            ClientContext.Load(site);
-            ClientContext.ExecuteQueryRetry();
+            var site = Tenant.GetSiteByUrl(siteUrl);
+            AdminContext.Load(site);
+            AdminContext.ExecuteQueryRetry();
             var normalizedUserName = UrlUtilities.UrlEncode($"i:0#.f|membership|{LoginName}");
-            var results = RestHelper.GetAsync<RestResultCollection<ExportEntity>>(this.HttpClient, $"{hostUrl}/_api/sp.userprofiles.peoplemanager/GetSPUserInformation(accountName=@a,siteId=@b)?@a='{normalizedUserName}'&@b='{site.Id}'", ClientContext, false).GetAwaiter().GetResult();
+            var results = RestHelper.Get<RestResultCollection<ExportEntity>>(Connection.HttpClient, $"{hostUrl}/_api/sp.userprofiles.peoplemanager/GetSPUserInformation(accountName=@a,siteId=@b)?@a='{normalizedUserName}'&@b='{site.Id}'", AdminContext, false);
             var record = new PSObject();
             foreach (var item in results.Items)
             {

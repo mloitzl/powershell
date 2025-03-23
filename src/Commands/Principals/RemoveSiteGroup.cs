@@ -1,13 +1,13 @@
-﻿using System.Management.Automation;
-using Microsoft.SharePoint.Client;
-using PnP.PowerShell.Commands.Model;
+﻿using Microsoft.SharePoint.Client;
 using PnP.PowerShell.Commands.Base;
 using PnP.PowerShell.Commands.Base.PipeBinds;
+using System.Management.Automation;
 
 namespace PnP.PowerShell.Commands.Principals
 {
     [Cmdlet(VerbsCommon.Remove, "PnPSiteGroup", SupportsShouldProcess = true)]
-    public class RemoveSiteGroup : PnPAdminCmdlet
+    [OutputType(typeof(void))]
+    public class RemoveSiteGroup : PnPSharePointOnlineAdminCmdlet
     {
         [Parameter(Mandatory = false)]
         public SitePipeBind Site;
@@ -23,13 +23,13 @@ namespace PnP.PowerShell.Commands.Principals
             {
                 url = Site.Url;
             }
-            var site = this.Tenant.GetSiteByUrl(url);
-            if(ShouldProcess($"Deletes group {Identity} from the site {url}"))
+            var site = Tenant.GetSiteByUrl(url);
+            if (ShouldContinue($"Deletes group {Identity} from the site {url}", Properties.Resources.Confirm))
             {
                 var siteGroups = site.RootWeb.SiteGroups;
                 siteGroups.RemoveByLoginName(Identity);
                 site.RootWeb.Update();
-                ClientContext.ExecuteQueryRetry();
+                AdminContext.ExecuteQueryRetry();
             }
         }
     }

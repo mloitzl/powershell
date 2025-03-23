@@ -20,10 +20,12 @@ Gets a settings of a specific Microsoft 365 Group or a tenant wide Microsoft 365
 ## SYNTAX
 
 ```powershell
-Get-PnPMicrosoft365GroupSettings [-Identity <Microsoft365GroupPipeBind>] [<CommonParameters>]
+Get-PnPMicrosoft365GroupSettings [-Identity <Microsoft365GroupPipeBind>] [-GroupSetting <Microsoft365GroupSettingsPipeBind>] 
 ```
 
 ## DESCRIPTION
+
+Allows to retrieve tenant wide settings of Microsoft 365 Groups or by using `Identity` option you may specify the exact Microsoft 365 Group.
 
 ## EXAMPLES
 
@@ -41,6 +43,22 @@ Get-PnPMicrosoft365GroupSettings -Identity $groupId
 
 Retrieves a specific Microsoft 365 Group setting
 
+
+### EXAMPLE 3
+```powershell
+Get-PnPMicrosoft365GroupSettings -GroupSetting $groupSettingId
+```
+
+Retrieves a tenant-wide specific Microsoft 365 Group setting.
+
+
+### EXAMPLE 4
+```powershell
+Get-PnPMicrosoft365GroupSettings -Identity $groupId -GroupSetting $groupSettingId 
+```
+
+Retrieves a group-specific Microsoft 365 Group setting
+
 ## PARAMETERS
 
 ### -Identity
@@ -57,10 +75,25 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -GroupSetting
+The Identity of the Microsoft 365 Group Setting
+
+```yaml
+Type: Microsoft365GroupSettingsPipeBind
+Parameter Sets: (All)
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 
 ## RELATED LINKS
 
 [Microsoft 365 Patterns and Practices](https://aka.ms/m365pnp)
-[Microsoft Graph documentation](https://docs.microsoft.com/graph/api/groupsetting-get)
+[Microsoft Graph documentation get settings](https://learn.microsoft.com/graph/api/groupsetting-get)
+[Microsoft Graph documentation list settings](https://learn.microsoft.com/en-gb/graph/api/group-list-setting)
 
 

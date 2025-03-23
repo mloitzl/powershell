@@ -21,10 +21,12 @@ Creates a new App Catalog Site and sets this site as the Tenant App Catalog
 
 ```powershell
 Register-PnPAppCatalogSite -Url <String> -Owner <String> -TimeZoneId <Int32> [-Force]
- [-Connection <PnPConnection>] [<CommonParameters>]
+ [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
+
+Allows to create a new App Catalog Site and sets this site as the Tenant App Catalog.
 
 ## EXAMPLES
 

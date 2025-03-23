@@ -15,10 +15,12 @@ Creates a pnp package file of an existing template xml, and includes all files i
 ## SYNTAX
 
 ```powershell
-Convert-PnPFolderToSiteTemplate [-Out] <String> [[-Folder] <String>] [-Force] [<CommonParameters>]
+Convert-PnPFolderToSiteTemplate [-Out] <String> [[-Folder] <String>] [-Force] 
 ```
 
 ## DESCRIPTION
+
+Allows to convert the current folder together with all files, to a pnp package file of and existing template xml.
 
 ## EXAMPLES
 

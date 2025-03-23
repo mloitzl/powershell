@@ -1,26 +1,25 @@
 ﻿using Microsoft.Online.SharePoint.TenantAdministration.Internal;
 using Microsoft.SharePoint.Client;
-
 using PnP.PowerShell.Commands.Base;
 using System.Management.Automation;
 
 namespace PnP.PowerShell.Commands.Apps
 {
     [Cmdlet(VerbsLifecycle.Disable, "PnPTenantServicePrincipal", ConfirmImpact = ConfirmImpact.High)]
-    public class DisableTenantServicePrincipal : PnPAdminCmdlet
+    public class DisableTenantServicePrincipal : PnPSharePointOnlineAdminCmdlet
     {
         [Parameter(Mandatory = false)]
         public SwitchParameter Force;
 
         protected override void ExecuteCmdlet()
         {
-            if (ShouldContinue("Do you want to disable the Tenant Service Principal?", "Continue?"))
+            if (ShouldContinue("Do you want to disable the Tenant Service Principal?", Properties.Resources.Confirm))
             {
-                var servicePrincipal = new SPOWebAppServicePrincipal(ClientContext);
+                var servicePrincipal = new SPOWebAppServicePrincipal(AdminContext);
                 servicePrincipal.AccountEnabled = false;
                 servicePrincipal.Update();
-                ClientContext.Load(servicePrincipal);
-                ClientContext.ExecuteQueryRetry();
+                AdminContext.Load(servicePrincipal);
+                AdminContext.ExecuteQueryRetry();
                 WriteObject(servicePrincipal);
             }
         }

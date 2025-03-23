@@ -1,31 +1,51 @@
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version 2.0
 
-function CleanPackage {
-    param([string] $Package , [int] $VersionsToKeep, [string] $key)
-
-    $xml = Invoke-WebRequest -Uri "https://www.powershellgallery.com/api/v2/Search()?`$orderby=Id&`$skip=0&`$top=50&searchTerm='$Package'&targetFramework=''&includePrerelease=true"
-
-    $result = [xml] $xml
-
-    $entries = $result.feed.entry | Where-Object{$_.properties.Id -eq "PnP.PowerShell"} # There are other packages not owned by us that contain this string.
-
-    $sortedEntries = $entries | Sort-Object -Property @{Expression = {[System.Management.Automation.SemanticVersion]::Parse($_.properties.version)}; Descending=$false} | Where-Object {[System.Management.Automation.SemanticVersion]::Parse($_.properties.version).PreReleaseLabel -eq "nightly"} 
-    $releasedEntries = $entries.Where({[System.Management.Automation.SemanticVersion]::Parse($_.properties.version).PreReleaseLabel -ne "nightly"} );
-
-    # keep last 10
-    $entriesToKeep = ($sortedEntries | Select-Object -Last 10) + $releasedEntries
+function UnlistNightlies {
+    param([string] $Package)
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 -bor [Net.SecurityProtocolType]::Tls13
+ 
+    $entries = GetEntries "https://www.powershellgallery.com/api/v2/FindPackagesById()?id='PnP.PowerShell'"
     
-    foreach($entry in $entries)
-    {
-        if(!$entriesToKeep.Contains($entry))
-        {
-            Write-Host "Removing version $($entry.properties.Version)"
-            nuget delete "package/$($entry.properties.Id)" $entry.properties.Version -ApiKey $key -Source https://www.powershellgallery.com/api/v2 -NonInteractive
-        }
+    $sorted = $entries | Sort-Object -Property Version -Descending
+   
+    # Get the nightly releases
+    $nightlies = $sorted | Where-Object { $null -ne $_.Version.PreReleaseLabel }
+    
+    # mark the latest 50 nightlies as unlisted
+    $tounlist = $nightlies | Select-Object -First 50 -Skip 10
+
+    $key = $("$env:POWERSHELLGALLERY_API_KEY")   
+
+    foreach ($entry in $tounlist) {        
+        Write-host "Entry to be deleted - $($entry.Version.ToString())"            
+        nuget delete "package/PnP.PowerShell" $entry.version.ToString() -ApiKey $key -Source https://www.powershellgallery.com/api/v2 -NonInteractive
     }
 }
 
-$ApiKey = $("$env:POWERSHELLGALLERY_API_KEY")
+function GetEntries([string] $url) {
+    $entries = New-Object System.Collections.Generic.List[System.Object]
 
-CleanPackage "PnP.PowerShell" 10 $ApiKey
+    $result = Invoke-WebRequest -Uri $url
+    $xml = [xml]$result
+
+    foreach ($entry in $xml.feed.entry) {
+        $newEntry = [PSCustomObject]@{
+            Id      = $entry.id
+            Version = [System.Management.Automation.SemanticVersion]$entry.properties.version
+        }
+        $entries.Add($newEntry)
+    }
+
+
+    $nextLink = $xml.feed.link | Where-Object { $_.rel -eq "next" }
+
+    if ($null -ne $nextLink) {
+        $extraEntries = GetEntries $nextLink.href
+        $entries.AddRange($extraEntries)
+    }
+    return $entries
+}
+
+Write-host "Starting cleanup old nightlies job"
+UnlistNightlies "PnP.PowerShell"

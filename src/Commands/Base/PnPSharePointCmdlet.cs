@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Management.Automation;
 using System.Net.Http;
 using System.Threading;
 using Microsoft.Online.SharePoint.TenantAdministration;
@@ -7,6 +6,7 @@ using Microsoft.SharePoint.Client;
 using PnP.Core.Services;
 using PnP.PowerShell.Commands.Base;
 using PnP.PowerShell.Commands.Model;
+using PnP.PowerShell.Commands.Utilities.REST;
 using Resources = PnP.PowerShell.Commands.Properties.Resources;
 using TokenHandler = PnP.PowerShell.Commands.Base.TokenHandler;
 
@@ -30,10 +30,12 @@ namespace PnP.PowerShell.Commands
         /// <summary>
         /// HttpClient based off of the ClientContext that can be used to make raw HTTP calls to SharePoint Online
         /// </summary>
-        public HttpClient HttpClient => PnP.Framework.Http.PnPHttpClient.Instance.GetHttpClient(ClientContext);
+        public HttpClient HttpClient => Framework.Http.PnPHttpClient.Instance.GetHttpClient(ClientContext);
 
+
+        public ApiRequestHelper RequestHelper { get; set; }
         /// <summary>
-        /// The current Bearer access token for SharePoitn Online
+        /// The current Bearer access token for SharePoint Online
         /// </summary>
         protected string AccessToken
         {
@@ -41,19 +43,29 @@ namespace PnP.PowerShell.Commands
             {
                 if (Connection != null)
                 {
-                    if (Connection.Context != null)
+                    if (Connection.ConnectionMethod == ConnectionMethod.AzureADWorkloadIdentity)
                     {
-                        var settings = Microsoft.SharePoint.Client.InternalClientContextExtensions.GetContextSettings(Connection.Context);
-                        if (settings != null)
+                        var resourceUri = new Uri(Connection.Url);
+                        var defaultResource = $"{resourceUri.Scheme}://{resourceUri.Authority}/.default";
+                        return TokenHandler.GetAzureADWorkloadIdentityTokenAsync(defaultResource).GetAwaiter().GetResult();
+                    }
+                    else
+                    {
+                        if (Connection.Context != null)
                         {
-                            var authManager = settings.AuthenticationManager;
-                            if (authManager != null)
+                            Framework.Utilities.Context.ClientContextSettings settings = Microsoft.SharePoint.Client.InternalClientContextExtensions.GetContextSettings(Connection.Context);
+                            if (settings != null)
                             {
-                                return authManager.GetAccessTokenAsync(Connection.Context.Url).GetAwaiter().GetResult();
+                                var authManager = settings.AuthenticationManager;
+                                if (authManager != null)
+                                {
+                                    return authManager.GetAccessTokenAsync(Connection.Context.Url).GetAwaiter().GetResult();
+                                }
                             }
                         }
                     }
                 }
+                LogDebug("Unable to acquire token for resource " + Connection.Url);
                 return null;
             }
         }
@@ -65,18 +77,18 @@ namespace PnP.PowerShell.Commands
         {
             get
             {
-                if (Connection?.ConnectionMethod == ConnectionMethod.ManagedIdentity)
+                if (Connection?.ConnectionMethod == ConnectionMethod.AzureADWorkloadIdentity)
                 {
-                    return TokenHandler.GetManagedIdentityTokenAsync(this, HttpClient, $"https://{Connection.GraphEndPoint}/").GetAwaiter().GetResult();
+                    return TokenHandler.GetAzureADWorkloadIdentityTokenAsync($"https://{Connection.GraphEndPoint}/.default").GetAwaiter().GetResult();
                 }
                 else
                 {
                     if (Connection?.Context != null)
                     {
-                        return TokenHandler.GetAccessToken(GetType(), $"https://{Connection.GraphEndPoint}/.default", Connection);
+                        return TokenHandler.GetAccessToken($"https://{Connection.GraphEndPoint}/.default", Connection);
                     }
                 }
-
+                LogDebug("Unable to acquire token for resource " + Connection.GraphEndPoint);
                 return null;
             }
         }
@@ -98,48 +110,26 @@ namespace PnP.PowerShell.Commands
                     throw new InvalidOperationException(Resources.NoDefaultSharePointConnection);
                 }
             }
+            RequestHelper = new ApiRequestHelper(GetType(), Connection, $"https://{Connection.GraphEndPoint}/.default");
         }
 
         protected override void ProcessRecord()
         {
-            try
+            var tag = Connection.PnPVersionTag + ":" + MyInvocation.MyCommand.Name;
+            if (tag.Length > 32)
             {
-                var tag = Connection.PnPVersionTag + ":" + MyInvocation.MyCommand.Name;
-                if (tag.Length > 32)
-                {
-                    tag = tag.Substring(0, 32);
-                }
-                ClientContext.ClientTag = tag;
+                tag = tag.Substring(0, 32);
+            }
+            ClientContext.ClientTag = tag;
 
-                ExecuteCmdlet();
-            }
-            catch (PipelineStoppedException)
+            // Client Credentials based connections do not have an access token, so we can't validate permissions
+            if (Connection.ConnectionMethod != ConnectionMethod.Credentials)
             {
-                //don't swallow pipeline stopped exception
-                //it makes select-object work weird
-                throw;
+                // Validate the permissions in the access token for SharePoint Online
+                TokenHandler.EnsureRequiredPermissionsAvailableInAccessTokenAudience(this.GetType(), AccessToken);
             }
-            catch (PnP.Core.SharePointRestServiceException ex)
-            {
-                throw new PSInvalidOperationException((ex.Error as PnP.Core.SharePointRestError).Message);
-            }
-            catch (PnP.PowerShell.Commands.Model.Graph.GraphException gex)
-            {
-                throw new PSInvalidOperationException((gex.Message));
-            }
-            catch (Exception ex)
-            {
-                Connection.RestoreCachedContext(Connection.Url);
-                ex.Data["CorrelationId"] = Connection.Context.TraceCorrelationId;
-                ex.Data["TimeStampUtc"] = DateTime.UtcNow;
-                var errorDetails = new ErrorDetails(ex.Message);
 
-                errorDetails.RecommendedAction = "Use Get-PnPException for more details.";
-                var errorRecord = new ErrorRecord(ex, "EXCEPTION", ErrorCategory.WriteError, null);
-                errorRecord.ErrorDetails = errorDetails;
-
-                WriteError(errorRecord);
-            }
+            base.ProcessRecord();
         }
 
         protected override void EndProcessing()
@@ -147,28 +137,38 @@ namespace PnP.PowerShell.Commands
             base.EndProcessing();
         }
 
+        /// <summary>
+        /// Waits for the SpoOperation to complete
+        /// </summary>
+        /// <param name="spoOperation">The operation to wait for to be completed</param>
+        /// <exception cref="TimeoutException">Exception thrown when the waiting operation takes too long and times out</exception>
         protected void PollOperation(SpoOperation spoOperation)
         {
             while (true)
             {
-                if (!spoOperation.IsComplete)
+                if (spoOperation.IsComplete)
                 {
-                    if (spoOperation.HasTimedout)
-                    {
-                        throw new TimeoutException("SharePoint Operation Timeout");
-                    }
-                    Thread.Sleep(spoOperation.PollingInterval);
-                    if (Stopping)
-                    {
-                        break;
-                    }
-                    ClientContext.Load(spoOperation);
-                    ClientContext.ExecuteQueryRetry();
-                    continue;
+                    LogDebug("Operation completed");
+                    return;
                 }
-                return;
+                if (spoOperation.HasTimedout)
+                {
+                    LogDebug("Operation timed out");
+                    throw new TimeoutException("SharePoint Operation Timeout");
+                }
+
+                Thread.Sleep(spoOperation.PollingInterval);
+
+                if (Stopping)
+                {
+                    break;
+                }
+
+                LogDebug("Checking for operation status");
+                ClientContext.Load(spoOperation);
+                ClientContext.ExecuteQueryRetry();
             }
-            WriteWarning("SharePoint Operation Wait Interrupted");
+            LogWarning("SharePoint Operation Wait Interrupted");
         }
     }
 }

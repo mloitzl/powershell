@@ -1,13 +1,11 @@
-﻿using System.Management.Automation;
-using Microsoft.SharePoint.Client;
-
-using System.Collections.Generic;
+﻿using Microsoft.SharePoint.Client;
 using PnP.PowerShell.Commands.Base.PipeBinds;
-using System;
+using System.Management.Automation;
 
 namespace PnP.PowerShell.Commands.Site
 {
     [Cmdlet(VerbsCommon.Add, "PnPRoleDefinition")]
+    [OutputType(typeof(RoleDefinition))]
     public class AddRoleDefinition : PnPSharePointCmdlet
     {
         [Parameter(Mandatory = true, ValueFromPipeline = true)]
@@ -74,7 +72,7 @@ namespace PnP.PowerShell.Commands.Site
             }
             else
             {
-                WriteWarning($"Unable to add Role Definition as there is an existing role definition with the same name. Will be skipped.");
+                LogWarning($"Unable to add Role Definition as there is an existing role definition with the same name. Will be skipped.");
             }
         }
     }

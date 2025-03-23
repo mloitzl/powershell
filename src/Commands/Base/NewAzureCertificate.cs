@@ -1,7 +1,5 @@
 ﻿using PnP.PowerShell.Commands.Utilities;
-
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Management.Automation;
 using System.Security;
@@ -11,7 +9,7 @@ namespace PnP.PowerShell.Commands.Base
 {
     [Cmdlet(VerbsCommon.New, "PnPAzureCertificate")]
     [OutputType(typeof(Model.AzureCertificate))]
-    public class NewPnPAdalCertificate : PSCmdlet
+    public class NewPnPAdalCertificate : BasePSCmdlet
     {
         [Parameter(Mandatory = false, Position = 0)]
         public string CommonName = "pnp.contoso.com";
@@ -46,11 +44,19 @@ namespace PnP.PowerShell.Commands.Base
         [Parameter(Mandatory = false)]
         public StoreLocation Store;
 
+        [Parameter(Mandatory = false)]
+        public string[] SanNames;
+
         protected override void ProcessRecord()
         {
             if (MyInvocation.BoundParameters.ContainsKey(nameof(Store)) && !Utilities.OperatingSystem.IsWindows())
             {
                 throw new PSArgumentException("The Store parameter is only supported on Microsoft Windows");
+            }
+
+            if (!PSUtility.IsUserLocalAdmin())
+            {
+                throw new PSArgumentException("Running this cmdlet requires elevated permissions (Run as Admin) to generate a certificate.");
             }
 
             if (ValidYears < 1 || ValidYears > 30)
@@ -60,23 +66,12 @@ namespace PnP.PowerShell.Commands.Base
             DateTime validFrom = DateTime.Today;
             DateTime validTo = validFrom.AddYears(ValidYears);
 
+            if (MyInvocation.BoundParameters.ContainsKey(nameof(SanNames)) && SanNames == null)
+            {
+                SanNames = Array.Empty<string>();
+            }
 
-#if NETFRAMEWORK
-            var x500Values = new List<string>();
-            if (!string.IsNullOrWhiteSpace(CommonName)) x500Values.Add($"CN={CommonName}");
-            if (!string.IsNullOrWhiteSpace(Country)) x500Values.Add($"C={Country}");
-            if (!string.IsNullOrWhiteSpace(State)) x500Values.Add($"S={State}");
-            if (!string.IsNullOrWhiteSpace(Locality)) x500Values.Add($"L={Locality}");
-            if (!string.IsNullOrWhiteSpace(Organization)) x500Values.Add($"O={Organization}");
-            if (!string.IsNullOrWhiteSpace(OrganizationUnit)) x500Values.Add($"OU={OrganizationUnit}");
-
-            string x500 = string.Join("; ", x500Values);
-
-            byte[] certificateBytes = CertificateHelper.CreateSelfSignCertificatePfx(x500, validFrom, validTo, CertificatePassword);
-            X509Certificate2 certificate = new X509Certificate2(certificateBytes, CertificatePassword, X509KeyStorageFlags.Exportable | X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.PersistKeySet);
-#else
-            X509Certificate2 certificate = CertificateHelper.CreateSelfSignedCertificate(CommonName, Country, State, Locality, Organization, OrganizationUnit, CertificatePassword, CommonName, validFrom, validTo);
-#endif
+            X509Certificate2 certificate = CertificateHelper.CreateSelfSignedCertificate(CommonName, Country, State, Locality, Organization, OrganizationUnit, CertificatePassword, CommonName, validFrom, validTo, SanNames);
 
             if (!string.IsNullOrWhiteSpace(OutPfx))
             {
@@ -109,7 +104,7 @@ namespace PnP.PowerShell.Commands.Base
                 Host.UI.WriteLine(ConsoleColor.Yellow, Host.UI.RawUI.BackgroundColor, "Certificate added to store");
             }
 
-            GetPnPAdalCertificate.WriteAzureCertificateOutput(this, certificate, CertificatePassword);
+            GetPnPAzureCertificate.WriteAzureCertificateOutput(this, certificate, CertificatePassword);
         }
     }
 }

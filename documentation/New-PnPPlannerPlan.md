@@ -1,6 +1,6 @@
 ---
 Module Name: PnP.PowerShell
-title: new-pnpplannerplan
+title: New-PnPPlannerPlan
 schema: 2.0.0
 applicable: SharePoint Online
 external help file: PnP.PowerShell.dll-Help.xml
@@ -20,7 +20,7 @@ Creates a new Planner plan.
 ## SYNTAX
 
 ```powershell
-New-PnPPlannerPlan -Group <PlannerGroupPipeBind> -Title <String>  [<CommonParameters>]
+New-PnPPlannerPlan -Group <PlannerGroupPipeBind> -Title <String>  
 ```
 
 ## DESCRIPTION

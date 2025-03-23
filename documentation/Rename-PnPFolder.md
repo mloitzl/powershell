@@ -16,10 +16,12 @@ Renames a folder
 
 ```powershell
 Rename-PnPFolder -Folder <FolderPipeBind> -TargetFolderName <String> [-Connection <PnPConnection>]
- [<CommonParameters>]
+ 
 ```
 
 ## DESCRIPTION
+
+Allows to rename a folder.
 
 ## EXAMPLES
 

@@ -15,10 +15,12 @@ Retrieves the url of the tenant scoped app catalog
 ## SYNTAX
 
 ```powershell
-Get-PnPTenantAppCatalogUrl [-Connection <PnPConnection>]   [<CommonParameters>]
+Get-PnPTenantAppCatalogUrl [-Connection <PnPConnection>]   
 ```
 
 ## DESCRIPTION
+
+Allows to retrieve the url of the tenant scoped app catalog.
 
 ## EXAMPLES
 
@@ -52,21 +54,6 @@ Optional connection to be used by the cmdlet. Retrieve the value for this parame
 ```yaml
 Type: PnPConnection
 Parameter Sets: (All)
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -WhatIf
-Shows what would happen if the cmdlet runs. The cmdlet is not run.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: wi
 
 Required: False
 Position: Named

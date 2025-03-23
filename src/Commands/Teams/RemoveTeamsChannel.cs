@@ -2,16 +2,14 @@
 using PnP.PowerShell.Commands.Base;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 using PnP.PowerShell.Commands.Model.Graph;
-using PnP.PowerShell.Commands.Model.Teams;
 using PnP.PowerShell.Commands.Utilities;
-using PnP.PowerShell.Commands.Utilities.REST;
 using System;
 using System.Management.Automation;
 
 namespace PnP.PowerShell.Commands.Teams
 {
     [Cmdlet(VerbsCommon.Remove, "PnPTeamsChannel")]
-    [RequiredMinimalApiPermissions("Group.ReadWrite.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/Group.ReadWrite.All")]
     public class RemoveTeamsChannel : PnPGraphCmdlet
     {
         [Parameter(Mandatory = true)]
@@ -27,16 +25,16 @@ namespace PnP.PowerShell.Commands.Teams
         {
             if (Force || ShouldContinue("Removing the channel will also remove all the messages in the channel.", Properties.Resources.Confirm))
             {
-                var groupId = Team.GetGroupId(Connection, AccessToken);
+                var groupId = Team.GetGroupId(GraphRequestHelper);
                 if (groupId != null)
                 {
-                    var channel = Identity.GetChannel(Connection, AccessToken, groupId);
+                    var channel = Identity.GetChannel(GraphRequestHelper, groupId);
                     if (channel != null)
                     {
-                        var response = TeamsUtility.DeleteChannelAsync(AccessToken, Connection, groupId, channel.Id).GetAwaiter().GetResult();
+                        var response = TeamsUtility.DeleteChannel(GraphRequestHelper, groupId, channel.Id);
                         if (!response.IsSuccessStatusCode)
                         {
-                            if (GraphHelper.TryGetGraphException(response, out GraphException ex))
+                            if (GraphRequestHelper.TryGetGraphException(response, out GraphException ex))
                             {
                                 if (ex.Error != null)
                                 {
@@ -45,18 +43,18 @@ namespace PnP.PowerShell.Commands.Teams
                             }
                             else
                             {
-                                WriteError(new ErrorRecord(new Exception($"Channel remove failed"), "REMOVEFAILED", ErrorCategory.InvalidResult, this));
+                                LogError($"Channel remove failed");
                             }
-                        }
-                        else
-                        {
-                            throw new PSArgumentException("Channel not found");
                         }
                     }
                     else
                     {
-                        throw new PSArgumentException("Team not found");
+                        throw new PSArgumentException("Channel not found");
                     }
+                }
+                else
+                {
+                    throw new PSArgumentException("Team not found");
                 }
             }
         }

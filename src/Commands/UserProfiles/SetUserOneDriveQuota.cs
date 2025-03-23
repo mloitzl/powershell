@@ -1,14 +1,13 @@
 ﻿using System.Management.Automation;
 using Microsoft.SharePoint.Client;
 using Microsoft.SharePoint.Client.UserProfiles;
-
 using PnP.PowerShell.Commands.Base;
 
 namespace PnP.PowerShell.Commands.UserProfiles
 {
     [Cmdlet(VerbsCommon.Set, "PnPUserOneDriveQuota")]
     [OutputType(typeof(ClientResult<string>))]
-    public class SetUserOneDriveQuota : PnPAdminCmdlet
+    public class SetUserOneDriveQuota : PnPSharePointOnlineAdminCmdlet
     {
         [Parameter(Mandatory = true, Position = 0)]
         public string Account;
@@ -21,9 +20,9 @@ namespace PnP.PowerShell.Commands.UserProfiles
 
         protected override void ExecuteCmdlet()
         {
-            var peopleManager = new PeopleManager(ClientContext);
+            var peopleManager = new PeopleManager(AdminContext);
             var oneDriveQuota = peopleManager.SetUserOneDriveQuota(Account, Quota, QuotaWarning);
-            ClientContext.ExecuteQueryRetry();
+            AdminContext.ExecuteQueryRetry();
             WriteObject(oneDriveQuota);
         }
     }

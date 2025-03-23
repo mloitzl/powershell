@@ -1,5 +1,4 @@
 ﻿using Microsoft.SharePoint.Client;
-
 using PnP.PowerShell.Commands.Base;
 using System.Management.Automation;
 using PnP.PowerShell.Commands.Base.PipeBinds;
@@ -7,7 +6,7 @@ using PnP.PowerShell.Commands.Base.PipeBinds;
 namespace PnP.PowerShell.Commands.Admin
 {
     [Cmdlet(VerbsCommon.Add, "PnPOrgNewsSite")]
-    public class AddOrgNewsSite : PnPAdminCmdlet
+    public class AddOrgNewsSite : PnPSharePointOnlineAdminCmdlet
     {
         [Parameter(Mandatory = true)]
         public SitePipeBind OrgNewsSiteUrl;
@@ -15,7 +14,7 @@ namespace PnP.PowerShell.Commands.Admin
         protected override void ExecuteCmdlet()
         {
             Tenant.SetOrgNewsSite(OrgNewsSiteUrl.Url);
-            ClientContext.ExecuteQueryRetry();
+            AdminContext.ExecuteQueryRetry();
         }
     }
 }

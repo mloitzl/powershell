@@ -16,10 +16,12 @@ Retrieves a document set template
 
 ```powershell
 Get-PnPDocumentSetTemplate [-Identity] <DocumentSetPipeBind> [-Connection <PnPConnection>]
- [-Includes <String[]>] [<CommonParameters>]
+ [-Includes <String[]>] 
 ```
 
 ## DESCRIPTION
+
+Allows to retrieve a document set template.
 
 ## EXAMPLES
 
@@ -67,7 +69,19 @@ Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
+### -Includes
+Optionally allows properties to be retrieved for the returned document set template which are not included in the response by default
 
+```yaml
+Type: String[]
+Parameter Sets: (All)
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ## RELATED LINKS
 

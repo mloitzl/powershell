@@ -1,11 +1,11 @@
-﻿using System.Management.Automation;
-using Microsoft.SharePoint.Client;
-
+﻿using Microsoft.SharePoint.Client;
 using PnP.PowerShell.Commands.Base.PipeBinds;
+using System.Management.Automation;
 
 namespace PnP.PowerShell.Commands.Site
 {
     [Cmdlet(VerbsCommon.Remove, "PnPRoleDefinition")]
+    [OutputType(typeof(void))]
     public class RemoveRoleDefinition : PnPSharePointCmdlet
     {
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 0)]
@@ -21,21 +21,21 @@ namespace PnP.PowerShell.Commands.Site
             {
                 try
                 {
-                    if (Force || ShouldContinue($@"Remove Role Definition ""{roleDefinition.Name}""?", "Confirm"))
+                    if (Force || ShouldContinue($@"Remove Role Definition ""{roleDefinition.Name}""?", Properties.Resources.Confirm))
                     {
                         roleDefinition.DeleteObject();
                         ClientContext.ExecuteQueryRetry();
-                        WriteVerbose($@"Removed Role Definition ""{roleDefinition.Name}""");
+                        LogDebug($@"Removed Role Definition ""{roleDefinition.Name}""");
                     }
                 }
                 catch (ServerException e)
                 {
-                    WriteWarning($@"Exception occurred while trying to remove the Role Definition: ""{e.Message}"". Will be skipped.");
+                    LogWarning($@"Exception occurred while trying to remove the Role Definition: ""{e.Message}"". Will be skipped.");
                 }
             }
             else
             {
-                WriteWarning($"Unable to remove Role Definition as it wasn't found. Will be skipped.");
+                LogWarning($"Unable to remove Role Definition as it wasn't found. Will be skipped.");
             }
         }
     }

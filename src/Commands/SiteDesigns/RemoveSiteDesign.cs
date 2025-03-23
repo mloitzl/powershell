@@ -7,7 +7,8 @@ using System.Management.Automation;
 namespace PnP.PowerShell.Commands
 {
     [Cmdlet(VerbsCommon.Remove, "PnPSiteDesign")]
-    public class RemoveSiteDesign : PnPAdminCmdlet
+    [OutputType(typeof(void))]
+    public class RemoveSiteDesign : PnPSharePointOnlineAdminCmdlet
     {
         [Parameter(Mandatory = true, Position = 0, ValueFromPipeline = true)]
         public TenantSiteDesignPipeBind Identity;

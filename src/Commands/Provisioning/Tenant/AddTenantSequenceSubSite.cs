@@ -1,5 +1,5 @@
 ﻿using PnP.Framework.Provisioning.Model;
-
+using PnP.PowerShell.Commands.Base;
 using System;
 using System.Linq;
 using System.Management.Automation;
@@ -8,7 +8,7 @@ namespace PnP.PowerShell.Commands.Provisioning.Tenant
 {
     [Cmdlet(VerbsCommon.Add, "PnPTenantSequenceSubSite")]
     
-    public class AddTenantSequenceSubSite : PSCmdlet
+    public class AddTenantSequenceSubSite : BasePSCmdlet
     {
         [Parameter(Mandatory = true)]
         public TeamNoGroupSubSite SubSite;
@@ -24,7 +24,7 @@ namespace PnP.PowerShell.Commands.Provisioning.Tenant
             }
             else
             {
-                WriteError(new ErrorRecord(new Exception($"Site with URL {SubSite.Url} already exists in sequence"), "DUPLICATEURL", ErrorCategory.InvalidData, SubSite));
+                LogError($"Site with URL {SubSite.Url} already exists in sequence");
             }
         }
     }

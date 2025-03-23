@@ -1,17 +1,15 @@
-﻿using PnP.PowerShell.Commands.Attributes;
-using PnP.PowerShell.Commands.Base;
+﻿using PnP.PowerShell.Commands.Base;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 using PnP.PowerShell.Commands.Model.PowerPlatform.PowerAutomate;
-using PnP.PowerShell.Commands.Utilities.REST;
+using PnP.PowerShell.Commands.Utilities;
 using System.Management.Automation;
 
 namespace PnP.PowerShell.Commands.PowerPlatform.PowerAutomate
 {
     [Cmdlet(VerbsCommon.Get, "PnPFlowRun")]
-    [RequiredMinimalApiPermissions("https://management.azure.com/.default")]
-    public class GetFlowRun : PnPGraphCmdlet
+    public class GetFlowRun : PnPAzureManagementApiCmdlet
     {
-        [Parameter(Mandatory = true)]
+        [Parameter(Mandatory = false)]
         public PowerPlatformEnvironmentPipeBind Environment;
 
         [Parameter(Mandatory = true)]
@@ -22,7 +20,9 @@ namespace PnP.PowerShell.Commands.PowerPlatform.PowerAutomate
 
         protected override void ExecuteCmdlet()
         {
-            var environmentName = Environment.GetName();
+
+            string baseUrl = PowerPlatformUtility.GetPowerAutomateEndpoint(Connection.AzureEnvironment);
+            var environmentName = ParameterSpecified(nameof(Environment)) ? Environment.GetName() : PowerPlatformUtility.GetDefaultEnvironment(ArmRequestHelper, Connection.AzureEnvironment)?.Name;
             if (string.IsNullOrEmpty(environmentName))
             {
                 throw new PSArgumentException("Environment not found.");
@@ -37,12 +37,12 @@ namespace PnP.PowerShell.Commands.PowerPlatform.PowerAutomate
             if (ParameterSpecified(nameof(Identity)))
             {
                 var flowRunName = Identity.GetName();
-                var flowRun = GraphHelper.GetAsync<FlowRun>(Connection, $"https://management.azure.com/providers/Microsoft.ProcessSimple/environments/{environmentName}/flows/{flowName}/runs/{flowRunName}?api-version=2016-11-01", AccessToken).GetAwaiter().GetResult();
+                var flowRun = ArmRequestHelper.Get<FlowRun>($"{baseUrl}/providers/Microsoft.ProcessSimple/environments/{environmentName}/flows/{flowName}/runs/{flowRunName}?api-version=2016-11-01");
                 WriteObject(flowRun, false);
             }
             else
             {
-                var flowRuns = GraphHelper.GetResultCollectionAsync<FlowRun>(Connection, $"https://management.azure.com/providers/Microsoft.ProcessSimple/environments/{environmentName}/flows/{flowName}/runs?api-version=2016-11-01", AccessToken).GetAwaiter().GetResult();
+                var flowRuns = ArmRequestHelper.GetResultCollection<FlowRun>($"{baseUrl}/providers/Microsoft.ProcessSimple/environments/{environmentName}/flows/{flowName}/runs?api-version=2016-11-01");
                 WriteObject(flowRuns, true);
             }
         }

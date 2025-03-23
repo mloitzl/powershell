@@ -20,10 +20,12 @@ Gets message center announcements of the Office 365 Services from the Microsoft 
 ## SYNTAX
 
 ```powershell
-Get-PnPMessageCenterAnnouncement [-Identity <Id>] [<CommonParameters>]
+Get-PnPMessageCenterAnnouncement [-Identity <Id>] 
 ```
 
 ## DESCRIPTION
+
+Allows to retrieve the available message center announcements.
 
 ## EXAMPLES
 

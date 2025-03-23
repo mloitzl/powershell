@@ -16,10 +16,12 @@ Creates a folder within a parent folder
 
 ```powershell
 Add-PnPFolder -Name <String> -Folder <FolderPipeBind> [-Connection <PnPConnection>]
- [<CommonParameters>]
+ 
 ```
 
 ## DESCRIPTION
+
+Allows to add a new folder.
 
 ## EXAMPLES
 

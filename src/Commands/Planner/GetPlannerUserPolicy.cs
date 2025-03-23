@@ -3,17 +3,17 @@ using PnP.PowerShell.Commands.Base;
 using PnP.PowerShell.Commands.Utilities;
 using System.Management.Automation;
 
-namespace PnP.PowerShell.Commands.PowerPlatform.PowerAutomate
+namespace PnP.PowerShell.Commands.Planner
 {
     [Cmdlet(VerbsCommon.Get, "PnPPlannerUserPolicy")]
-    [RequiredMinimalApiPermissions("https://tasks.office.com/.default")]
-    public class GetPlannerUserPolicy : PnPGraphCmdlet
+    [RequiredApiDelegatedOrApplicationPermissions("https://tasks.office.com/.default")]
+    public class GetPlannerUserPolicy : PnPTasksCmdlet
     {
         [Parameter(Mandatory = true)]
         public string Identity;
         protected override void ExecuteCmdlet()
         {
-            var result = PlannerUtility.GetPlannerUserPolicyAsync(Connection, AccessToken, Identity).GetAwaiter().GetResult();
+            var result = PlannerUtility.GetPlannerUserPolicy(RequestHelper, Identity);
             WriteObject(result);
         }
     }

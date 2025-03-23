@@ -11,7 +11,7 @@ using PnP.PowerShell.Commands.Base.PipeBinds;
 namespace PnP.PowerShell.Commands
 {
     [Cmdlet(VerbsCommon.Get, "PnPTenantSite")]
-    public class GetTenantSite : PnPAdminCmdlet
+    public class GetTenantSite : PnPSharePointOnlineAdminCmdlet
     {
         private const string ParameterSet_BYURL = "By URL";
         private const string ParameterSet_ALL = "All Sites";
@@ -40,27 +40,27 @@ namespace PnP.PowerShell.Commands
 
         protected override void ExecuteCmdlet()
         {
-            ClientContext.ExecuteQueryRetry();
+            AdminContext.ExecuteQueryRetry();
             if (ParameterSpecified(nameof(Identity)))
             {
                 SiteProperties siteProperties;
                 if(Identity.Id.HasValue)
                 {
-                    siteProperties = Tenant.GetSitePropertiesById(Identity.Id.Value, Detailed);
+                    siteProperties = Tenant.GetSitePropertiesById(Identity.Id.Value, Detailed, Connection.TenantAdminUrl);
                     if(siteProperties == null) return;
                 }
                 else
                 {
                     siteProperties = Tenant.GetSitePropertiesByUrl(Identity.Url, Detailed);
-                    ClientContext.Load(siteProperties);
-                    ClientContext.ExecuteQueryRetry();
+                    AdminContext.Load(siteProperties);
+                    AdminContext.ExecuteQueryRetry();
                 }
                 Model.SPOSite site = null;
                 if (ParameterSpecified(nameof(DisableSharingForNonOwnersStatus)))
                 {
-                    var office365Tenant = new Office365Tenant(ClientContext);
+                    var office365Tenant = new Office365Tenant(AdminContext);
                     var clientResult = office365Tenant.IsSharingDisabledForNonOwnersOfSite(Identity.Url);
-                    ClientContext.ExecuteQuery();
+                    AdminContext.ExecuteQueryRetry();
                     site = new Model.SPOSite(siteProperties, clientResult.Value);
                 }
                 else
@@ -75,13 +75,11 @@ namespace PnP.PowerShell.Commands
                 {
                     IncludePersonalSite = IncludeOneDriveSites.IsPresent ? PersonalSiteFilter.Include : PersonalSiteFilter.UseServerDefault,
                     IncludeDetail = Detailed,
-#pragma warning disable CS0618 // Type or member is obsolete
                     Template = Template,
-#pragma warning restore CS0618 // Type or member is obsolete
                     Filter = Filter,
                 };
 
-                if (ClientContext.ServerVersion >= new Version(16, 0, 7708, 1200))
+                if (AdminContext.ServerVersion >= new Version(16, 0, 7708, 1200))
                 {
                     if (ParameterSpecified(nameof(GroupIdDefined)))
                     {

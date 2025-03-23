@@ -1,7 +1,7 @@
-﻿using System.Management.Automation;
-using Microsoft.SharePoint.Client;
-
+﻿using Microsoft.SharePoint.Client;
+using PnP.PowerShell.Commands.Base.Completers;
 using PnP.PowerShell.Commands.Base.PipeBinds;
+using System.Management.Automation;
 
 namespace PnP.PowerShell.Commands.ContentTypes
 {
@@ -9,10 +9,12 @@ namespace PnP.PowerShell.Commands.ContentTypes
     public class AddContentTypeToList : PnPWebCmdlet
     {
         [Parameter(Mandatory = true)]
+        [ArgumentCompleter(typeof(ListNameCompleter))]
         public ListPipeBind List;
 
         [Parameter(Mandatory = true)]
         [ValidateNotNullOrEmpty]
+        [ArgumentCompleter(typeof(ContentTypeCompleter))]
         public ContentTypePipeBind ContentType;
 
         [Parameter(Mandatory = false)]
@@ -24,7 +26,7 @@ namespace PnP.PowerShell.Commands.ContentTypes
             var ct = ContentType?.GetContentTypeOrWarn(this, CurrentWeb);
             if (ct != null)
             {
-                CurrentWeb.AddContentTypeToList(list.Title, ct, DefaultContentType);
+                list.AddContentTypeToList(ct, DefaultContentType);
             }
         }
 

@@ -20,10 +20,12 @@ Adds a Site Collection scoped App Catalog to a site
 ## SYNTAX
 
 ```powershell
-Add-PnPSiteCollectionAppCatalog [-Site <SitePipeBind>] [-Connection <PnPConnection>] [<CommonParameters>]
+Add-PnPSiteCollectionAppCatalog [-Site <SitePipeBind>] [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
+
+Allows to add Site Collection scoped App Catalog.
 
 ## EXAMPLES
 
@@ -74,4 +76,4 @@ Accept wildcard characters: False
 ## RELATED LINKS
 
 [Microsoft 365 Patterns and Practices](https://aka.ms/m365pnp)
-[Microsoft Graph documentation](https://docs.microsoft.com/sharepoint/dev/general-development/site-collection-app-catalog#configure-and-manage-site-collection-app-catalogs)
+[Microsoft Graph documentation](https://learn.microsoft.com/sharepoint/dev/general-development/site-collection-app-catalog#configure-and-manage-site-collection-app-catalogs)

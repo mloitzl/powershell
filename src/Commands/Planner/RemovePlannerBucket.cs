@@ -1,13 +1,16 @@
-using System.Management.Automation;
 using PnP.PowerShell.Commands.Attributes;
 using PnP.PowerShell.Commands.Base;
 using PnP.PowerShell.Commands.Base.PipeBinds;
+using PnP.PowerShell.Commands.Properties;
 using PnP.PowerShell.Commands.Utilities;
+using System.Management.Automation;
 
-namespace SharePointPnP.PowerShell.Commands.Graph
+namespace PnP.PowerShell.Commands.Planner
 {
     [Cmdlet(VerbsCommon.Remove, "PnPPlannerBucket", SupportsShouldProcess = true)]
-    [RequiredMinimalApiPermissions("Group.ReadWrite.All")]
+    [RequiredApiApplicationPermissions("graph/Tasks.ReadWrite")]
+    [RequiredApiApplicationPermissions("graph/Tasks.ReadWrite.All")]
+    [RequiredApiApplicationPermissions("graph/Group.ReadWrite.All")]
     public class RemovePlannerBucket : PnPGraphCmdlet
     {
         private const string ParameterName_BYNAME = "By Name";
@@ -28,19 +31,19 @@ namespace SharePointPnP.PowerShell.Commands.Graph
         {
             if (ParameterSetName == ParameterName_BYNAME)
             {
-                var groupId = Group.GetGroupId(Connection, AccessToken);
+                var groupId = Group.GetGroupId(GraphRequestHelper);
                 if (groupId != null)
                 {
-                    var planId = Plan.GetIdAsync(Connection, AccessToken, groupId).GetAwaiter().GetResult();
+                    var planId = Plan.GetId(GraphRequestHelper, groupId);
 
                     if (planId != null)
                     {
-                        var bucket = Identity.GetBucket(Connection, AccessToken, planId);
+                        var bucket = Identity.GetBucket(GraphRequestHelper, planId);
                         if (bucket != null)
                         {
-                            if (ShouldProcess($"Remove bucket '{bucket.Name}'"))
+                            if (ShouldContinue($"Remove bucket '{bucket.Name}'", Resources.Confirm))
                             {
-                                PlannerUtility.RemoveBucketAsync(Connection, AccessToken, bucket.Id).GetAwaiter().GetResult();
+                                PlannerUtility.RemoveBucket(GraphRequestHelper, bucket.Id);
                             }
                         }
                         else
@@ -60,12 +63,12 @@ namespace SharePointPnP.PowerShell.Commands.Graph
             }
             else if (ParameterSetName == ParameterName_BYBUCKETID)
             {
-                var bucket = Identity.GetBucket(Connection, AccessToken, BucketId);
+                var bucket = Identity.GetBucket(GraphRequestHelper, BucketId);
                 if (bucket != null)
                 {
-                    if (ShouldProcess($"Remove bucket '{bucket.Name}'"))
+                    if (ShouldContinue($"Remove bucket '{bucket.Name}'", Resources.Confirm))
                     {
-                        PlannerUtility.RemoveBucketAsync(Connection, AccessToken, BucketId).GetAwaiter().GetResult();
+                        PlannerUtility.RemoveBucket(GraphRequestHelper, BucketId);
                     }
                 }
                 else

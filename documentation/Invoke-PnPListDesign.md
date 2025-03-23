@@ -16,7 +16,7 @@ Apply a List Design to an existing site. * Requires Tenant Administration Rights
 
 ```powershell
 Invoke-PnPListDesign [-Identity] <TenantListDesignPipeBind> [-WebUrl <String>] 
- [-Connection <PnPConnection>]   [<CommonParameters>]
+ [-Connection <PnPConnection>]   
 ```
 
 ## DESCRIPTION
@@ -84,21 +84,6 @@ The URL of the web to apply the list design to. If not specified it will default
 ```yaml
 Type: String
 Parameter Sets: (All)
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -WhatIf
-Shows what would happen if the cmdlet runs. The cmdlet is not run.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: wi
 
 Required: False
 Position: Named

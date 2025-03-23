@@ -7,7 +7,8 @@ using System.Management.Automation;
 namespace PnP.PowerShell.Commands.Teams
 {
     [Cmdlet(VerbsCommon.Get, "PnPTeamsChannelMessageReply")]
-    [RequiredMinimalApiPermissions("ChannelMessage.Read.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/ChannelMessage.Read.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/ChannelMessage.ReadWrite.All")]
     public class GetTeamsChannelMessageReply : PnPGraphCmdlet
     {
         [Parameter(Mandatory = true)]
@@ -27,13 +28,13 @@ namespace PnP.PowerShell.Commands.Teams
 
         protected override void ExecuteCmdlet()
         {
-            var groupId = Team.GetGroupId(Connection, AccessToken);
+            var groupId = Team.GetGroupId(GraphRequestHelper);
             if (groupId == null)
             {
                 throw new PSArgumentException("Group not found");
             }
 
-            var channelId = Channel.GetId(Connection, AccessToken, groupId);
+            var channelId = Channel.GetId(GraphRequestHelper, groupId);
             if (channelId == null)
             {
                 throw new PSArgumentException("Channel not found");
@@ -54,12 +55,12 @@ namespace PnP.PowerShell.Commands.Teams
                         throw new PSArgumentException($"Don't specify {nameof(IncludeDeleted)} when using the {nameof(Identity)} parameter.");
                     }
 
-                    var reply = TeamsUtility.GetMessageReplyAsync(Connection, AccessToken, groupId, channelId, messageId, Identity.GetId()).GetAwaiter().GetResult();
+                    var reply = TeamsUtility.GetMessageReply(GraphRequestHelper, groupId, channelId, messageId, Identity.GetId());
                     WriteObject(reply);
                 }
                 else
                 {
-                    var replies = TeamsUtility.GetMessageRepliesAsync(Connection, AccessToken, groupId, channelId, messageId, IncludeDeleted).GetAwaiter().GetResult();
+                    var replies = TeamsUtility.GetMessageReplies(GraphRequestHelper, groupId, channelId, messageId, IncludeDeleted);
                     WriteObject(replies, true);
                 }
             }

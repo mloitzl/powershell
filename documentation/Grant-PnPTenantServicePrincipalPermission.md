@@ -22,10 +22,12 @@ Explicitly grants a specified permission to the "SharePoint Online Client Extens
 
 ```powershell
 Grant-PnPTenantServicePrincipalPermission -Scope <String> [-Resource <String>] [-Connection <PnPConnection>]
- [<CommonParameters>]
+ 
 ```
 
 ## DESCRIPTION
+
+Allows to grant a specified permission o the "SharePoint Online Client Extensibility Web Application Principal" service principal for SPFx solutions.
 
 ## EXAMPLES
 

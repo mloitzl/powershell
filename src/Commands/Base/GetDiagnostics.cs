@@ -64,7 +64,7 @@ namespace PnP.PowerShell.Commands.Base
         void FillNewerVersionAvailable(Diagnostics result)
         {
             var versionAvailable = VersionChecker.GetAvailableVersion();
-            if (versionAvailable != null && VersionChecker.IsNewer(versionAvailable))
+            if (versionAvailable != null && VersionChecker.IsNewer(versionAvailable.SemanticVersion))
             {
                 result.NewerVersionAvailable = versionAvailable.ToString();
             }
@@ -81,7 +81,7 @@ namespace PnP.PowerShell.Commands.Base
                 var correlationId = string.Empty;
                 if (exception.Exception.Data.Contains("CorrelationId"))
                 {
-                    correlationId = exception.Exception.Data["CorrelationId"].ToString();
+                    correlationId = exception.Exception.Data["CorrelationId"]?.ToString();
                 }
                 var timeStampUtc = DateTime.MinValue;
                 if (exception.Exception.Data.Contains("TimeStampUtc"))

@@ -1,6 +1,7 @@
 ﻿using Microsoft.SharePoint.Client;
 using Microsoft.SharePoint.Client.Taxonomy;
 using PnP.Core.QueryModel;
+using PnP.PowerShell.Commands.Base;
 using PnP.PowerShell.Commands.Enums;
 using PnP.PowerShell.Commands.Model;
 using System;
@@ -33,7 +34,7 @@ namespace PnP.PowerShell.Commands.Utilities
             }
         }
 
-        public static void SetFieldValues(this ListItem item, Hashtable valuesToSet, Cmdlet cmdlet)
+        public static void SetFieldValues(this ListItem item, Hashtable valuesToSet, BasePSCmdlet cmdlet)
         {
             var itemValues = new List<FieldUpdateValue>();
 
@@ -68,7 +69,7 @@ namespace PnP.PowerShell.Commands.Utilities
                                 if (value is string && string.IsNullOrWhiteSpace(value + "")) goto default;
                                 if (value.GetType().IsArray)
                                 {
-                                    foreach (var arrayItem in (value as IEnumerable))
+                                    foreach (var arrayItem in value as IEnumerable)
                                     {
                                         int userId;
                                         if (!int.TryParse(arrayItem.ToString(), out userId))
@@ -114,10 +115,10 @@ namespace PnP.PowerShell.Commands.Utilities
                                     {
                                         TaxonomyItem taxonomyItem;
                                         Guid termGuid;
-                                        if (!Guid.TryParse(arrayItem as string, out termGuid))
+                                        if (!Guid.TryParse(arrayItem?.ToString(), out termGuid))
                                         {
                                             // Assume it's a TermPath
-                                            taxonomyItem = clonedContext.Site.GetTaxonomyItemByPath(arrayItem as string);
+                                            taxonomyItem = clonedContext.Site.GetTaxonomyItemByPath(arrayItem?.ToString());
                                         }
                                         else
                                         {
@@ -125,13 +126,13 @@ namespace PnP.PowerShell.Commands.Utilities
                                             clonedContext.Load(taxonomyItem);
                                             clonedContext.ExecuteQueryRetry();
                                         }
-                                        if(taxonomyItem != null)
+                                        if (taxonomyItem != null)
                                         {
                                             terms.Add(new KeyValuePair<Guid, string>(taxonomyItem.Id, taxonomyItem.Name));
                                         }
                                         else
                                         {
-                                            cmdlet.WriteWarning("Unable to find the specified term. Skipping values for field '" + field.InternalName + "'.");
+                                            cmdlet.LogWarning("Unable to find the specified term. Skipping values for field '" + field.InternalName + "'.");
                                         }
                                     }
 
@@ -151,11 +152,11 @@ namespace PnP.PowerShell.Commands.Utilities
 
                                             var newTaxFieldValue = new TaxonomyFieldValueCollection(context, termValuesString, taxField);
                                             itemValues.Add(new FieldUpdateValue(key as string, newTaxFieldValue, field.TypeAsString));
-                                        }                                        
+                                        }
                                     }
                                     else
                                     {
-                                        cmdlet.WriteWarning("You are trying to set multiple values in a single value field. Skipping values for field '" + field.InternalName + "'.");
+                                        cmdlet.LogWarning("You are trying to set multiple values in a single value field. Skipping values for field '" + field.InternalName + "'.");
                                     }
                                 }
                                 else
@@ -172,7 +173,7 @@ namespace PnP.PowerShell.Commands.Utilities
                                         if (taxonomyItem == null)
                                         {
                                             updateTaxItemValue = false;
-                                            cmdlet.WriteWarning("Unable to find the specified term. Skipping values for field '" + field.InternalName + "'.");
+                                            cmdlet.LogWarning("Unable to find the specified term. Skipping values for field '" + field.InternalName + "'.");
                                         }
                                     }
                                     else
@@ -195,10 +196,10 @@ namespace PnP.PowerShell.Commands.Utilities
                                     }
                                     else
                                     {
-                                        if(updateTaxItemValue)
+                                        if (updateTaxItemValue)
                                         {
                                             taxField.ValidateSetValue(item, null);
-                                        }                                        
+                                        }
                                     }
                                 }
                                 break;
@@ -343,7 +344,22 @@ namespace PnP.PowerShell.Commands.Utilities
                                         }
                                         else
                                         {
-                                            userValueCollection.Values.Add(field.NewFieldUserValue(userId));
+                                            try
+                                            {
+                                                var fieldUserValue = list.PnPContext.Web.GetUserById(userId);
+                                                userValueCollection.Values.Add(field.NewFieldUserValue(fieldUserValue));
+                                            }
+                                            catch
+                                            {
+                                                // It is SharePoint Group
+                                                list.PnPContext.Web.LoadAsync(p => p.SiteGroups).GetAwaiter().GetResult();
+                                                var groupItem = list.PnPContext.Web.SiteGroups.AsRequested().Where(g => g.Id == userId).FirstOrDefault();
+                                                if (groupItem != null)
+                                                {
+                                                    userValueCollection.Values.Add(field.NewFieldUserValue(groupItem));
+                                                }
+                                            }
+
                                         }
                                     }
                                     item[key as string] = userValueCollection;
@@ -358,7 +374,21 @@ namespace PnP.PowerShell.Commands.Utilities
                                     }
                                     else
                                     {
-                                        item[key as string] = field.NewFieldUserValue(userId);
+                                        try
+                                        {
+                                            var fieldUserValue = list.PnPContext.Web.GetUserById(userId);
+                                            item[key as string] = field.NewFieldUserValue(fieldUserValue);
+                                        }
+                                        catch
+                                        {
+                                            // It is SharePoint Group
+                                            list.PnPContext.Web.LoadAsync(p => p.SiteGroups).GetAwaiter().GetResult();
+                                            var groupItem = list.PnPContext.Web.SiteGroups.AsRequested().Where(g => g.Id == userId).FirstOrDefault();
+                                            if (groupItem != null)
+                                            {
+                                                item[key as string] = field.NewFieldUserValue(groupItem);
+                                            }
+                                        }
                                     }
                                 }
                                 break;
@@ -394,21 +424,22 @@ namespace PnP.PowerShell.Commands.Utilities
                                         var label = string.Empty;
                                         var itemId = Guid.Empty;
 
-                                        if (!Guid.TryParse(arrayItem as string, out termGuid))
+                                        if (!Guid.TryParse(arrayItem?.ToString(), out termGuid))
                                         {
-                                            var batchedTerm = batch.GetCachedTerm(termGuid.ToString());
+                                            var batchedTerm = batch.GetCachedTerm(arrayItem?.ToString());
                                             if (batchedTerm.key == null)
                                             {
-                                                taxonomyItem = clientContext.Site.GetTaxonomyItemByPath(arrayItem as string) as Term;
+                                                taxonomyItem = clientContext.Site.GetTaxonomyItemByPath(arrayItem?.ToString()) as Term;
                                                 if (taxonomyItem == null)
                                                 {
-                                                    throw new PSInvalidOperationException($"Cannot find term {arrayItem}");
+                                                    throw new PSInvalidOperationException($"Cannot find term '{arrayItem}'");
                                                 }
                                                 var labelResult = taxonomyItem.GetDefaultLabel(defaultLanguage);
                                                 clientContext.ExecuteQueryRetry();
                                                 label = labelResult.Value;
                                                 itemId = taxonomyItem.Id;
-                                                batch.CacheTerm(termGuid.ToString(), termGuid, label);
+                                                batch.CacheTerm(arrayItem?.ToString(), itemId, label);
+                                                batch.CacheTerm(itemId.ToString(), itemId, label);
                                             }
                                             else
                                             {
@@ -438,10 +469,12 @@ namespace PnP.PowerShell.Commands.Utilities
                                                 itemId = batchedTerm.id;
                                                 label = batchedTerm.label;
                                             }
-                                            fieldValueCollection.Values.Add(field.NewFieldTaxonomyValue(itemId, label));
                                         }
-                                        item[key as string] = fieldValueCollection;
+
+                                        fieldValueCollection.Values.Add(field.NewFieldTaxonomyValue(itemId, label));
                                     }
+
+                                    item[key as string] = fieldValueCollection;
                                 }
                                 else
                                 {

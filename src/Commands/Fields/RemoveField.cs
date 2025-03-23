@@ -1,8 +1,12 @@
-﻿using System;
-using System.Management.Automation;
-using Microsoft.SharePoint.Client;
-
+﻿using Microsoft.SharePoint.Client;
+using PnP.Core.Model.SharePoint;
+using PnP.Core.QueryModel;
+using PnP.PowerShell.Commands.Base.Completers;
 using PnP.PowerShell.Commands.Base.PipeBinds;
+using PnP.PowerShell.Commands.Model;
+using System;
+using System.Linq;
+using System.Management.Automation;
 
 namespace PnP.PowerShell.Commands.Fields
 {
@@ -11,15 +15,103 @@ namespace PnP.PowerShell.Commands.Fields
     public class RemoveField : PnPWebCmdlet
     {
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 0)]
+        [ArgumentCompleter(typeof(FieldInternalNameCompleter))]
         public FieldPipeBind Identity = new FieldPipeBind();
 
         [Parameter(Mandatory = false, ValueFromPipeline = true, Position = 1)]
+        [ArgumentCompleter(typeof(ListNameCompleter))]
         public ListPipeBind List;
 
         [Parameter(Mandatory = false)]
         public SwitchParameter Force;
 
+        [Parameter(Mandatory = false)]
+        public PnPBatch Batch;
+
         protected override void ExecuteCmdlet()
+        {
+            if (ParameterSpecified(nameof(Batch)))
+            {
+                RemoveFieldBatch();
+            }
+            else
+            {
+                RemoveSingleField();
+            }
+        }
+
+        private void RemoveFieldBatch()
+        {
+            if (List != null)
+            {
+                var list = List.GetList(Connection.PnPContext);
+                list.EnsureProperties(l => l.Fields);
+                var fieldCollection = list.Fields.AsRequested();
+                var f = Identity.Field;
+                IField pnpField = null;
+
+                if (list != null)
+                {
+                    if (f == null)
+                    {
+                        if (Identity.Id != Guid.Empty)
+                        {
+                            pnpField = fieldCollection.Where(fi => fi.Id == Identity.Id).FirstOrDefault();
+                        }
+                        else if (!string.IsNullOrEmpty(Identity.Name))
+                        {
+                            pnpField = fieldCollection.Where(fi => fi.InternalName == Identity.Name).FirstOrDefault();
+                            if (pnpField == null)
+                            {
+                                pnpField = fieldCollection.Where(fi => fi.Title == Identity.Name).FirstOrDefault();
+                            }
+                        }
+
+                        if (pnpField != null)
+                        {
+                            if (Force || ShouldContinue(string.Format(Properties.Resources.DeleteField0, pnpField.InternalName), Properties.Resources.Confirm))
+                            {
+                                pnpField.DeleteBatch(Batch.Batch);
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                var f = Identity.Field;
+                var pnpWeb = Connection.PnPContext.Web;
+                pnpWeb.EnsureProperties(w => w.Fields);
+                var fieldCollection = pnpWeb.Fields.AsRequested();
+                IField pnpField = null;
+                if (f == null)
+                {
+                    if (Identity.Id != Guid.Empty)
+                    {
+                        pnpField = fieldCollection.Where(fi => fi.Id == Identity.Id).FirstOrDefault();
+                    }
+                    else if (!string.IsNullOrEmpty(Identity.Name))
+                    {
+                        pnpField = fieldCollection.Where(fi => fi.InternalName == Identity.Name).FirstOrDefault();
+
+                        if (pnpField == null)
+                        {
+                            pnpField = fieldCollection.Where(fi => fi.Title == Identity.Name).FirstOrDefault();
+                        }
+                    }
+
+                    if (pnpField != null)
+                    {
+                        if (Force || ShouldContinue(string.Format(Properties.Resources.DeleteField0, pnpField.InternalName), Properties.Resources.Confirm))
+                        {
+                            pnpField.DeleteBatch(Batch.Batch);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void RemoveSingleField()
         {
             if (List != null)
             {
@@ -50,7 +142,7 @@ namespace PnP.PowerShell.Commands.Fields
                         }
                     }
                 }
-            } 
+            }
             else
             {
                 var f = Identity.Field;
@@ -80,5 +172,4 @@ namespace PnP.PowerShell.Commands.Fields
             }
         }
     }
-
 }

@@ -7,7 +7,9 @@ using PnP.PowerShell.Commands.Utilities;
 namespace PnP.PowerShell.Commands.Graph
 {
     [Cmdlet(VerbsCommon.Set, "PnPPlannerPlan")]
-    [RequiredMinimalApiPermissions("Group.ReadWrite.All")]
+    [RequiredApiApplicationPermissions("graph/Tasks.ReadWrite")]
+    [RequiredApiApplicationPermissions("graph/Tasks.ReadWrite.All")]
+    [RequiredApiApplicationPermissions("graph/Group.ReadWrite.All")]
     public class SetPlannerPlan : PnPGraphCmdlet
     {
         private const string ParameterName_BYGROUP = "By Group";
@@ -29,13 +31,13 @@ namespace PnP.PowerShell.Commands.Graph
         {
             if (ParameterSetName == ParameterName_BYGROUP)
             {
-                var groupId = Group.GetGroupId(Connection, AccessToken);
+                var groupId = Group.GetGroupId(GraphRequestHelper);
                 if (groupId != null)
                 {
-                    var plan = Plan.GetPlanAsync(Connection, AccessToken, groupId, false).GetAwaiter().GetResult();
+                    var plan = Plan.GetPlan(GraphRequestHelper, groupId, false);
                     if (plan != null)
                     {
-                        WriteObject(PlannerUtility.UpdatePlanAsync(Connection, AccessToken, plan, Title).GetAwaiter().GetResult());
+                        WriteObject(PlannerUtility.UpdatePlan(GraphRequestHelper, plan, Title));
                     }
                     else
                     {
@@ -49,10 +51,10 @@ namespace PnP.PowerShell.Commands.Graph
             }
             else
             {
-                var plan = PlannerUtility.GetPlanAsync(Connection, AccessToken, PlanId, false).GetAwaiter().GetResult();
+                var plan = PlannerUtility.GetPlan(GraphRequestHelper, PlanId, false);
                 if (plan != null)
                 {
-                    WriteObject(PlannerUtility.UpdatePlanAsync(Connection, AccessToken, plan, Title).GetAwaiter().GetResult());
+                    WriteObject(PlannerUtility.UpdatePlan(GraphRequestHelper, plan, Title));
                 }
                 else
                 {

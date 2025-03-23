@@ -20,10 +20,12 @@ Gets one Microsoft 365 Group or a list of Microsoft 365 Groups
 ## SYNTAX
 
 ```powershell
-Get-PnPMicrosoft365Group [-Identity <Microsoft365GroupPipeBind>] [-IncludeSiteUrl] [-IncludeOwners] [<CommonParameters>]
+Get-PnPMicrosoft365Group [-Identity <Microsoft365GroupPipeBind>] [-IncludeSiteUrl] [-IncludeOwners] [-Detailed] [-Filter <string>] [-IncludeSensitivityLabels]
 ```
 
 ## DESCRIPTION
+
+Allows to retrieve Microsoft 365 Groups. By using `Identity` option you may specify the exact group that will be retrieved.
 
 ## EXAMPLES
 
@@ -77,7 +79,32 @@ $g[0].Owners
 
 Retrieves all Microsoft 365 Groups in this tenant and retrieves the owners for each group. The owners are available in the "Owners" property of the returned objects.
 
+### EXAMPLE 8
+```powershell
+$groups = Get-PnPMicrosoft365Group -Filter "startswith(description, 'contoso')"
+```
+
+Retrieves all Microsoft 365 Groups in this tenant with description starting with Contoso. This example demonstrates using Advanced Query capabilities (see: https://learn.microsoft.com/graph/aad-advanced-queries?tabs=http#group-properties).
+
 ## PARAMETERS
+
+### -Detailed
+When provided, the following properties originating from Exchange Online, will also be loaded into the returned group. Without providing this flag, they will not be populated. Providing this flag causes an extra call to be made to Microsoft Graph, so only add it when you need one of the properties below.
+
+- AutoSubscribeNewMembers
+- RequireSenderAuthenticationEnabled
+- IsSubscribedByMail
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -IncludeSiteUrl
 Include fetching the site URL for Microsoft 365 Groups. This slows down large listings.
@@ -121,6 +148,34 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Filter
+Specify the query to pass to Graph API in $filter.
+
+```yaml
+Type: String
+Parameter Sets: Filter
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -IncludeSensitivityLabels
+
+Include fetching the sensitivity labels. This slows down large listings.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ## RELATED LINKS
 

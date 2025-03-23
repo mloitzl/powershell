@@ -219,7 +219,7 @@ namespace PnP.PowerShell.Commands.Pages
             if (string.IsNullOrEmpty(this.WebPartMappingFile))
             {
                 webPartMappingModel = PageTransformator.LoadDefaultWebPartMapping();
-                this.WriteVerbose("Using embedded webpartmapping file. Use Export-PnPClientSidePageMapping to get that file in case you want to base your version of the embedded version.");
+                this.LogDebug("Using embedded webpartmapping file. Use Export-PnPClientSidePageMapping to get that file in case you want to base your version of the embedded version.");
             }
 
             // Validate webpartmappingfile
@@ -477,8 +477,8 @@ namespace PnP.PowerShell.Commands.Pages
         {
             get
             {
-                string codeBase = Assembly.GetExecutingAssembly().CodeBase;
-                UriBuilder uri = new UriBuilder(codeBase);
+                string location = Assembly.GetExecutingAssembly().Location;
+                UriBuilder uri = new UriBuilder(location);
                 string path = Uri.UnescapeDataString(uri.Path);
                 return Path.GetDirectoryName(path);
             }

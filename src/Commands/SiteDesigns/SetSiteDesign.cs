@@ -10,7 +10,8 @@ using System.Management.Automation;
 namespace PnP.PowerShell.Commands
 {
     [Cmdlet(VerbsCommon.Set, "PnPSiteDesign")]
-    public class SetSiteDesign : PnPAdminCmdlet
+    [OutputType(typeof(TenantSiteDesign))]
+    public class SetSiteDesign : PnPSharePointOnlineAdminCmdlet
     {
         [Parameter(Mandatory = true)]
         public TenantSiteDesignPipeBind Identity;
@@ -47,9 +48,9 @@ namespace PnP.PowerShell.Commands
 
         protected override void ExecuteCmdlet()
         {
-            var design = Tenant.GetSiteDesign(ClientContext, Identity.Id);
-            ClientContext.Load(design);
-            ClientContext.ExecuteQueryRetry();
+            var design = Tenant.GetSiteDesign(AdminContext, Identity.Id);
+            AdminContext.Load(design);
+            AdminContext.ExecuteQueryRetry();
             if (design != null)
             {
                 var isDirty = false;
@@ -106,13 +107,13 @@ namespace PnP.PowerShell.Commands
                 if (isDirty)
                 {
                     Tenant.UpdateSiteDesign(design);
-                    ClientContext.ExecuteQueryRetry();
+                    AdminContext.ExecuteQueryRetry();
                 }
                 WriteObject(design);
             }
             else
             {
-                WriteError(new ErrorRecord(new ItemNotFoundException(), "SITEDESIGNNOTFOUND", ErrorCategory.ObjectNotFound, Identity));
+                LogError(new ItemNotFoundException());
             }
         }
     }

@@ -11,9 +11,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Management.Automation;
-using System.Text.RegularExpressions;
 using System.Text;
 using SPSite = Microsoft.SharePoint.Client.Site;
+using PnP.PowerShell.Commands.Base.Completers;
 
 namespace PnP.PowerShell.Commands.Provisioning.Site
 {
@@ -26,6 +26,7 @@ namespace PnP.PowerShell.Commands.Provisioning.Site
 
         [Parameter(Mandatory = true)]
         [ValidateNotNullOrEmpty]
+        [ArgumentCompleter(typeof(ListNameCompleter))]
         public ListPipeBind List;
 
         [Parameter(Mandatory = false)]
@@ -44,6 +45,10 @@ namespace PnP.PowerShell.Commands.Provisioning.Site
         [Parameter(Mandatory = false)]
         public SwitchParameter TokenizeUrls;
 
+        [Parameter(Mandatory = false)]
+        [ValidateNotNullOrEmpty]
+        public string KeyColumn;
+
         private readonly static FieldType[] _unsupportedFieldTypes =
         {
             FieldType.Attachments,
@@ -59,7 +64,7 @@ namespace PnP.PowerShell.Commands.Provisioning.Site
 
             var template = ProvisioningHelper.LoadSiteTemplateFromFile(Path, TemplateProviderExtensions, (e) =>
                     {
-                        WriteError(new ErrorRecord(e, "TEMPLATENOTVALID", ErrorCategory.SyntaxError, null));
+                        LogError(e);
                     });
 
             if (template == null)
@@ -79,6 +84,11 @@ namespace PnP.PowerShell.Commands.Provisioning.Site
                 throw new ApplicationException("List does not exist in the template file!");
             }
 
+            if (!string.IsNullOrEmpty(KeyColumn))
+            {
+                listInstance.DataRows.KeyColumn = KeyColumn;
+            }
+
             ClientContext.Load(ClientContext.Web, w => w.Url, w => w.ServerRelativeUrl, w => w.Id);
             ClientContext.Load(ClientContext.Site, s => s.Url, s => s.ServerRelativeUrl, s => s.Id);
 
@@ -95,11 +105,21 @@ namespace PnP.PowerShell.Commands.Provisioning.Site
                 viewFieldsStringBuilder.Append("</ViewFields>");
             }
 
-            query.ViewXml = string.Format("<View>{0}{1}</View>", Query, viewFieldsStringBuilder);
-            var listItems = spList.GetItems(query);
+            query.ViewXml = string.Format("<View Scope='RecursiveAll'>{0}{1}</View>", Query, viewFieldsStringBuilder);
+            List<ListItem> listItems = new List<ListItem>();
+            do
+            {
+                var listItemsCollection = spList.GetItems(query);
 
-            ClientContext.Load(listItems, lI => lI.Include(l => l.HasUniqueRoleAssignments, l => l.ContentType.StringId));
-            ClientContext.ExecuteQueryRetry();
+                ClientContext.Load(listItemsCollection, lI => lI.Include(l => l.HasUniqueRoleAssignments, l => l.ContentType.StringId));
+                ClientContext.ExecuteQueryRetry();
+
+                listItemsCollection.EnsureProperty(l => l.ListItemCollectionPosition);
+
+                query.ListItemCollectionPosition = listItemsCollection.ListItemCollectionPosition;
+                listItems.AddRange(listItemsCollection);
+
+            } while (query.ListItemCollectionPosition != null);
 
             Microsoft.SharePoint.Client.FieldCollection fieldCollection = spList.Fields;
             ClientContext.Load(fieldCollection, fs => fs.Include(f => f.InternalName, f => f.FieldTypeKind, f => f.ReadOnlyField));
@@ -111,30 +131,32 @@ namespace PnP.PowerShell.Commands.Provisioning.Site
                 // Make sure we don't pull Folders.. Of course this won't work
                 if (listItem.ServerObjectIsNull == false)
                 {
-                    ClientContext.Load(listItem);
-                    ClientContext.ExecuteQueryRetry();
                     if (!(listItem.FileSystemObjectType == FileSystemObjectType.Folder))
                     {
                         DataRow row = new DataRow();
-                        if (IncludeSecurity && listItem.HasUniqueRoleAssignments)
+                        if (IncludeSecurity)
                         {
-                            row.Security.ClearSubscopes = true;
-                            row.Security.CopyRoleAssignments = false;
-
-                            var roleAssignments = listItem.RoleAssignments;
-                            ClientContext.Load(roleAssignments);
-                            ClientContext.ExecuteQueryRetry();
-
-                            ClientContext.Load(roleAssignments, r => r.Include(a => a.Member.LoginName, a => a.Member, a => a.RoleDefinitionBindings));
-                            ClientContext.ExecuteQueryRetry();
-
-                            foreach (var roleAssignment in roleAssignments)
+                            listItem.EnsureProperty(l => l.HasUniqueRoleAssignments);
+                            if (listItem.HasUniqueRoleAssignments)
                             {
-                                var principalName = roleAssignment.Member.LoginName;
-                                var roleBindings = roleAssignment.RoleDefinitionBindings;
-                                foreach (var roleBinding in roleBindings)
+                                row.Security.ClearSubscopes = true;
+                                row.Security.CopyRoleAssignments = false;
+
+                                var roleAssignments = listItem.RoleAssignments;
+                                ClientContext.Load(roleAssignments);
+                                ClientContext.ExecuteQueryRetry();
+
+                                ClientContext.Load(roleAssignments, r => r.Include(a => a.Member.LoginName, a => a.Member, a => a.RoleDefinitionBindings));
+                                ClientContext.ExecuteQueryRetry();
+
+                                foreach (var roleAssignment in roleAssignments)
                                 {
-                                    row.Security.RoleAssignments.Add(new PnP.Framework.Provisioning.Model.RoleAssignment() { Principal = principalName, RoleDefinition = roleBinding.Name });
+                                    var principalName = roleAssignment.Member.LoginName;
+                                    var roleBindings = roleAssignment.RoleDefinitionBindings;
+                                    foreach (var roleBinding in roleBindings)
+                                    {
+                                        row.Security.RoleAssignments.Add(new PnP.Framework.Provisioning.Model.RoleAssignment() { Principal = principalName, RoleDefinition = roleBinding.Name });
+                                    }
                                 }
                             }
                         }
@@ -175,7 +197,6 @@ namespace PnP.PowerShell.Commands.Provisioning.Site
                                 }
                             }
                         }
-
                         rows.Add(row);
                     }
                 }
@@ -274,7 +295,7 @@ namespace PnP.PowerShell.Commands.Provisioning.Site
                     return Convert.ToString(rawValue);
                 case FieldType.DateTime:
                     var dateValue = rawValue as DateTime?;
-                    if(dateValue != null)
+                    if (dateValue != null)
                     {
                         return string.Format("{0:O}", dateValue.Value.ToUniversalTime());
                     }
@@ -302,7 +323,7 @@ namespace PnP.PowerShell.Commands.Provisioning.Site
             catch
             {
                 // If user is removed/disabled from AAD, return null
-                WriteWarning("User cannot be found, skipped adding field value");
+                LogWarning("User cannot be found, skipped adding field value");
                 return null;
             }
         }

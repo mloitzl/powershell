@@ -2,12 +2,11 @@
 using System.Management.Automation;
 using Microsoft.SharePoint.Client;
 using Microsoft.SharePoint.Administration;
-using System;
 
 namespace PnP.PowerShell.Commands.Admin
 {
     [Cmdlet(VerbsCommon.Set, "PnPBuiltInDesignPackageVisibility")]
-    public class SetBuiltInDesignPackageVisibility : PnPAdminCmdlet
+    public class SetBuiltInDesignPackageVisibility : PnPSharePointOnlineAdminCmdlet
     {
         [Parameter(Mandatory = true)]
         public bool IsVisible;
@@ -20,8 +19,8 @@ namespace PnP.PowerShell.Commands.Admin
             {
                 throw new PSArgumentException(nameof(DesignPackage));
             }
-            Microsoft.Online.SharePoint.TenantAdministration.Tenant.SetBuiltInDesignPackageVisibility(ClientContext, DesignPackage, IsVisible);
-            ClientContext.ExecuteQueryRetry();
+            Microsoft.Online.SharePoint.TenantAdministration.Tenant.SetBuiltInDesignPackageVisibility(AdminContext, DesignPackage, IsVisible);
+            AdminContext.ExecuteQueryRetry();
         }
     }
 }

@@ -11,7 +11,6 @@ using System.Linq;
 using PnP.Framework.Provisioning.Providers;
 using System.Collections.Generic;
 using PnP.PowerShell.Commands.Utilities;
-using PnP.PowerShell.Commands.Base;
 
 namespace PnP.PowerShell.Commands.Provisioning.Site
 {
@@ -151,7 +150,7 @@ namespace PnP.PowerShell.Commands.Provisioning.Site
                 if (provisioningTemplate == null)
                 {
                     // If we don't have the template, raise an error and exit
-                    WriteError(new ErrorRecord(new Exception("The -Path parameter targets an invalid repository or template object."), "WRONG_PATH", ErrorCategory.SyntaxError, null));
+                    LogError("The -Path parameter targets an invalid repository or template object.");
                     return;
                 }
 
@@ -261,7 +260,7 @@ namespace PnP.PowerShell.Commands.Provisioning.Site
                         {
                             if (!warningsShown.Contains(message))
                             {
-                                WriteWarning(message);
+                                LogWarning(message);
                                 warningsShown.Add(message);
                             }
                             break;

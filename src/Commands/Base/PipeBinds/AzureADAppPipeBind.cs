@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using System.Management.Automation;
-using System.Net.Http;
 using PnP.PowerShell.Commands.Model;
 using PnP.PowerShell.Commands.Utilities.REST;
 
@@ -29,30 +28,29 @@ namespace PnP.PowerShell.Commands.Base.PipeBinds
             }
         }
 
-        public AzureADApp GetApp(BasePSCmdlet cmdlet, PnPConnection connection, string accessToken)
+        public AzureADApp GetApp(ApiRequestHelper requestHelper)
         {
             if (_id != Guid.Empty)
             {
-                var results = Utilities.REST.GraphHelper.GetAsync<RestResultCollection<AzureADApp>>(connection, $"/v1.0/applications?$filter=appId eq '{_id}'", accessToken).GetAwaiter().GetResult();
+                var results = requestHelper.Get<RestResultCollection<AzureADApp>>($"/v1.0/applications?$filter=appId eq '{_id}'");
                 if (results != null && results.Items.Any())
                 {
                     return results.Items.First();
                 }
                 else
                 {
-                    return Utilities.REST.GraphHelper.GetAsync<AzureADApp>(connection, $"/v1.0/applications/{_id}", accessToken).GetAwaiter().GetResult();
+                    return requestHelper.Get<AzureADApp>($"/v1.0/applications/{_id}");
                 }
 
             }
             if (!string.IsNullOrEmpty(_name))
             {
-                var results = Utilities.REST.GraphHelper.GetAsync<RestResultCollection<AzureADApp>>(connection, $"/v1.0/applications?$filter=displayName eq '{_name}'", accessToken).GetAwaiter().GetResult();
+                var results = requestHelper.Get<RestResultCollection<AzureADApp>>($"/v1.0/applications?$filter=displayName eq '{_name}'");
                 if (results != null && results.Items.Any())
                 {
                     return results.Items.First();
                 }
             }
-            cmdlet.WriteError(new PSArgumentException("Azure AD App not found"), ErrorCategory.ObjectNotFound);
             return null;
         }
     }

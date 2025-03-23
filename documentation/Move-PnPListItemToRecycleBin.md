@@ -16,10 +16,12 @@ Moves an item from a list to the Recycle Bin
 
 ```powershell
 Move-PnPListItemToRecycleBin [-List] <ListPipeBind> -Identity <ListItemPipeBind> [-Force] 
- [-Connection <PnPConnection>]   [<CommonParameters>]
+ [-Connection <PnPConnection>]   
 ```
 
 ## DESCRIPTION
+
+Allows to move an item to the recycle bin.
 
 ## EXAMPLES
 
@@ -100,23 +102,6 @@ Required: True
 Position: 0
 Default value: None
 Accept pipeline input: True (ByValue)
-Accept wildcard characters: False
-```
-
-
-
-### -WhatIf
-Shows what would happen if the cmdlet runs. The cmdlet is not run.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: wi
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
 Accept wildcard characters: False
 ```
 

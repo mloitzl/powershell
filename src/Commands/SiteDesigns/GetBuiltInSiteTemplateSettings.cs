@@ -10,7 +10,7 @@ using System.Management.Automation;
 namespace PnP.PowerShell.Commands
 {
     [Cmdlet(VerbsCommon.Get, "PnPBuiltInSiteTemplateSettings")]
-    public class GetBuiltInSiteTemplateSettings : PnPAdminCmdlet
+    public class GetBuiltInSiteTemplateSettings : PnPSharePointOnlineAdminCmdlet
     {
         private const string ByIdentityParamSet = "ByIdentity";
         private const string ByTemplateParamSet = "ByTemplate";
@@ -30,18 +30,18 @@ namespace PnP.PowerShell.Commands
                 {
                     if (Identity == null || !Identity.Id.HasValue) throw new PSArgumentException($"Identity contains an invalid {nameof(BuiltInSiteTemplateSettingsPipeBind)} value", nameof(Identity));
 
-                    templateSetting = Tenant.GetOutOfBoxSiteTemplateSettings(ClientContext, Identity.Id.Value);
+                    templateSetting = Tenant.GetOutOfBoxSiteTemplateSettings(AdminContext, Identity.Id.Value);
                 }
                 else
                 {
                     var template = BuiltInSiteTemplateSettings.BuiltInSiteTemplateMappings.FirstOrDefault(tm => tm.Value == Template);
-                    templateSetting = Tenant.GetOutOfBoxSiteTemplateSettings(ClientContext, template.Key);
+                    templateSetting = Tenant.GetOutOfBoxSiteTemplateSettings(AdminContext, template.Key);
                 }
-                ClientContext.ExecuteQueryRetry();
+                AdminContext.ExecuteQueryRetry();
 
                 if(templateSetting == null || templateSetting.Value == null)
                 {
-                    WriteVerbose("No out of the box SharePoint site template setting with the identity provided through Identity has been found");
+                    LogDebug("No out of the box SharePoint site template setting with the identity provided through Identity has been found");
                     return;
                 }
 
@@ -55,12 +55,12 @@ namespace PnP.PowerShell.Commands
             }
             else
             {
-                WriteVerbose("Retrieving all out of the box SharePoint site template settings");
+                LogDebug("Retrieving all out of the box SharePoint site template settings");
 
                 var templateSettings = Tenant.GetAllOutOfBoxSiteTemplateSettings();
-                ClientContext.ExecuteQueryRetry();
+                AdminContext.ExecuteQueryRetry();
 
-                WriteVerbose($"{templateSettings.Count} returned");
+                LogDebug($"{templateSettings.Count} returned");
 
                 var responses = templateSettings.Select(ts => new BuiltInSiteTemplateSettings
                 {

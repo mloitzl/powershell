@@ -1,4 +1,5 @@
-﻿using PnP.PowerShell.Commands.Model.AzureAD;
+﻿using PnP.Framework;
+using PnP.PowerShell.Commands.Model.AzureAD;
 using System;
 using System.Net;
 
@@ -10,7 +11,7 @@ namespace PnP.PowerShell.Commands.Base.PipeBinds
     public class AzureADUserPipeBind
     {
         private readonly User _user;
-        private readonly string _userId;
+        private readonly Guid? _userId;
         private readonly string _upn;
 
         public AzureADUserPipeBind()
@@ -27,7 +28,7 @@ namespace PnP.PowerShell.Commands.Base.PipeBinds
             Guid idValue;
             if (Guid.TryParse(input, out idValue))
             {
-                _userId = input;
+                _userId = idValue;
             }
             else
             {
@@ -48,26 +49,27 @@ namespace PnP.PowerShell.Commands.Base.PipeBinds
         /// <summary>
         /// GUID of the user account
         /// </summary>
-        public string UserId => _userId;
+        public Guid? UserId => _userId;
 
         /// <summary>
         /// Tries to return the User instace based on the information this pipe has available
         /// </summary>
         /// <param name="accessToken">Access Token for Microsoft Graph that can be used to fetch User data</param>
+        /// <param name="azureEnvironment">Azure environment cloud</param>
         /// <returns>User instance or NULL if unable to define user instance based on the available information</returns>
-        public User GetUser(string accessToken)
+        public User GetUser(string accessToken, AzureEnvironment azureEnvironment = AzureEnvironment.Production)
         {
             if (_user != null)
             {
                 return _user;
             }
-            if (_userId != null)
+            if (_userId.HasValue)
             {
-                return User.CreateFrom(PnP.Framework.Graph.UsersUtility.GetUser(accessToken, _userId));
+                return User.CreateFrom(Framework.Graph.UsersUtility.GetUser(accessToken, _userId.Value, azureEnvironment: azureEnvironment));
             }
             if (_upn != null)
             {                
-                return User.CreateFrom(PnP.Framework.Graph.UsersUtility.GetUser(accessToken, WebUtility.UrlEncode(_upn)));
+                return User.CreateFrom(Framework.Graph.UsersUtility.GetUser(accessToken, WebUtility.UrlEncode(_upn), azureEnvironment: azureEnvironment));
             }
             return null;
         }

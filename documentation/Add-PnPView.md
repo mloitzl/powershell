@@ -17,10 +17,12 @@ Adds a view to a list
 ```powershell
 Add-PnPView [-List] <ListPipeBind> -Title <String> [-Query <String>] -Fields <String[]> [-ViewType <ViewType>]
  [-RowLimit <UInt32>] [-Personal] [-SetAsDefault] [-Paged] [-Aggregations <String>] 
- [-Connection <PnPConnection>] [<CommonParameters>]
+ [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
+
+Allows to add a new view to a list.
 
 ## EXAMPLES
 

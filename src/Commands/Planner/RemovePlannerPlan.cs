@@ -1,14 +1,15 @@
-using System.Management.Automation;
-using Microsoft.Graph;
 using PnP.PowerShell.Commands.Attributes;
 using PnP.PowerShell.Commands.Base;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 using PnP.PowerShell.Commands.Utilities;
+using System.Management.Automation;
 
 namespace PnP.PowerShell.Commands.Planner
 {
     [Cmdlet(VerbsCommon.Remove, "PnPPlannerPlan", SupportsShouldProcess = true)]
-    [RequiredMinimalApiPermissions("Group.ReadWrite.All")]
+    [RequiredApiApplicationPermissions("graph/Tasks.ReadWrite")]
+    [RequiredApiApplicationPermissions("graph/Tasks.ReadWrite.All")]
+    [RequiredApiApplicationPermissions("graph/Group.ReadWrite.All")]
     public class RemovePlannerPlan : PnPGraphCmdlet
     {
         [Parameter(Mandatory = true)]
@@ -19,15 +20,15 @@ namespace PnP.PowerShell.Commands.Planner
 
         protected override void ExecuteCmdlet()
         {
-            var groupId = Group.GetGroupId(Connection, AccessToken);
+            var groupId = Group.GetGroupId(GraphRequestHelper);
             if (groupId != null)
             {
-                var planId = Identity.GetIdAsync(Connection, AccessToken, groupId).GetAwaiter().GetResult();
+                var planId = Identity.GetId(GraphRequestHelper, groupId);
                 if (!string.IsNullOrEmpty(planId))
                 {
-                    if (ShouldProcess($"Delete plan with id {planId}"))
+                    if (ShouldContinue($"Delete plan with id {planId}", Properties.Resources.Confirm))
                     {
-                        PlannerUtility.DeletePlanAsync(Connection, AccessToken, planId).GetAwaiter().GetResult();
+                        PlannerUtility.DeletePlan(GraphRequestHelper, planId);
                     }
                 }
                 else

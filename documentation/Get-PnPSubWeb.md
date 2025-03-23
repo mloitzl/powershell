@@ -16,10 +16,12 @@ Returns the subwebs of the current web
 
 ```powershell
 Get-PnPSubWeb [[-Identity] <WebPipeBind>] [-Recurse] [-Connection <PnPConnection>]
- [-Includes <String[]>] [<CommonParameters>]
+ [-Includes <String[]>] 
 ```
 
 ## DESCRIPTION
+
+Allows to retrieve subwebs of the current web.
 
 ## EXAMPLES
 
@@ -56,7 +58,7 @@ Retrieves all subsites of the subsite Team1 and all of its nested child subsites
 Get-PnPSubWeb -Identity Team1 -Recurse -IncludeRootWeb
 ```
 
-Retrieves the rootweb, all subsites of the subsite Team1 and all of its nested child subsites
+Retrieves the root web, all subsites of the subsite Team1 and all of its nested child subsites
 
 ## PARAMETERS
 
@@ -103,7 +105,7 @@ Accept wildcard characters: False
 ```
 
 ### -IncludeRootWeb
-If provided, the results will also contain the rootweb
+If provided, the results will also contain the root web
 
 ```yaml
 Type: SwitchParameter
@@ -116,6 +118,19 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Includes
+Optionally allows properties to be retrieved for the returned sub web which are not included in the response by default
+
+```yaml
+Type: String[]
+Parameter Sets: (All)
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 
 ## RELATED LINKS

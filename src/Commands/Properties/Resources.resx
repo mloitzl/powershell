@@ -151,11 +151,11 @@
     <value>No list found with id, title or url '{0}'</value>
   </data>
   <data name="NoDefaultSharePointConnection" xml:space="preserve">
-    <value>The current connection holds no SharePoint context. Please use one of the Connect-PnPOnline commands which uses the -Url argument to connect.</value>
+    <value>You are not signed in. Please use Connect-PnPOnline to connect.</value>
   </data>
   <data name="NoSharePointConnectionInProvidedConnection" xml:space="preserve">
     <value>The provided connection through -Connection holds no SharePoint context. Please use one of the Connect-PnPOnline commands which uses the -Url argument to connect.</value>
-  </data>  
+  </data>
   <data name="NoConnectionToDisconnect" xml:space="preserve">
     <value>No connection to disconnect</value>
   </data>
@@ -362,5 +362,14 @@
   </data>
   <data name="RemoveListDesign" xml:space="preserve">
     <value>Remove list design?</value>
+  </data>
+  <data name="Restore0RecycleBinItems" xml:space="preserve">
+    <value>Restore {0} items from recycle bin to their original locations?</value>
+  </data>
+  <data name="Restore" xml:space="preserve">
+    <value>Restore '{0}'?</value>
+  </data>
+    <data name="ContainerNotFound" xml:space="preserve">
+    <value>The provided container could not be found</value>
   </data>
 </root>

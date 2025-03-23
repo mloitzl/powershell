@@ -16,10 +16,12 @@ Sets the default content type for a list
 
 ```powershell
 Set-PnPDefaultContentTypeToList -List <ListPipeBind> -ContentType <ContentTypePipeBind> 
- [-Connection <PnPConnection>] [<CommonParameters>]
+ [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
+
+Allows to modify the default content type for a list.
 
 ## EXAMPLES
 

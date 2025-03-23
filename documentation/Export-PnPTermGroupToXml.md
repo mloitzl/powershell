@@ -16,10 +16,12 @@ Exports a taxonomy TermGroup to either the output or to an XML file.
 
 ```powershell
 Export-PnPTermGroupToXml [-Identity <TermGroupPipeBind>] [-Out <String>] [-FullTemplate] [-Encoding <Encoding>]
- [-Force] [-Connection <PnPConnection>]   [<CommonParameters>]
+ [-Force] [-Connection <PnPConnection>]   
 ```
 
 ## DESCRIPTION
+
+Allows to export a taxonomy TermGroup to either the output or to an XML file.
 
 ## EXAMPLES
 
@@ -145,21 +147,6 @@ File to export the data to.
 ```yaml
 Type: String
 Parameter Sets: (All)
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -WhatIf
-Shows what would happen if the cmdlet runs. The cmdlet is not run.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: wi
 
 Required: False
 Position: Named

@@ -3,14 +3,18 @@ using PnP.PowerShell.Commands.Base.PipeBinds;
 using System;
 using System.Management.Automation;
 using System.Collections.Generic;
+using PnP.PowerShell.Commands.Utilities;
+using PnP.PowerShell.Commands.Base.Completers;
 
 namespace PnP.PowerShell.Commands.Pages
 {
     [Cmdlet(VerbsCommon.Set, "PnPPage")]
     [Alias("Set-PnPClientSidePage")]
+    [OutputType(typeof(PnP.Core.Model.SharePoint.IPage))]
     public class SetPage : PnPWebCmdlet, IDynamicParameters
     {
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 0)]
+        [ArgumentCompleter(typeof(PageCompleter))]
         public PagePipeBind Identity;
 
         [Parameter(Mandatory = false)]
@@ -59,6 +63,13 @@ namespace PnP.PowerShell.Commands.Pages
         [Parameter(Mandatory = false)]
         public int[] TranslationLanguageCodes;
 
+        [Parameter(Mandatory = false)]
+        public bool ShowPublishDate;
+
+        [Parameter(Mandatory = false)]
+        public SwitchParameter Like = false;
+
+
         private CustomHeaderDynamicParameters customHeaderParameters;
 
         public object GetDynamicParameters()
@@ -86,7 +97,11 @@ namespace PnP.PowerShell.Commands.Pages
             if (name == null)
                 throw new Exception("Insufficient arguments to update a client side page");
 
-            clientSidePage.LayoutType = LayoutType;
+            // Don't allow changing a topic page into a regular page as that could lead to data loss
+            if (ParameterSpecified(nameof(LayoutType)) && clientSidePage.LayoutType != PageLayoutType.Topic)
+            {
+                clientSidePage.LayoutType = LayoutType;
+            }
 
             if (Title != null)
             {
@@ -124,6 +139,11 @@ namespace PnP.PowerShell.Commands.Pages
             {
                 clientSidePage.PageHeader.LayoutType = HeaderLayoutType;
             }
+            
+            if(ParameterSpecified(nameof(ShowPublishDate)))
+            {
+                clientSidePage.PageHeader.ShowPublishDate = ShowPublishDate;
+            }
 
             if (PromoteAs == PagePromoteType.Template)
             {
@@ -157,6 +177,18 @@ namespace PnP.PowerShell.Commands.Pages
                 else
                 {
                     clientSidePage.DisableComments();
+                }
+            }
+
+            if (ParameterSpecified(nameof(Like)))
+            {
+                if (Like)
+                {
+                    clientSidePage.Like();
+                } 
+                else
+                {
+                    clientSidePage.Unlike();
                 }
             }
 
@@ -200,7 +232,14 @@ namespace PnP.PowerShell.Commands.Pages
                     {
                         var translationLanguagesList = new List<int>(TranslationLanguageCodes);
 
-                        PnPContext.Web.EnsureMultilingual(translationLanguagesList);
+                        try
+                        {
+                            MultilingualHelper.EnsureMultilingual(Connection, translationLanguagesList);
+                        }
+                        catch
+                        {
+                            // swallow exception
+                        }
 
                         foreach (int i in TranslationLanguageCodes)
                         {

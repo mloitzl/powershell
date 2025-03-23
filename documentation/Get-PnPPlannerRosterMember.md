@@ -1,8 +1,10 @@
 ---
-online version: https://pnp.github.io/powershell/cmdlets/Get-PnPPlannerRosterMember.html
 Module Name: PnP.PowerShell
-external help file: PnP.PowerShell.dll-Help.xml
 schema: 2.0.0
+applicable: SharePoint Online
+online version: https://pnp.github.io/powershell/cmdlets/Get-PnPPlannerRosterMember.html
+external help file: PnP.PowerShell.dll-Help.xml
+title: Get-PnPPlannerRosterMember
 ---
   
 # Get-PnPPlannerRosterMember
@@ -17,8 +19,8 @@ Returns the current members of a Microsoft Planner Roster
 
 ## SYNTAX
 
-```
-Get-PnPPlannerRosterMember -Identity <string> [-Connection <PnPConnection>] [<CommonParameters>]
+```powershell
+Get-PnPPlannerRosterMember -Identity <string> [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION

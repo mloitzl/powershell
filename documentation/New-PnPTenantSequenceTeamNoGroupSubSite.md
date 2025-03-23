@@ -17,10 +17,12 @@ Creates a team site subsite with no Microsoft 365 group object
 ```powershell
 New-PnPTenantSequenceTeamNoGroupSubSite -Url <String> -Title <String> -TimeZoneId <UInt32> [-Language <UInt32>]
  [-Description <String>] [-TemplateIds <String[]>] [-QuickLaunchDisabled]
- [-UseDifferentPermissionsFromParentSite]   [<CommonParameters>]
+ [-UseDifferentPermissionsFromParentSite]   
 ```
 
 ## DESCRIPTION
+
+Allows to create a new team site subsite with no Microsoft 365 group object.
 
 ## EXAMPLES
 
@@ -129,21 +131,6 @@ Accept wildcard characters: False
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -WhatIf
-Shows what would happen if the cmdlet runs. The cmdlet is not run.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: wi
 
 Required: False
 Position: Named

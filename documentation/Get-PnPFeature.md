@@ -16,7 +16,7 @@ Returns all activated or a specific activated feature
 
 ```powershell
 Get-PnPFeature [[-Identity] <FeaturePipeBind>] [-Scope <FeatureScope>] 
- [-Connection <PnPConnection>] [-Includes <String[]>] [<CommonParameters>]
+ [-Connection <PnPConnection>] [-Includes <String[]>] 
 ```
 
 ## DESCRIPTION
@@ -89,6 +89,20 @@ The scope of the feature. Defaults to Web.
 Type: FeatureScope
 Parameter Sets: (All)
 Accepted values: Web, Site
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Includes
+Optionally allows properties to be retrieved for the returned feature which are not included in the response by default
+
+```yaml
+Type: String[]
+Parameter Sets: (All)
 
 Required: False
 Position: Named

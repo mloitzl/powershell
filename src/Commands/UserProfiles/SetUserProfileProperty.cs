@@ -1,7 +1,6 @@
 ﻿using System.Management.Automation;
 using Microsoft.SharePoint.Client;
 using Microsoft.SharePoint.Client.UserProfiles;
-
 using PnP.PowerShell.Commands.Base;
 using System.Linq;
 
@@ -9,7 +8,7 @@ namespace PnP.PowerShell.Commands.UserProfiles
 {
     [Cmdlet(VerbsCommon.Set, "PnPUserProfileProperty")]
     [OutputType(typeof(void))]
-    public class SetUserProfileProperty : PnPAdminCmdlet
+    public class SetUserProfileProperty : PnPSharePointOnlineAdminCmdlet
     {
         [Parameter(Mandatory = true, ParameterSetName = ParameterAttribute.AllParameterSets)]
         public string Account;
@@ -29,10 +28,10 @@ namespace PnP.PowerShell.Commands.UserProfiles
 
         protected override void ExecuteCmdlet()
         {
-            var peopleManager = new PeopleManager(ClientContext);
+            var peopleManager = new PeopleManager(AdminContext);
 
             var result = Tenant.EncodeClaim(Account);
-            ClientContext.ExecuteQueryRetry();
+            AdminContext.ExecuteQueryRetry();
 
             if (ParameterSetName == "Single")
             {
@@ -43,7 +42,7 @@ namespace PnP.PowerShell.Commands.UserProfiles
                 peopleManager.SetMultiValuedProfileProperty(result.Value, PropertyName, Values.ToList());
             }
 
-            ClientContext.ExecuteQueryRetry();
+            AdminContext.ExecuteQueryRetry();
 
         }
     }

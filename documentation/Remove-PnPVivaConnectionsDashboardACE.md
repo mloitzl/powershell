@@ -10,15 +10,17 @@ online version: https://pnp.github.io/powershell/cmdlets/Remove-PnPVivaConnectio
 # Remove-PnPVivaConnectionsDashboardACE
 
 ## SYNOPSIS
-Removes the Adaptive card extensions from the Viva connections dashboard page.  This requires that you connect to a SharePoint Home site and have configured the Viva connections page.
+Removes the Adaptive card extensions from the Viva connections dashboard page. This requires that you connect to a SharePoint Home site and have configured the Viva connections page.
 
 ## SYNTAX
 
 ```powershell
-Remove-PnPVivaConnectionsDashboardACE [-Identity <GUID>] [-Connection <PnPConnection>] [<CommonParameters>]
+Remove-PnPVivaConnectionsDashboardACE [-Identity <VivaACEPipeBind>] [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
+
+Allows to remove Adaptive card extensions from the Viva connections dashboard page.
 
 ## EXAMPLES
 
@@ -33,10 +35,10 @@ Removes the adaptive card extensions with Instance Id `58108715-185e-4214-8786-0
 ## PARAMETERS
 
 ### -Identity
-The instance Id of the Adaptive Card extension present on the Viva connections dashboard page. You can retrieve the value for this parameter by executing `Get-PnPVivaConnectionsDashboardACE` cmdlet
+The instance Id of the Adaptive Card extension present on the Viva connections dashboard page. You can retrieve the value for this parameter by executing `Get-PnPVivaConnectionsDashboardACE` cmdlet. This parameter takes either the Instance Id, the Id or the Title property. But as the latter two are not necessarily unique within the dashboard, the preferred value is to use the Instance Id of the ACE.
 
 ```yaml
-Type: GUID
+Type: VivaACEPipeBind
 Parameter Sets: (All)
 
 Required: True

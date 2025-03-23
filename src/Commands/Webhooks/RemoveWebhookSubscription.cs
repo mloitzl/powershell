@@ -1,8 +1,6 @@
 ﻿using Microsoft.SharePoint.Client;
-using PnP.Framework.Entities;
-
+using PnP.PowerShell.Commands.Base.Completers;
 using PnP.PowerShell.Commands.Base.PipeBinds;
-using System;
 using System.Management.Automation;
 
 namespace PnP.PowerShell.Commands.Webhooks
@@ -16,6 +14,7 @@ namespace PnP.PowerShell.Commands.Webhooks
 
         [Parameter(Mandatory = false)]
         [ValidateNotNullOrEmpty]
+        [ArgumentCompleter(typeof(ListNameCompleter))]
         public ListPipeBind List;
 
         [Parameter(Mandatory = false)]

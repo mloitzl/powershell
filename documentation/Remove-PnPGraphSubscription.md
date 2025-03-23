@@ -10,15 +10,17 @@ online version: https://pnp.github.io/powershell/cmdlets/Remove-PnPGraphSubscrip
 # Remove-PnPGraphSubscription
 
 ## SYNOPSIS
-Removes an existing Microsoft Graph subscription. Required Azure Active Directory application permission depends on the resource the subscription exists on, see https://docs.microsoft.com/graph/api/subscription-delete#permissions.
+Removes an existing Microsoft Graph subscription. Required Azure Active Directory application permission depends on the resource the subscription exists on, see https://learn.microsoft.com/graph/api/subscription-delete#permissions.
 
 ## SYNTAX
 
 ```powershell
-Remove-PnPGraphSubscription -Identity <GraphSubscriptionPipeBind>  [<CommonParameters>]
+Remove-PnPGraphSubscription -Identity <GraphSubscriptionPipeBind>  
 ```
 
 ## DESCRIPTION
+
+Allows to remove an existing Microsoft Graph subscription.
 
 ## EXAMPLES
 

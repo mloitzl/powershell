@@ -7,6 +7,7 @@ using System.Management.Automation;
 namespace PnP.PowerShell.Commands.SiteDesigns
 {
     [Cmdlet(VerbsCommon.Get, "PnPSiteDesignRun")]
+    [OutputType(typeof(ClientObjectList<TenantSiteDesignRun>))]
     public class GetSiteDesignRun : PnPWebCmdlet
     {
         [Parameter(Mandatory = false)]
@@ -18,7 +19,7 @@ namespace PnP.PowerShell.Commands.SiteDesigns
         protected override void ExecuteCmdlet()
         {
             var url = CurrentWeb.EnsureProperty(w => w.Url);
-            var tenantUrl = UrlUtilities.GetTenantAdministrationUrl(ClientContext.Url);
+            var tenantUrl = Connection.TenantAdminUrl ?? UrlUtilities.GetTenantAdministrationUrl(ClientContext.Url);
             using (var tenantContext = ClientContext.Clone(tenantUrl))
             {
                 var tenant = new Tenant(tenantContext);
@@ -35,7 +36,8 @@ namespace PnP.PowerShell.Commands.SiteDesigns
                         ThrowTerminatingError(new ErrorRecord(new System.Exception("Invalid URL"), "INVALIDURL", ErrorCategory.InvalidArgument, WebUrl));
                     }
                 }
-                var designRun = tenant.GetSiteDesignRun(webUrl, SiteDesignId != null ? SiteDesignId : Guid.Empty);
+
+                var designRun = tenant.GetSiteDesignRun(webUrl, SiteDesignId);
                 tenantContext.Load(designRun);
                 tenantContext.ExecuteQueryRetry();
                 WriteObject(designRun, true);

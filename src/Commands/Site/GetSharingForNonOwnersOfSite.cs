@@ -1,12 +1,12 @@
 ﻿using Microsoft.Online.SharePoint.TenantManagement;
 using Microsoft.SharePoint.Client;
-
 using PnP.PowerShell.Commands.Base.PipeBinds;
 using System.Management.Automation;
 
 namespace PnP.PowerShell.Commands.Site
 {
     [Cmdlet(VerbsCommon.Get, "PnPSharingForNonOwnersOfSite")]
+    [OutputType(typeof(bool))]
     public class GetSharingForNonOwnersOfSite : PnPSharePointCmdlet
     {
         [Parameter(Mandatory = false, ValueFromPipeline = true)]
@@ -16,13 +16,11 @@ namespace PnP.PowerShell.Commands.Site
         protected override void ExecuteCmdlet()
         {
             var context = ClientContext;
-            var site = ClientContext.Site;
             var siteUrl = ClientContext.Url;
 
             if (ParameterSpecified(nameof(Identity)))
             {
                 context = ClientContext.Clone(Identity.Url);
-                site = context.Site;
                 siteUrl = context.Url;
             }
 

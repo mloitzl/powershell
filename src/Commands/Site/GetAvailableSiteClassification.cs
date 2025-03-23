@@ -7,7 +7,8 @@ using System.Management.Automation;
 namespace PnP.PowerShell.Commands.Site
 {
     [Cmdlet(VerbsCommon.Get, "PnPAvailableSiteClassification")]
-    [RequiredMinimalApiPermissions("Directory.Read.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/Directory.Read.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/Directory.ReadWrite.All")]
     [OutputType(typeof(SiteClassificationsSettings))]
     [Alias("Get-PnPSiteClassification")]
     [WriteAliasWarning("Please use 'Get-PnPAvailableSiteClassification'. The alias 'Get-PnPSiteClassification' will be removed in a future release.")]
@@ -23,8 +24,9 @@ namespace PnP.PowerShell.Commands.Site
             {
                 if (ex.Message == @"Missing DirectorySettingTemplate for ""Group.Unified""")
                 {
-                    WriteError(new ErrorRecord(new InvalidOperationException("Site Classification is not enabled for this tenant. Use Enable-PnPSiteClassification to enable classifications."), "SITECLASSIFICATION_NOT_ENABLED", ErrorCategory.ResourceUnavailable, null));
-                } else
+                    LogError("Site Classification is not enabled for this tenant. Use Enable-PnPSiteClassification to enable classifications.");
+                }
+                else
                 {
                     throw;
                 }

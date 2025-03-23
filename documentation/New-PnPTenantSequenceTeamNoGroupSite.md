@@ -17,10 +17,12 @@ Creates a new team site without a Microsoft 365 group in-memory object
 ```powershell
 New-PnPTenantSequenceTeamNoGroupSite -Url <String> -Title <String> -TimeZoneId <UInt32> [-Language <UInt32>]
  [-Owner <String>] [-Description <String>] [-HubSite] [-TemplateIds <String[]>]  
- [<CommonParameters>]
+ 
 ```
 
 ## DESCRIPTION
+
+Allows to create a new site without a Microsoft 365 group in-memory object.
 
 ## EXAMPLES
 
@@ -146,21 +148,6 @@ Type: String
 Parameter Sets: (All)
 
 Required: True
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -WhatIf
-Shows what would happen if the cmdlet runs. The cmdlet is not run.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: wi
-
-Required: False
 Position: Named
 Default value: None
 Accept pipeline input: False

@@ -1,8 +1,9 @@
-﻿using PnP.Framework.Entities;
-using PnP.Framework.Graph;
-using PnP.PowerShell.Commands.Model.AzureAD;
+﻿using PnP.PowerShell.Commands.Model.AzureAD;
+using PnP.PowerShell.Commands.Utilities;
+using PnP.PowerShell.Commands.Utilities.REST;
 using System;
-using System.Linq;
+using System.Management.Automation;
+using Group = PnP.PowerShell.Commands.Model.Graph.Group;
 
 namespace PnP.PowerShell.Commands.Base.PipeBinds
 {
@@ -40,50 +41,26 @@ namespace PnP.PowerShell.Commands.Base.PipeBinds
 
         public string GroupId => (_groupId);
 
-        public AzureADGroup GetGroup(string accessToken)
+        public Group GetGroup(ApiRequestHelper requestHelper)
         {
-            GroupEntity group = null;
+            Group group = null;
             if (Group != null)
             {
-                group = GroupsUtility.GetGroup(Group.Id, accessToken);
+                group = AzureADGroupsUtility.GetGroup(requestHelper, new Guid(Group.Id));
             }
             else if (!string.IsNullOrEmpty(GroupId))
             {
-                group = GroupsUtility.GetGroup(GroupId, accessToken);
+                group = AzureADGroupsUtility.GetGroup(requestHelper, new Guid(GroupId));
             }
             else if (!string.IsNullOrEmpty(DisplayName))
             {
-                var groups = GroupsUtility.GetGroups(accessToken, DisplayName);
-                if (groups == null || groups.Count == 0)
-                {
-                    groups = GroupsUtility.GetGroups(accessToken, mailNickname: DisplayName);
-                }
-                if (groups != null && groups.Any())
-                {
-                    group = groups.FirstOrDefault();
-                }
+                group = AzureADGroupsUtility.GetGroup(requestHelper, DisplayName);
             }
             if (group != null)
             {
-                return AzureADGroup.CreateFrom(group);
+                return group;
             }
             return null;
-        }
-
-        public AzureADGroup GetDeletedGroup(string accessToken)
-        {
-            GroupEntity group = null;
-
-            if (Group != null)
-            {
-                group = GroupsUtility.GetDeletedGroup(Group.Id, accessToken);
-            }
-            else if (!string.IsNullOrEmpty(GroupId))
-            {
-                group = GroupsUtility.GetDeletedGroup(GroupId, accessToken);
-            }
-
-            return AzureADGroup.CreateFrom(group);
         }
     }
 }

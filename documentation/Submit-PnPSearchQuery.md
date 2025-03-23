@@ -10,7 +10,15 @@ online version: https://pnp.github.io/powershell/cmdlets/Submit-PnPSearchQuery.h
 # Submit-PnPSearchQuery
 
 ## SYNOPSIS
-Executes an arbitrary search query against the SharePoint search index
+Executes an arbitrary search query against the SharePoint search index.
+
+**Required Permissions**
+
+|        Type     |                    API/ Permission Name                    |                    Admin consent required                    |
+| --------------- | --------------------------------------- | -------- |
+| Application     | sharepoint/Sites.Read.All, sharepoint/Sites.ReadWrite.All, sharepoint/Sites.Manage.All or sharepoint/Sites.FullControl.All | yes                               |
+| Delegated       | sharepoint/Sites.Search.All | yes                               |
+
 
 ## SYNTAX
 
@@ -22,8 +30,8 @@ Submit-PnPSearchQuery [-Query] <String> [-StartRow <Int32>] [-MaxResults <Int32>
  [-RankingModelId <String>] [-ClientType <String>] [-CollapseSpecification <String>]
  [-HiddenConstraints <String>] [-TimeZoneId <Int32>] [-EnablePhonetic <Boolean>] [-EnableStemming <Boolean>]
  [-EnableQueryRules <Boolean>] [-SourceId <Guid>] [-ProcessBestBets <Boolean>]
- [-ProcessPersonalFavorites <Boolean>] [-RelevantResults] [-Connection <PnPConnection>]
- [<CommonParameters>]
+ [-ProcessPersonalFavorites <Boolean>] [-RelevantResults] [-Connection <PnPConnection>] [-RetryCount <Int32>] [-Verbose]
+ 
 ```
 
 ### All
@@ -34,10 +42,12 @@ Submit-PnPSearchQuery [-Query] <String> [-All] [-TrimDuplicates <Boolean>] [-Pro
  [-CollapseSpecification <String>] [-HiddenConstraints <String>] [-TimeZoneId <Int32>]
  [-EnablePhonetic <Boolean>] [-EnableStemming <Boolean>] [-EnableQueryRules <Boolean>] [-SourceId <Guid>]
  [-ProcessBestBets <Boolean>] [-ProcessPersonalFavorites <Boolean>] [-RelevantResults] 
- [-Connection <PnPConnection>] [<CommonParameters>]
+ [-Connection <PnPConnection>] [-RetryCount <Int32>] [-Verbose]
 ```
 
 ## DESCRIPTION
+
+Allows to run an arbitrary search query against the SharePoint search index.
 
 ## EXAMPLES
 
@@ -46,28 +56,42 @@ Submit-PnPSearchQuery [-Query] <String> [-All] [-TrimDuplicates <Boolean>] [-Pro
 Submit-PnPSearchQuery -Query "finance"
 ```
 
-Returns the top 500 items with the term finance
+Returns the top 500 items with the term finance.
 
 ### EXAMPLE 2
 ```powershell
 Submit-PnPSearchQuery -Query "Title:Intranet*" -MaxResults 10
 ```
 
-Returns the top 10 items indexed by SharePoint Search of which the title starts with the word Intranet
+Returns the top 10 items indexed by SharePoint Search of which the title starts with the word Intranet.
 
 ### EXAMPLE 3
 ```powershell
 Submit-PnPSearchQuery -Query "Title:Intranet*" -All
 ```
 
-Returns absolutely all items indexed by SharePoint Search of which the title starts with the word Intranet
+Returns absolutely all items indexed by SharePoint Search of which the title starts with the word Intranet.
 
 ### EXAMPLE 4
 ```powershell
 Submit-PnPSearchQuery -Query "Title:Intranet*" -Refiners "contentclass,FileType(filter=6/0/*)"
 ```
 
-Returns absolutely all items indexed by SharePoint Search of which the title starts with the word Intranet, and return refiners for contentclass and FileType managed properties
+Returns absolutely all items indexed by SharePoint Search of which the title starts with the word Intranet, and return refiners for contentclass and FileType managed properties.
+
+### EXAMPLE 5
+```powershell
+Submit-PnPSearchQuery -Query "contentclass:STS_ListItem_DocumentLibrary" -SelectProperties ComplianceTag,InformationProtectionLabelId -All
+```
+
+Returns absolutely all items indexed by SharePoint Search which represent a document in a document library and instructs explicitly to return the managed properties InformationProtectionLabelId and ComplianceTag which will give insight into the sensitivity and retention labels assigned to the documents.
+
+### EXAMPLE 6
+```powershell
+Submit-PnPSearchQuery -Query "contentclass:STS_ListItem_DocumentLibrary" -SortList @{"filename" = "ascending"} -All
+```
+
+Returns absolutely all items indexed by SharePoint Search which represent a document in a document library and sorts the items by file name in ascending order.
 
 ## PARAMETERS
 
@@ -100,7 +124,7 @@ Accept wildcard characters: False
 ```
 
 ### -CollapseSpecification
-Limit the number of items per the collapse specification. See https://docs.microsoft.com/sharepoint/dev/general-development/customizing-search-results-in-sharepoint#collapse-similar-search-results-using-the-collapsespecification-property for more information.
+Limit the number of items per the collapse specification. See https://learn.microsoft.com/sharepoint/dev/general-development/customizing-search-results-in-sharepoint#collapse-similar-search-results-using-the-collapsespecification-property for more information.
 
 ```yaml
 Type: String
@@ -128,7 +152,7 @@ Accept wildcard characters: False
 ```
 
 ### -Culture
-The locale for the query.
+The locale for the query. Uses LCID's as per this [documentation](https://learn.microsoft.com/previous-versions/office/sharepoint-csom/jj167546(v=office.15)).
 
 ```yaml
 Type: Int32
@@ -296,7 +320,7 @@ Accept wildcard characters: False
 ```
 
 ### -RefinementFilters
-The set of refinement filters used.
+The set of refinement filters used, separated by a comma.
 
 ```yaml
 Type: String[]
@@ -310,7 +334,7 @@ Accept wildcard characters: False
 ```
 
 ### -Refiners
-The list of refiners to be returned in a search result.
+The list of refiners to be returned in a search result, separated by a comma. I.e. contentclass,ContentType(filter=7/0/*).
 
 ```yaml
 Type: String
@@ -324,7 +348,7 @@ Accept wildcard characters: False
 ```
 
 ### -RelevantResults
-Specifies whether only relevant results are returned
+Specifies whether only relevant results are returned.
 
 ```yaml
 Type: SwitchParameter
@@ -337,8 +361,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -RetryCount
+How many times to retry for a failed query. Default is 0 (no retries). Will wait 5 seconds between each retry.
+
+```yaml
+Type: Int32
+Parameter Sets: (All)
+
+Required: False
+Position: Named
+Default value: 0
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -SelectProperties
-The list of properties to return in the search results.
+The list of properties to return in the search results, separated by a comma. I.e. ComplianceTag,InformationProtectionLabelId.
 
 ```yaml
 Type: String[]
@@ -352,7 +390,7 @@ Accept wildcard characters: False
 ```
 
 ### -SortList
-The list of properties by which the search results are ordered.
+The list of properties by which the search results are ordered as a hashtable, i.e. each property needs to be a key and the associated value either "Ascending" or "Descending" based on the wanted sort order, or "FQLFormula" if you want to use a formula to define the sort order.
 
 ```yaml
 Type: Hashtable
@@ -421,9 +459,20 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Verbose
+When provided, additional debug statements will be shown while executing the cmdlet.
 
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ## RELATED LINKS
 
 [Microsoft 365 Patterns and Practices](https://aka.ms/m365pnp)
-

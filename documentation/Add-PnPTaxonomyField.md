@@ -19,7 +19,7 @@ Add a taxonomy field
 Add-PnPTaxonomyField [-List <ListPipeBind>] -DisplayName <String> -InternalName <String> -TermSetPath <String>
  [-TermPathDelimiter <String>] [-Group <String>] [-Id <Guid>] [-AddToDefaultView] [-MultiValue]
  [-Required] [-FieldOptions <AddFieldOptions>] [-Connection <PnPConnection>]
- [<CommonParameters>]
+ 
 ```
 
 ### Id
@@ -27,7 +27,7 @@ Add-PnPTaxonomyField [-List <ListPipeBind>] -DisplayName <String> -InternalName 
 Add-PnPTaxonomyField [-List <ListPipeBind>] -DisplayName <String> -InternalName <String> 
 -TaxonomyItemId <Guid> [-Group <String>] [-Id <Guid>] [-AddToDefaultView] [-MultiValue]
  [-Required] [-FieldOptions <AddFieldOptions>] [-Connection <PnPConnection>]
- [<CommonParameters>]
+ 
 ```
 
 ## DESCRIPTION
@@ -94,7 +94,7 @@ Accept wildcard characters: False
 ```
 
 ### -FieldOptions
-Specifies the control settings while adding a field. See https://docs.microsoft.com/previous-versions/office/sharepoint-server/ee542202(v=office.15) for details
+Specifies the control settings while adding a field. See https://learn.microsoft.com/previous-versions/office/sharepoint-server/ee542202(v=office.15) for details
 
 ```yaml
 Type: AddFieldOptions

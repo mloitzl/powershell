@@ -22,6 +22,7 @@ Updates settings of a site collection
 ### Set Properties
 ```powershell
 Set-PnPTenantSite [-Identity] <String> [-Title <String>] [-LocaleId <UInt32>] [-AllowSelfServiceUpgrade]
+ [-PrimarySiteCollectionAdmin <String>]
  [-Owners <String[]>] [-DenyAddAndCustomizePages]
  [-SharingCapability <SharingCapabilities>] [-StorageQuota <Int64>] [-StorageQuotaWarningLevel <Int64>] [-StorageQuotaReset] [-BlockDownloadLinksFileType <BlockDownloadLinksFileTypes>]
  [-ResourceQuota <Double>] [-ResourceQuotaWarningLevel <Double>] [-EnablePWA <Boolean>]
@@ -32,14 +33,24 @@ Set-PnPTenantSite [-Identity] <String> [-Title <String>] [-LocaleId <UInt32>] [-
  [-DisableAppViews <AppViewsPolicy>] [-DisableCompanyWideSharingLinks <CompanyWideSharingLinksPolicy>]
  [-DisableFlows <FlowsPolicy>] [-AnonymousLinkExpirationInDays <Int32>] [-SensitivityLabel <String>] [-RemoveLabel] [-AddInformationSegment <Guid[]>] [-RemoveInformationSegment <Guid[]>]
  [-OverrideTenantAnonymousLinkExpirationPolicy] [-InformationBarriersMode <InformationBarriersMode>] 
- [-MediaTranscription <MediaTranscriptionPolicyType>] [-Wait] 
- [-Connection <PnPConnection>] [<CommonParameters>]
+ [-MediaTranscription <MediaTranscriptionPolicyType>] 
+ [-BlockDownloadPolicy <Boolean>] [-ExcludeBlockDownloadPolicySiteOwners <Boolean>]
+ [-ExcludedBlockDownloadGroupIds <Guid[]>]
+ [-ListsShowHeaderAndNavigation <Boolean>]
+ [-DefaultLinkToExistingAccessReset <SwitchParameter>] [-DefaultShareLinkRole <Role>]
+ [-DefaultShareLinkScope <SharingScope>] [-LoopDefaultSharingLinkRole <Role>]
+ [-LoopDefaultSharingLinkScope <SharingScope>] [-RestrictContentOrgWideSearch <Boolean>] [-ReadOnlyForUnmanagedDevices <Boolean>]
+ [-RequestFilesLinkExpirationInDays <Int32>] [-RequestFilesLinkEnabled <Boolean>] [-OverrideSharingCapability <Boolean>]
+ [-RestrictedAccessControl <Boolean>] [-ClearRestrictedAccessControl <SwitchParameter>] [-RestrictedAccessControlGroups <Guid[]>]
+ [-AddRestrictedAccessControlGroups <Guid[]>] [-RemoveRestrictedAccessControlGroups <Guid[]>][-InheritVersionPolicyFromTenant <SwitchParameter>]
+ [-Wait] 
+ [-Connection <PnPConnection>] 
 ```
 
 ### Set Lock State
 ```powershell
 Set-PnPTenantSite [-Identity] <String> [-LockState <SiteLockState>] [-Wait] [-Connection <PnPConnection>]
- [<CommonParameters>]
+ 
 ```
 
 ## DESCRIPTION
@@ -85,7 +96,7 @@ This will enable script support for the site 'https://contoso.sharepoint.com/sit
 ## PARAMETERS
 
 ### -AddInformationSegment
-This parameter allows you to add a segment to a SharePoint site. This parameter is only applicable for tenants who have enabled Microsoft 365 Information barriers capability. Please read https://docs.microsoft.com/sharepoint/information-barriers documentation to understand Information barriers in SharePoint Online.
+This parameter allows you to add a segment to a SharePoint site. This parameter is only applicable for tenants who have enabled Microsoft 365 Information barriers capability. Please read https://learn.microsoft.com/sharepoint/information-barriers documentation to understand Information barriers in SharePoint Online.
 
 ```yaml
 Type: Guid[]
@@ -236,7 +247,7 @@ Accept wildcard characters: False
 ```
 
 ### -DefaultLinkToExistingAccess
-When set to $true, the DefaultSharingLinkType will be overriden and the default sharing link will be All People with Existing Access link (which does not modify permissions). When set to $false (the default), the default sharing link type is controlled by the DefaultSharingLinkType parameter
+When set to $true, the DefaultSharingLinkType will be overridden and the default sharing link will be All People with Existing Access link (which does not modify permissions). When set to $false (the default), the default sharing link type is controlled by the DefaultSharingLinkType parameter
 
 ```yaml
 Type: Boolean
@@ -271,6 +282,20 @@ Determines whether the App Views feature is disabled in the site collection.
 Type: AppViewsPolicy
 Parameter Sets: Set Properties
 Accepted values: Unknown, Disabled, NotDisabled
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -DisableSharingForNonOwners
+Specifies whether non-owners should be prevented from inviting new users to the site. Setting this will also disable Access Request Emails.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Set Properties
 
 Required: False
 Position: Named
@@ -374,7 +399,7 @@ Accept wildcard characters: False
 ```
 
 ### -LockState
-Sets the lockstate of a site
+Sets the lockState of a site
 
 ```yaml
 Type: SiteLockState
@@ -402,8 +427,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -PrimarySiteCollectionAdmin
+Specifies the user to set as the primary site collection administrator. Will replace the current primary site collection administrator. To add additional site collection administrators, use the -Owners parameter.
+
+```yaml
+Type: PnP.PowerShell.Commands.Base.PipeBinds.UserPipeBind
+Parameter Sets: Set Properties
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Owners
-Specifies owner(s) to add as site collection administrators. They will be added as additional site collection administrators. Existing administrators will stay. Can be both users and groups.
+Specifies owner(s) to add as secondary site collection administrators. They will be added as additional secondary site collection administrators. Existing administrators will stay. Can be both users and groups.
 
 ```yaml
 Type: System.Collections.Generic.List`1[System.String]
@@ -562,7 +601,7 @@ Accept wildcard characters: False
 ```
 
 ### -RemoveInformationSegment
-This parameter allows you to remove a segment from a SharePoint site. This parameter is only applicable for tenants who have enabled Microsoft 365 Information barriers capability. Please read https://docs.microsoft.com/sharepoint/information-barriers documentation to understand Information barriers with SharePoint Online.
+This parameter allows you to remove a segment from a SharePoint site. This parameter is only applicable for tenants who have enabled Microsoft 365 Information barriers capability. Please read https://learn.microsoft.com/sharepoint/information-barriers documentation to understand Information barriers with SharePoint Online.
 
 ```yaml
 Type: Guid[]
@@ -604,7 +643,7 @@ Accept wildcard characters: False
 ```
 
 ### -InformationBarriersMode
-Specifies the information barrier mode which helps strengthen access, sharing, and membership of a site based on its information barrier mode and segments associated with the site. Expected values are `Open`, `OwnerModerated` , `Implicit` and `Explicit`. For more information, see https://docs.microsoft.com/sharepoint/information-barriers#information-barriers-modes-and-sharepoint-sites
+Specifies the information barrier mode which helps strengthen access, sharing, and membership of a site based on its information barrier mode and segments associated with the site. Expected values are `Open`, `OwnerModerated` , `Implicit` and `Explicit`. For more information, see https://learn.microsoft.com/sharepoint/information-barriers#information-barriers-modes-and-sharepoint-sites
 
 ```yaml
 Type: InformationBarriersMode
@@ -661,6 +700,292 @@ Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
+
+### -BlockDownloadPolicy
+Set this to true to block download of files from SharePoint sites or OneDrive
+
+```yaml
+Type: Boolean
+Parameter Sets: Set Properties
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ExcludeBlockDownloadPolicySiteOwners
+Set this to true to exempts site owners from the block download policy so that they can fully download any content for the site.
+
+```yaml
+Type: Boolean
+Parameter Sets: Set Properties
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ExcludedBlockDownloadGroupIds
+Exempts users from the mentioned groups from this policy and they can fully download any content for the site.
+
+```yaml
+Type: GUID[]
+Parameter Sets: Set Properties
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ListsShowHeaderAndNavigation
+Set a property on a site collection to make all lists always load with the site elements intact.
+
+```yaml
+Type: Boolean
+Parameter Sets: Set Properties
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -RestrictedAccessControl
+To apply restricted access control to a group-connected or Teams-connected site.
+
+```yaml
+Type: Boolean
+Parameter Sets: Set Properties
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ClearRestrictedAccessControl
+To reset restricted access control configuration for a site.
+
+```yaml
+Type: Switch Parameter
+Parameter Sets: Set Properties
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -RemoveRestrictedAccessControlGroups
+You can remove the specified security group from restricted access control configuration. Members of the security group are no longer be able to access site content while the policy is enforced on the site. 
+
+```yaml
+Type: GUID []
+Parameter Sets: Set Properties
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -AddRestrictedAccessControlGroups
+You can add the specified security groups for restricted access control configuration.
+
+```yaml
+Type: GUID []
+Parameter Sets: Set Properties
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -RestrictedAccessControlGroups
+To edit a restricted access control group for a non-group site
+
+```yaml
+Type: GUID []
+Parameter Sets: Set Properties
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -DefaultLinkToExistingAccessReset
+To reset the default link to existing access configuration for a site.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Set Properties
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -DefaultShareLinkRole
+To set the default share link role. Available values are `None`, `Edit`, `Review`, `RestrictedView` and `View`.
+
+```yaml
+Type: Role
+Parameter Sets: Set Properties
+Accepted values: None, Edit, Review, RestrictedView, View
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -DefaultShareLinkScope
+To set the default sharing link scope. Available values are `Anyone`, `Organization`, `SpecificPeople`, `Uninitialized`.
+
+```yaml
+Type: SharingScope
+Parameter Sets: Set Properties
+Accepted values: Anyone, Organization, SpecificPeople, Uninitialized
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -LoopDefaultSharingLinkRole
+To set the loop default sharing link role. Available values are `None`, `Edit`, `Review`, `RestrictedView` and `View`.
+
+```yaml
+Type: Role
+Parameter Sets: Set Properties
+Accepted values: None, Edit, Review, RestrictedView, View
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -LoopDefaultSharingLinkScope
+To set the loop default sharing link scope. Available values are Anyone, Organization, SpecificPeople, Uninitialized.
+
+```yaml
+Type: SharingScope
+Parameter Sets: Set Properties
+Accepted values: Anyone, Organization, SpecificPeople, Uninitialized
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -RestrictContentOrgWideSearch
+To restrict content from being searchable organization-wide and Copilot.
+
+```yaml
+Type: Boolean
+Parameter Sets: Set Properties
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ReadOnlyForUnmanagedDevices
+To set the site as read-only for unmanaged devices.
+
+```yaml
+Type: Boolean
+Parameter Sets: Set Properties
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -InheritVersionPolicyFromTenant
+Clears the file version setting at site level.
+
+```yaml
+Type: Boolean
+Parameter Sets: Set Properties
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -RequestFilesLinkExpirationInDays
+Specifies the number of days after which the request files link will expire.
+The value can be from 0 to 730 days.
+
+```yaml
+Type: Int32
+Parameter Sets: Set Properties
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+
+### -OverrideSharingCapability
+Specifies whether to override the sharing capability for the site.
+
+```yaml
+Type: Boolean
+Parameter Sets: Set Properties
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -RequestFilesLinkEnabled
+Enables or disables the Request Files link on the site.
+
+```yaml
+Type: Boolean
+Parameter Sets: Set Properties
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 
 ### -Wait
 Wait for the operation to complete

@@ -1,6 +1,6 @@
 ﻿using Microsoft.SharePoint.Client;
 using PnP.Framework.Entities;
-
+using PnP.PowerShell.Commands.Base.Completers;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 using System;
 using System.Management.Automation;
@@ -11,11 +11,12 @@ namespace PnP.PowerShell.Commands.Webhooks
     [OutputType(typeof(WebhookSubscription))]
     public class AddWebhookSubscription : PnPWebCmdlet
     {
-        public const int DefaultValidityInDays = 180; // Note: the max is 180 days not 6 months - https://docs.microsoft.com/sharepoint/dev/apis/webhooks/overview-sharepoint-webhooks
+        public const int DefaultValidityInDays = 180; // Note: the max is 180 days not 6 months - https://learn.microsoft.com/sharepoint/dev/apis/webhooks/overview-sharepoint-webhooks
         public const int ValidityDeltaInDays = -72; // Note: Some expiration dates too close to the limit are rejected
 
 
         [Parameter(Mandatory = false)]
+        [ArgumentCompleter(typeof(ListNameCompleter))]
         public ListPipeBind List;
 
         [Parameter(Mandatory = true)]

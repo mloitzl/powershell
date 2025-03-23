@@ -17,16 +17,18 @@ Imports a taxonomy TermGroup from either the input or from an XML file.
 ### XML
 ```powershell
 Import-PnPTermGroupFromXml [[-Xml] <String>] [-Connection <PnPConnection>]  
- [<CommonParameters>]
+ 
 ```
 
 ### File
 ```powershell
 Import-PnPTermGroupFromXml [-Path <String>] [-Connection <PnPConnection>]  
- [<CommonParameters>]
+ 
 ```
 
 ## DESCRIPTION
+
+Allows to import taxonomy term group from xml.
 
 ## EXAMPLES
 
@@ -66,21 +68,6 @@ The XML File to import the data from
 ```yaml
 Type: String
 Parameter Sets: File
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -WhatIf
-Shows what would happen if the cmdlet runs. The cmdlet is not run.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: wi
 
 Required: False
 Position: Named

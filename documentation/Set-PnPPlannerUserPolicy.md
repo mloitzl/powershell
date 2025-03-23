@@ -1,8 +1,10 @@
 ---
-online version: https://pnp.github.io/powershell/cmdlets/Set-PnPPlannerUserPolicy.html
 Module Name: PnP.PowerShell
-external help file: PnP.PowerShell.dll-Help.xml
 schema: 2.0.0
+applicable: SharePoint Online
+online version: https://pnp.github.io/powershell/cmdlets/Set-PnPPlannerUserPolicy.html
+external help file: PnP.PowerShell.dll-Help.xml
+title: Set-PnPPlannerUserPolicy
 ---
   
 # Set-PnPPlannerUserPolicy
@@ -13,29 +15,29 @@ schema: 2.0.0
 
 * Azure: tasks.office.com
 
-Allows a Microsoft Planner user policy to be set for a specific user
+Allows a Microsoft Planner user policy to be set for a specific user.
 
 ## SYNTAX
 
-```
-Set-PnPPlannerUserPolicy -Identity <string> [-BlockDeleteTasksNotCreatedBySelf <boolean>] [-Connection <PnPConnection>] [<CommonParameters>]
+```powershell
+Set-PnPPlannerUserPolicy -Identity <string> [-BlockDeleteTasksNotCreatedBySelf <boolean>] [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
-This cmdlet allows a Microsoft Planner user policy to be set for the provided user
+This cmdlet allows a Microsoft Planner user policy to be set for the provided user.
 
 ## EXAMPLES
 
-### Example 1
+### EXAMPLE 1
 ```powershell
 Set-PnPPlannerUserPolicy -Identity "johndoe@contoso.onmicrosoft.com"
 ```
-Sets the Microsoft Planner user policy for the provided user
+Sets the Microsoft Planner user policy for the provided user.
 
 ## PARAMETERS
 
 ### -Identity
-Azure Active Directory user identifier or user principal name of the user to create the Microsoft Planner policy for
+Azure Active Directory user identifier or user principal name of the user to create the Microsoft Planner policy for.
 
 ```yaml
 Type: String
@@ -50,7 +52,7 @@ Accept wildcard characters: False
 ```
 
 ### -BlockDeleteTasksNotCreatedBySelf
-Allows the user for which the policy gets created to be blocked from deleting tasks that have not been created by the user itself
+Allows the user for which the policy gets created to be blocked from deleting tasks that have not been created by the user itself.
 
 ```yaml
 Type: Boolean

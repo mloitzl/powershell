@@ -1,13 +1,13 @@
 ﻿using Microsoft.Online.SharePoint.TenantAdministration;
 using Microsoft.SharePoint.Client;
-
 using PnP.PowerShell.Commands.Base;
 using System.Management.Automation;
 
 namespace PnP.PowerShell.Commands.SiteDesigns
 {
     [Cmdlet(VerbsCommon.Get, "PnPSiteDesignRunStatus")]
-    public class GetSiteDesignRunStatus : PnPAdminCmdlet
+    [OutputType(typeof(ClientObjectList<TenantSiteScriptActionStatus>))]
+    public class GetSiteDesignRunStatus : PnPSharePointOnlineAdminCmdlet
     {
         [Parameter(Mandatory = true)]
         public TenantSiteDesignRun Run;

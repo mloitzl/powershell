@@ -16,10 +16,12 @@ Creates an ExtensibilityHandler Object, to be used by the Get-PnPSiteTemplate cm
 
 ```powershell
 New-PnPExtensibilityHandlerObject [-Assembly] <String> -Type <String> [-Configuration <String>] [-Disabled]
- [<CommonParameters>]
+ 
 ```
 
 ## DESCRIPTION
+
+Allows to create an ExtensibilityHandler.
 
 ## EXAMPLES
 

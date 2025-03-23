@@ -7,7 +7,12 @@ using PnP.PowerShell.Commands.Utilities;
 namespace PnP.PowerShell.Commands.Planner
 {
     [Cmdlet(VerbsCommon.Get, "PnPPlannerTask")]
-    [RequiredMinimalApiPermissions("Group.Read.All")]
+    [RequiredApiApplicationPermissions("graph/Tasks.Read")]
+    [RequiredApiApplicationPermissions("graph/Tasks.ReadWrite")]
+    [RequiredApiApplicationPermissions("graph/Tasks.Read.All")]
+    [RequiredApiApplicationPermissions("graph/Tasks.ReadWrite.All")]    
+    [RequiredApiApplicationPermissions("graph/Group.Read.All")]
+    [RequiredApiApplicationPermissions("graph/Group.ReadWrite.All")]
     public class GetPlannerTask : PnPGraphCmdlet
     {
         private const string ParameterSetName_BYGROUP = "By Group";
@@ -40,13 +45,13 @@ namespace PnP.PowerShell.Commands.Planner
         {
             if (ParameterSetName == ParameterSetName_BYGROUP)
             {
-                var groupId = Group.GetGroupId(Connection, AccessToken);
+                var groupId = Group.GetGroupId(GraphRequestHelper);
                 if (groupId != null)
                 {
-                    var planId = Plan.GetIdAsync(Connection, AccessToken, groupId).GetAwaiter().GetResult();
+                    var planId = Plan.GetId(GraphRequestHelper, groupId);
                     if (planId != null)
                     {
-                        WriteObject(PlannerUtility.GetTasksAsync(Connection, AccessToken, planId, ResolveUserDisplayNames).GetAwaiter().GetResult(), true);
+                        WriteObject(PlannerUtility.GetTasks(GraphRequestHelper, planId, ResolveUserDisplayNames), true);
                     }
                     else
                     {
@@ -60,15 +65,15 @@ namespace PnP.PowerShell.Commands.Planner
             }
             else if (ParameterSetName == ParameterSetName_BYPLANID)
             {
-                WriteObject(PlannerUtility.GetTasksAsync(Connection, AccessToken, PlanId, ResolveUserDisplayNames).GetAwaiter().GetResult(), true);
+                WriteObject(PlannerUtility.GetTasks(GraphRequestHelper, PlanId, ResolveUserDisplayNames), true);
             }
             else if (ParameterSetName == ParameterSetName_BYBUCKET)
             {
-                WriteObject(PlannerUtility.GetBucketTasksAsync(Connection, AccessToken, Bucket.GetId(), ResolveUserDisplayNames).GetAwaiter().GetResult(), true);
+                WriteObject(PlannerUtility.GetBucketTasks(GraphRequestHelper, Bucket.GetId(), ResolveUserDisplayNames), true);
             }
             else if (ParameterSetName == ParameterSetName_BYTASKID)
             {
-                WriteObject(PlannerUtility.GetTaskAsync(Connection, AccessToken, TaskId, ResolveUserDisplayNames, IncludeDetails).GetAwaiter().GetResult());
+                WriteObject(PlannerUtility.GetTask(GraphRequestHelper, TaskId, ResolveUserDisplayNames, IncludeDetails));
             }
         }
     }

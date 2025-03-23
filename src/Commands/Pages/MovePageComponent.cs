@@ -1,4 +1,5 @@
 ﻿
+using PnP.PowerShell.Commands.Base.Completers;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 using System;
 using System.Linq;
@@ -8,6 +9,7 @@ namespace PnP.PowerShell.Commands.Pages
 {
     [Cmdlet(VerbsCommon.Move, "PnPPageComponent")]
     [Alias("Move-PnPClientSideComponent")]
+    [OutputType(typeof(void))]
     public class MovePageComponent : PnPWebCmdlet
     {
         const string ParameterSet_SECTION = "Move to other section";
@@ -16,6 +18,7 @@ namespace PnP.PowerShell.Commands.Pages
         const string ParameterSet_POSITION = "Move within a column";
 
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 0)]
+        [ArgumentCompleter(typeof(PageCompleter))]
         public PagePipeBind Page;
 
         [Parameter(Mandatory = true, ValueFromPipeline = true)]

@@ -7,7 +7,8 @@ using System.Management.Automation;
 namespace PnP.PowerShell.Commands.Teams
 {
     [Cmdlet(VerbsCommon.Get, "PnPTeamsChannelUser")]
-    [RequiredMinimalApiPermissions("ChannelMember.Read.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/ChannelMember.Read.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/ChannelMember.ReadWrite.All")]
     public class GetTeamsChannelUser : PnPGraphCmdlet
     {
         [Parameter(Mandatory = true)]
@@ -25,13 +26,13 @@ namespace PnP.PowerShell.Commands.Teams
 
         protected override void ExecuteCmdlet()
         {
-            var groupId = Team.GetGroupId(Connection, AccessToken);
+            var groupId = Team.GetGroupId(GraphRequestHelper);
             if (groupId == null)
             {
                 throw new PSArgumentException("Group not found");
             }
 
-            var channelId = Channel.GetId(Connection, AccessToken, groupId);
+            var channelId = Channel.GetId(GraphRequestHelper, groupId);
             if (channelId == null)
             {
                 throw new PSArgumentException("Channel not found");
@@ -39,11 +40,11 @@ namespace PnP.PowerShell.Commands.Teams
 
             if (ParameterSpecified(nameof(Identity)))
             {
-                WriteObject(Identity.GetMembershipAsync(Connection, AccessToken, groupId, channelId).GetAwaiter().GetResult());
+                WriteObject(Identity.GetMembership(GraphRequestHelper, groupId, channelId));
             }
             else
             {
-                WriteObject(TeamsUtility.GetChannelMembersAsync(Connection, AccessToken, groupId, channelId, Role).GetAwaiter().GetResult(), true);
+                WriteObject(TeamsUtility.GetChannelMembers(GraphRequestHelper, groupId, channelId, Role), true);
             }
         }
     }

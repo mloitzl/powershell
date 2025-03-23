@@ -13,7 +13,7 @@ online version: https://pnp.github.io/powershell/cmdlets/Remove-PnPPlannerBucket
 
 **Required Permissions**
 
-  * Microsoft Graph API: Group.ReadWrite.All
+  * Microsoft Graph API: One of Tasks.ReadWrite, Tasks.ReadWrite.All, Group.ReadWrite.All
 
 Removes a planner bucket
 
@@ -22,13 +22,13 @@ Removes a planner bucket
 ### By Name
 ```powershell
 Remove-PnPPlannerBucket -Group <PlannerGroupPipeBind> -Plan <PlannerPlanPipeBind>
- -Identity <PlannerBucketPipeBind>  [-WhatIf] [-Confirm] [<CommonParameters>]
+ -Identity <PlannerBucketPipeBind> [-Confirm] 
 ```
 
 ### By Bucket Id
 ```powershell
-Remove-PnPPlannerBucket -BucketId <String> -Identity <PlannerBucketPipeBind>  [-WhatIf]
- [-Confirm] [<CommonParameters>]
+Remove-PnPPlannerBucket -BucketId <String> -Identity <PlannerBucketPipeBind>
+ [-Confirm] 
 ```
 
 ## DESCRIPTION
@@ -38,10 +38,10 @@ This cmdlet removes a Planner bucket.
 
 ### Example 1
 ```powershell
-Remove-PnPPlannerBucket -Group "Marketing" -Plan "Conference" -Identity "Preconference Todos"
+Remove-PnPPlannerBucket -Group "Marketing" -Plan "Conference" -Identity "Pre-conference Todos"
 ```
 
-This removes the "Preconference Todos" bucket from the specified plan.
+This removes the "Pre-conference Todos" bucket from the specified plan.
 
 ## PARAMETERS
 
@@ -114,22 +114,6 @@ Parameter Sets: By Name
 Aliases:
 
 Required: True
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -WhatIf
-Shows what would happen if the cmdlet runs.
-The cmdlet is not run.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: wi
-
-Required: False
 Position: Named
 Default value: None
 Accept pipeline input: False

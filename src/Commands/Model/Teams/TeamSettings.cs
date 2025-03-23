@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 using PnP.PowerShell.Commands.Model.Graph;
 
 namespace PnP.PowerShell.Commands.Model.Teams
@@ -85,7 +84,7 @@ namespace PnP.PowerShell.Commands.Model.Teams
             AllowTeamMentions = team.MessagingSettings.AllowTeamMentions;
             AllowChannelMentions = team.MessagingSettings.AllowChannelMentions;
             ShowInTeamsSearchAndSuggestions = team.DiscoverySettings.ShowInTeamsSearchAndSuggestions;
-            AllowCreatePrivateChannels = team.MemberSettings.AllowCreatePrivateChannels;            
+            AllowCreatePrivateChannels = team.MemberSettings.AllowCreatePrivateChannels;
         }
 
         public Team ToTeam(GroupVisibility groupVisibility)
@@ -127,15 +126,6 @@ namespace PnP.PowerShell.Commands.Model.Teams
                 },
                 Visibility = groupVisibility
             };
-        }
-
-        public string ToJsonString()
-        {
-            return JsonSerializer.Serialize(this, new JsonSerializerOptions()
-            {
-                IgnoreNullValues = true,
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            });
         }
     }
 }

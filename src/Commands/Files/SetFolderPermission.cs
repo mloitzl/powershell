@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Management.Automation;
 using Microsoft.SharePoint.Client;
-
+using PnP.PowerShell.Commands.Base.Completers;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 
 namespace PnP.PowerShell.Commands.Files
@@ -11,6 +11,7 @@ namespace PnP.PowerShell.Commands.Files
     public class SetFolderPermission : PnPWebCmdlet
     {
         [Parameter(Mandatory = true, Position = 0, ParameterSetName = ParameterAttribute.AllParameterSets)]
+        [ArgumentCompleter(typeof(ListNameCompleter))]
         public ListPipeBind List;
 
         [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = ParameterAttribute.AllParameterSets)]
@@ -55,16 +56,18 @@ namespace PnP.PowerShell.Commands.Files
                 // Ensure the folder has been found
                 if (folder == null)
                 {
-                    WriteError(new ErrorRecord(new Exception("Folder not found"), "1", ErrorCategory.ObjectNotFound, null));
+                    LogError("Folder not found");
+                    return;
                 }
 
                 // Ensure we have access to the ListItemAllFields property of the folder
                 folder.EnsureProperty(f => f.ListItemAllFields);
 
                 // Validate that the ListItemAllFields contains the Id which represents the ListItem ID equivallent for this folder
-                if (folder.ListItemAllFields.Id <= 0)
+                if (folder.ListItemAllFields.ServerObjectIsNull.GetValueOrDefault(true) || folder.ListItemAllFields.Id <= 0)
                 {
-                    WriteError(new ErrorRecord(new Exception("ListItemId on folder not found"), "1", ErrorCategory.InvalidData, null));
+                    LogError("ListItemId on folder not found");
+                    return;
                 }
 
                 // Get the list item which is the equivallent of the folder
@@ -153,7 +156,7 @@ namespace PnP.PowerShell.Commands.Files
                 }
                 else
                 {
-                    WriteError(new ErrorRecord(new Exception("Principal not found"), "1", ErrorCategory.ObjectNotFound, null));
+                    LogError("Principal not found");
                 }
             }
         }

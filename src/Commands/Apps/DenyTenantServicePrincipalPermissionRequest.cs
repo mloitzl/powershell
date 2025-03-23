@@ -7,7 +7,7 @@ using System.Management.Automation;
 namespace PnP.PowerShell.Commands.Apps
 {
     [Cmdlet(VerbsLifecycle.Deny, "PnPTenantServicePrincipalPermissionRequest")]
-    public class DenyTenantServicePrincipalPermissionRequests : PnPAdminCmdlet
+    public class DenyTenantServicePrincipalPermissionRequests : PnPSharePointOnlineAdminCmdlet
     {
         [Parameter(Mandatory = true)]
         public Guid RequestId;
@@ -17,12 +17,12 @@ namespace PnP.PowerShell.Commands.Apps
 
         protected override void ExecuteCmdlet()
         {
-            if (Force || ShouldContinue($"Deny request {RequestId}?", "Continue"))
+            if (Force || ShouldContinue($"Deny request {RequestId}?", Properties.Resources.Confirm))
             {
-                var servicePrincipal = new SPOWebAppServicePrincipal(ClientContext);
+                var servicePrincipal = new SPOWebAppServicePrincipal(AdminContext);
                 var request = servicePrincipal.PermissionRequests.GetById(RequestId);
                 request.Deny();
-                ClientContext.ExecuteQueryRetry();
+                AdminContext.ExecuteQueryRetry();
             }
         }
 

@@ -5,7 +5,8 @@ using Microsoft.SharePoint.Client;
 namespace PnP.PowerShell.Commands.Principals
 {
     [Cmdlet(VerbsData.Update, "PnPUserType")]
-    public class UpdateUserType : PnPAdminCmdlet
+    [OutputType(typeof(string))]
+    public class UpdateUserType : PnPSharePointOnlineAdminCmdlet
     {
         [Parameter(Mandatory = true)]
         public string LoginName;
@@ -13,12 +14,12 @@ namespace PnP.PowerShell.Commands.Principals
         protected override void ExecuteCmdlet()
         {
             var sitePropertiesEnumerable = this.Tenant.UpdateUserTypeFromAzureADForAllSites(LoginName);
-            ClientContext.Load(sitePropertiesEnumerable);
-            ClientContext.Load(sitePropertiesEnumerable, sp => sp.NextStartIndexFromSharePoint);
-            ClientContext.ExecuteQueryRetry();
+            AdminContext.Load(sitePropertiesEnumerable);
+            AdminContext.Load(sitePropertiesEnumerable, sp => sp.NextStartIndexFromSharePoint);
+            AdminContext.ExecuteQueryRetry();
             if(sitePropertiesEnumerable.Count == 0)
             {
-                WriteWarning("User Type is already up to date.");
+                LogWarning("User Type is already up to date.");
             } else {
                 foreach(var item in sitePropertiesEnumerable)
                 {

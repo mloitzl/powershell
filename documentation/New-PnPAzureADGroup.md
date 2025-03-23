@@ -20,10 +20,12 @@ Creates a new Azure Active Directory group. This can be a security or distributi
 ## SYNTAX
 
 ```powershell
-New-PnPAzureADGroup -DisplayName <String> -Description <String> -MailNickname <String> [-Owners <String[]>] [-Members <String[]>] [-IsSecurityEnabled <SwitchParameter>] [-IsMailEnabled <SwitchParameter>] [-Force] [<CommonParameters>]
+New-PnPAzureADGroup -DisplayName <String> -Description <String> -MailNickname <String> [-Owners <String[]>] [-Members <String[]>] [-IsSecurityEnabled <SwitchParameter>] [-IsMailEnabled <SwitchParameter>] [-Force] 
 ```
 
 ## DESCRIPTION
+
+Allows to create an Azure Active Directory group. This can be either security or distribution group.
 
 ## EXAMPLES
 
@@ -165,4 +167,4 @@ Accept wildcard characters: False
 ## RELATED LINKS
 
 [Microsoft 365 Patterns and Practices](https://aka.ms/m365pnp)
-[Microsoft Graph documentation](https://docs.microsoft.com/graph/api/group-post-groups)
+[Microsoft Graph documentation](https://learn.microsoft.com/graph/api/group-post-groups)

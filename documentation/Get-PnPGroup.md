@@ -16,31 +16,31 @@ Returns a specific SharePoint group or all SharePoint groups in the current site
 
 ### All (Default)
 ```powershell
-Get-PnPGroup [-Connection <PnPConnection>] [-Includes <String[]>] [<CommonParameters>]
+Get-PnPGroup [-Connection <PnPConnection>] [-Includes <String[]>] 
 ```
 
 ### ByName
 ```powershell
 Get-PnPGroup [[-Identity] <GroupPipeBind>] [-Connection <PnPConnection>]
- [-Includes <String[]>] [<CommonParameters>]
+ [-Includes <String[]>] 
 ```
 
 ### Members
 ```powershell
 Get-PnPGroup [-AssociatedMemberGroup] [-Connection <PnPConnection>] [-Includes <String[]>]
- [<CommonParameters>]
+ 
 ```
 
 ### Visitors
 ```powershell
 Get-PnPGroup [-AssociatedVisitorGroup] [-Connection <PnPConnection>]
- [-Includes <String[]>] [<CommonParameters>]
+ [-Includes <String[]>] 
 ```
 
 ### Owners
 ```powershell
 Get-PnPGroup [-AssociatedOwnerGroup] [-Connection <PnPConnection>] [-Includes <String[]>]
- [<CommonParameters>]
+ 
 ```
 
 ## DESCRIPTION
@@ -138,6 +138,20 @@ Required: False
 Position: 0
 Default value: None
 Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
+### -Includes
+Optionally allows properties to be retrieved for the returned SharePoint security group which are not included in the response by default
+
+```yaml
+Type: String[]
+Parameter Sets: (All)
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 

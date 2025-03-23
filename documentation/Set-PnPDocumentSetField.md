@@ -17,10 +17,12 @@ Sets a site column from the available content types to a document set
 ```powershell
 Set-PnPDocumentSetField -DocumentSet <DocumentSetPipeBind> -Field <FieldPipeBind> [-SetSharedField]
  [-SetWelcomePageField] [-RemoveSharedField] [-RemoveWelcomePageField] 
- [-Connection <PnPConnection>] [<CommonParameters>]
+ [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
+
+Allows to set a site column from the available content types to a document set.
 
 ## EXAMPLES
 

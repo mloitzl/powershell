@@ -16,10 +16,12 @@ Used to retrieve a scheduled site design script. It takes the ID of the schedule
 
 ```powershell
 Get-PnPSiteDesignTask [-Identity <TenantSiteDesignTaskPipeBind>] [-WebUrl <String>] 
- [-Connection <PnPConnection>] [<CommonParameters>]
+ [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
+
+Allows to retrieve a scheduled site design script.
 
 ## EXAMPLES
 

@@ -1,5 +1,4 @@
-﻿
-using PnP.PowerShell.Commands.Attributes;
+﻿using PnP.PowerShell.Commands.Attributes;
 using PnP.PowerShell.Commands.Base;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 using PnP.PowerShell.Commands.Model.Graph;
@@ -8,10 +7,11 @@ using PnP.PowerShell.Commands.Utilities;
 using System.Linq;
 using System.Management.Automation;
 
-namespace PnP.PowerShell.Commands.Graph
+namespace PnP.PowerShell.Commands.Teams
 {
     [Cmdlet(VerbsCommon.Get, "PnPTeamsUser")]
-    [RequiredMinimalApiPermissions("Group.Read.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/Group.Read.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/Group.ReadWrite.All")]
     public class GetTeamsUser : PnPGraphCmdlet
     {
         [Parameter(Mandatory = true)]
@@ -25,31 +25,31 @@ namespace PnP.PowerShell.Commands.Graph
         public string Role;
         protected override void ExecuteCmdlet()
         {
-            var groupId = Team.GetGroupId(Connection, AccessToken);
+            var groupId = Team.GetGroupId(GraphRequestHelper);
             if (groupId != null)
             {
                 try
                 {
                     if (ParameterSpecified(nameof(Channel)))
                     {
-                        var teamChannels = TeamsUtility.GetChannelsAsync(AccessToken, Connection, groupId).GetAwaiter().GetResult();
-                        
-                        var channelId = Channel.GetId(Connection, AccessToken, groupId);
+                        var teamChannels = TeamsUtility.GetChannels(GraphRequestHelper, groupId);
+
+                        var channelId = Channel.GetId(GraphRequestHelper, groupId);
 
                         var requestedChannel = teamChannels.FirstOrDefault(c => c.Id == channelId);
 
                         if (!string.IsNullOrEmpty(channelId) && requestedChannel != null && requestedChannel.MembershipType.ToLower() == TeamChannelType.Private.ToString().ToLower())
                         {
-                            WriteObject(TeamsUtility.GetUsersAsync(Connection, AccessToken, groupId, channelId, Role).GetAwaiter().GetResult(), true);
+                            WriteObject(TeamsUtility.GetUsers(GraphRequestHelper, groupId, channelId, Role), true);
                         }
                         else
                         {
-                            WriteWarning("Specified channel is not a private channel. Please specify a private channel name to fetch its users.");
+                            LogWarning("Specified channel is not a private channel. Please specify a private channel name to fetch its users.");
                         }
                     }
                     else
                     {
-                        WriteObject(TeamsUtility.GetUsersAsync(Connection, AccessToken, groupId, Role).GetAwaiter().GetResult(), true);
+                        WriteObject(TeamsUtility.GetUsers(GraphRequestHelper, groupId, Role), true);
                     }
                 }
                 catch (GraphException ex)

@@ -17,10 +17,12 @@ Adds a HTML based publishing page layout
 ```powershell
 Add-PnPHtmlPublishingPageLayout -SourceFilePath <String> -Title <String> -Description <String>
  -AssociatedContentTypeID <String> [-DestinationFolderHierarchy <String>] 
- [-Connection <PnPConnection>] [<CommonParameters>]
+ [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
+
+Allows to add a HTML based publishing page layout.
 
 ## EXAMPLES
 

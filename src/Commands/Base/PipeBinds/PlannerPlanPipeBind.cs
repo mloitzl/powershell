@@ -1,9 +1,9 @@
 using System.Linq;
 using System.Management.Automation;
-using System.Threading.Tasks;
 using PnP.PowerShell.Commands.Model.Graph;
 using PnP.PowerShell.Commands.Model.Planner;
 using PnP.PowerShell.Commands.Utilities;
+using PnP.PowerShell.Commands.Utilities.REST;
 
 namespace PnP.PowerShell.Commands.Base.PipeBinds
 {
@@ -25,7 +25,7 @@ namespace PnP.PowerShell.Commands.Base.PipeBinds
             _plan = plan;
         }
 
-        public async Task<PlannerPlan> GetPlanAsync(PnPConnection connection, string accessToken, string groupId, bool resolveIdentities)
+        public PlannerPlan GetPlan(ApiRequestHelper requestHelper, string groupId, bool resolveIdentities)
         {
             if (_plan != null)
             {
@@ -34,28 +34,33 @@ namespace PnP.PowerShell.Commands.Base.PipeBinds
             // first try to get the plan by id
             try
             {
-                return await PlannerUtility.GetPlanAsync(connection, accessToken, _id, resolveIdentities);
+                return PlannerUtility.GetPlan(requestHelper, _id, resolveIdentities);
             }
             catch (GraphException)
             {
-                var plans = await PlannerUtility.GetPlansAsync(connection, accessToken, groupId, resolveIdentities);
+                var plans = PlannerUtility.GetPlans(requestHelper, groupId, resolveIdentities);
                 if (plans != null && plans.Any())
                 {
                     var collection = plans.Where(p => p.Title.Equals(_id));
-                    if (collection != null && collection.Any() && collection.Count() == 1)
+                    var plansCount = collection.Count();
+                    if (plansCount == 1)
                     {
                         return collection.First();
                     }
+                    else if (plansCount == 0)
+                    {
+                        throw new PSArgumentException($"No plan with the title '{_id}' found. Use Get-PnPPlannerPlan to list all plans.");
+                    }
                     else
                     {
-                        throw new PSArgumentException("More than one plan with the same title found. Use Get-PnPPlannerPlan to list all plans.");
+                        throw new PSArgumentException($"Found {plansCount} plans with the same title '{_id}'. Use Get-PnPPlannerPlan to list all plans.");
                     }
                 }
             }
             return null;
         }
 
-        public async Task<string> GetIdAsync(PnPConnection connection, string accessToken, string groupId)
+        public string GetId(ApiRequestHelper requestHelper, string groupId)
         {
             if (_plan != null)
             {
@@ -64,12 +69,12 @@ namespace PnP.PowerShell.Commands.Base.PipeBinds
             // first try to get the plan by id
             try
             {
-                var plan = await PlannerUtility.GetPlanAsync(connection, accessToken, _id, false);
+                var plan = PlannerUtility.GetPlan(requestHelper, _id, false);
                 return plan.Id;
             }
             catch (GraphException)
             {
-                var plans = await PlannerUtility.GetPlansAsync(connection, accessToken, groupId, false);
+                var plans = PlannerUtility.GetPlans(requestHelper, groupId, false);
                 if (plans != null && plans.Any())
                 {
                     var collection = plans.Where(p => p.Title.Equals(_id));
@@ -85,6 +90,5 @@ namespace PnP.PowerShell.Commands.Base.PipeBinds
             }
             return null;
         }
-
     }
 }

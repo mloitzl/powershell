@@ -1,5 +1,4 @@
-﻿using PnP.PowerShell.Commands.Base;
-using PnP.PowerShell.Commands.Base.PipeBinds;
+﻿using PnP.PowerShell.Commands.Base.PipeBinds;
 using PnP.PowerShell.Commands.Model.Syntex;
 using System.Collections.Generic;
 using System.Management.Automation;
@@ -47,7 +46,7 @@ namespace PnP.PowerShell.Commands.Syntex
             }
             else
             {
-                WriteWarning("The connected site is not a Syntex Content Center site");
+                LogWarning("The connected site is not a Syntex Content Center site");
             }
         }
     }

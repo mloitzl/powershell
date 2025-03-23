@@ -1,9 +1,10 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
 using Microsoft.SharePoint.Client;
+using Microsoft.SharePoint.Client.CompliancePolicy;
+using PnP.PowerShell.Commands.Base.Completers;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 using PnP.PowerShell.Commands.Enums;
 using PnP.PowerShell.Commands.Model;
@@ -23,6 +24,7 @@ namespace PnP.PowerShell.Commands.Lists
         [Parameter(Mandatory = false, ParameterSetName = ParameterSet_SINGLE)]
         [Parameter(Mandatory = false, ParameterSetName = ParameterSet_BATCHED)]
         [Parameter(ValueFromPipeline = true, Position = 0)]
+        [ArgumentCompleter(typeof(ListNameCompleter))]
         public ListPipeBind List;
 
         [Parameter(Mandatory = false, ParameterSetName = ParameterSet_SINGLE)]
@@ -39,11 +41,6 @@ namespace PnP.PowerShell.Commands.Lists
         public Hashtable Values;
 
         [Parameter(Mandatory = false, ParameterSetName = ParameterSet_SINGLE)]
-        [Parameter(Mandatory = false, ParameterSetName = ParameterSet_BATCHED)]
-        [Obsolete("Use '-UpdateType SystemUpdate' instead.")]
-        public SwitchParameter SystemUpdate;
-
-        [Parameter(Mandatory = false, ParameterSetName = ParameterSet_SINGLE)]
         public string Label;
 
         [Parameter(Mandatory = false, ParameterSetName = ParameterSet_SINGLE)]
@@ -57,137 +54,197 @@ namespace PnP.PowerShell.Commands.Lists
         [ValidateNotNull]
         public PnPBatch Batch;
 
+        [Parameter(Mandatory = false, ParameterSetName = ParameterSet_SINGLE)]
+        [Parameter(Mandatory = false, ParameterSetName = ParameterSet_BATCHED)]
+        public SwitchParameter Force;
+
         protected override void ExecuteCmdlet()
         {
-#pragma warning disable CS0618
-            if (ParameterSpecified(nameof(SystemUpdate)))
-            {
-                UpdateType = ListItemUpdateType.SystemUpdate;
-            }
-#pragma warning restore CS0618
             if (ParameterSpecified(nameof(Batch)))
             {
-                var list = List.GetList(Batch);
-                if (list != null)
-                {
-                    var item = Identity.GetListItem(list);
-                    if (item == null)
-                    {
-                        throw new PSArgumentException($"Cannot find item with Identity {Identity}", nameof(Identity));
-                    }
-                    var values = ListItemHelper.GetFieldValues(list, item, Values, ClientContext, Batch);
-                    if (values == null)
-                    {
-                        values = new Dictionary<string, object>();
-                    }
-                    if (ContentType != null)
-                    {
-                        var ct = ContentType.GetContentType(Batch, list);
-                        if (ct != null)
-                        {
-                            values.Add("ContentTypeId", ct.StringId);
-                        }
-                    }
-                    foreach (var value in values)
-                    {
-                        item[value.Key] = values[value.Key];
-                    }
-                    switch (UpdateType)
-                    {
-                        case ListItemUpdateType.SystemUpdate:
-                            {
-                                item.SystemUpdateBatch(Batch.Batch);
-                                break;
-                            }
-                        case ListItemUpdateType.UpdateOverwriteVersion:
-                            {
-                                item.UpdateOverwriteVersionBatch(Batch.Batch);
-                                break;
-                            }
-                        case ListItemUpdateType.Update:
-                            {
-                                item.UpdateBatch(Batch.Batch);
-                                break;
-                            }
-                    }
-                }
+                SetListItemBatched();
             }
             else
             {
-                if (Identity == null || (Identity.Item == null && Identity.Id == 0))
+                SetListItemSingle();
+            }
+        }
+
+        private void SetListItemBatched()
+        {
+            var list = List.GetList(Batch, throwError: true);
+            var item = Identity.GetListItem(list);
+            if (item == null)
+            {
+                throw new PSArgumentException($"Cannot find item with Identity {Identity}", nameof(Identity));
+            }
+
+            var values = ListItemHelper.GetFieldValues(list, item, Values, ClientContext, Batch);
+            if (values == null)
+            {
+                values = new Dictionary<string, object>();
+            }
+            if (ContentType != null)
+            {
+                var ct = ContentType.GetContentTypeOrWarn(this, Batch, list);
+                if (ct != null)
                 {
-                    throw new PSArgumentException($"No -Identity has been provided specifying the item to update", nameof(Identity));
+                    values.Add("ContentTypeId", ct.StringId);
+                }
+            }
+
+            if (!values.Any() && !Force)
+            {
+                LogWarning("No values provided. Pass -Force to update anyway.");
+            }
+            else
+            {
+                foreach (var value in values)
+                {
+                    item[value.Key] = values[value.Key];
                 }
 
-                List list;
-                if (List != null)
+                switch (UpdateType)
                 {
-                    list = List.GetList(CurrentWeb);
+                    case ListItemUpdateType.SystemUpdate:
+                        {
+                            item.SystemUpdateBatch(Batch.Batch);
+                            break;
+                        }
+                    case ListItemUpdateType.UpdateOverwriteVersion:
+                        {
+                            item.UpdateOverwriteVersionBatch(Batch.Batch);
+                            break;
+                        }
+                    case ListItemUpdateType.Update:
+                        {
+                            item.UpdateBatch(Batch.Batch);
+                            break;
+                        }
+                }
+            }
+        }
+
+        private void SetListItemSingle()
+        {
+            if (Identity == null || (Identity.Item == null && Identity.Id == 0))
+            {
+                throw new PSArgumentException($"No -Identity has been provided specifying the item to update", nameof(Identity));
+            }
+
+            List list;
+            if (List != null)
+            {
+                list = List.GetList(CurrentWeb);
+            }
+            else
+            {
+                if (Identity.Item == null)
+                {
+                    throw new PSArgumentException($"No -List has been provided specifying the list to update the item in", nameof(Identity));
+                }
+
+                list = Identity.Item.ParentList;
+            }
+
+            var item = Identity.GetListItem(list)
+                ?? throw new PSArgumentException($"Provided -Identity is not valid.", nameof(Identity)); ;
+
+            bool itemUpdated = false;
+
+            if (ClearLabel)
+            {
+                ClientContext.Web.EnsureProperties(w => w.Url, w => w.ServerRelativeUrl);
+                list.EnsureProperties(l => l.RootFolder, l => l.RootFolder.ServerRelativeUrl);
+
+                string listUrl = string.Empty;
+                if (ClientContext.Web.ServerRelativeUrl.Equals("/"))
+                {
+                    listUrl = ClientContext.Web.Url + list.RootFolder.ServerRelativeUrl;
                 }
                 else
                 {
-                    if (Identity.Item == null)
-                    {
-                        throw new PSArgumentException($"No -List has been provided specifying the list to update the item in", nameof(Identity));
-                    }
-
-                    list = Identity.Item.ParentList;
+                    listUrl = ClientContext.Web.Url.Replace(ClientContext.Web.ServerRelativeUrl, "") + list.RootFolder.ServerRelativeUrl;
                 }
 
-                if (list != null)
+                SPPolicyStoreProxy.SetComplianceTagOnBulkItems(ClientContext, new[] { item.Id }, listUrl, string.Empty);
+                ClientContext.ExecuteQueryRetry();
+                itemUpdated = true;
+            }
+
+            if (!string.IsNullOrEmpty(Label))
+            {
+                var tags = SPPolicyStoreProxy.GetAvailableTagsForSite(ClientContext, ClientContext.Url);
+                ClientContext.ExecuteQueryRetry();
+
+                var tag = tags.Where(t => t.TagName == Label).FirstOrDefault();
+
+                if (tag is null)
                 {
-                    var item = Identity.GetListItem(list);
-
-                    if (ParameterSpecified(nameof(ClearLabel)))
+                    LogWarning("Can not find compliance tag with value: " + Label);
+                }
+                else
+                {
+                    try
                     {
-                        item.SetComplianceTag(string.Empty, false, false, false, false, false);
-                        ClientContext.ExecuteQueryRetry();
-                    }
-                    if (!string.IsNullOrEmpty(Label))
-                    {
-                        var tags = Microsoft.SharePoint.Client.CompliancePolicy.SPPolicyStoreProxy.GetAvailableTagsForSite(ClientContext, ClientContext.Url);
-                        ClientContext.ExecuteQueryRetry();
+                        ClientContext.Web.EnsureProperties(w => w.Url, w => w.ServerRelativeUrl);
+                        list.EnsureProperties(l => l.RootFolder, l => l.RootFolder.ServerRelativeUrl);
 
-                        var tag = tags.Where(t => t.TagName == Label).FirstOrDefault();
-
-                        if (tag != null)
+                        string listUrl = string.Empty;
+                        if (ClientContext.Web.ServerRelativeUrl.Equals("/"))
                         {
-                            try
-                            {
-                                item.SetComplianceTag(tag.TagName, tag.BlockDelete, tag.BlockEdit, tag.IsEventTag, tag.SuperLock, false);
-                                ClientContext.ExecuteQueryRetry();
-                            }
-                            catch (System.Exception error)
-                            {
-                                WriteWarning(error.Message.ToString());
-                            }
+                            listUrl = ClientContext.Web.Url + list.RootFolder.ServerRelativeUrl;
                         }
                         else
                         {
-                            WriteWarning("Can not find compliance tag with value: " + Label);
+                            listUrl = ClientContext.Web.Url.Replace(ClientContext.Web.ServerRelativeUrl, "") + list.RootFolder.ServerRelativeUrl;
                         }
-                    }
 
-                    if (ContentType != null)
-                    {
-                        ContentType ct = ContentType.GetContentType(list);
-                        if (ct != null)
-                        {
-                            item["ContentTypeId"] = ct.EnsureProperty(w => w.StringId); ;
-                            ListItemHelper.UpdateListItem(item, UpdateType);
-                            ClientContext.ExecuteQueryRetry();
-                        }
+                        SPPolicyStoreProxy.SetComplianceTagOnBulkItems(ClientContext, new[] { item.Id }, listUrl, tag.TagName);                        
+                        ClientContext.ExecuteQueryRetry();                        
                     }
-                    if (Values != null)
+                    catch (System.Exception error)
                     {
-                        ListItemHelper.SetFieldValues(item, Values, this);
-                        ListItemHelper.UpdateListItem(item, UpdateType);
+                        LogWarning(error.Message.ToString());
                     }
+                }
+                itemUpdated = true;
+            }
+
+            if (ContentType != null)
+            {
+                ContentType ct = ContentType.GetContentTypeOrWarn(this, list);
+                if (ct != null)
+                {
+                    item["ContentTypeId"] = ct.EnsureProperty(w => w.StringId); ;
+                    ListItemHelper.UpdateListItem(item, UpdateType);
                     ClientContext.ExecuteQueryRetry();
-                    ClientContext.Load(item);
-                    WriteObject(item);
+                }
+                itemUpdated = true;
+            }
+
+            if (Values?.Count > 0)
+            {
+                ListItemHelper.SetFieldValues(item, Values, this);
+                ListItemHelper.UpdateListItem(item, UpdateType);
+                itemUpdated = true;
+            }
+
+            if (!itemUpdated && !Force)
+            {
+                LogWarning("No values provided. Pass -Force to update anyway.");
+            }
+            else
+            {
+                if (Force)
+                {
+                    ListItemHelper.UpdateListItem(item, UpdateType);
                 }
             }
+
+            ClientContext.ExecuteQueryRetry();
+            ClientContext.Load(item);
+            WriteObject(item);
         }
     }
 }

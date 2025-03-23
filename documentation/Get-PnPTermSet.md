@@ -14,10 +14,9 @@ Returns a taxonomy term set
 
 ## SYNTAX
 
-```
+```powershell
 Get-PnPTermSet [-Identity <TaxonomyTermSetPipeBind>] [-TermGroup] <TaxonomyTermGroupPipeBind>
- [-TermStore <TaxonomyTermStorePipeBind>] [-Connection <PnPConnection>] [-Includes <String[]>]
- [<CommonParameters>]
+ [-TermStore <TaxonomyTermStorePipeBind>] [-Connection <PnPConnection>] [-Includes <String[]>] 
 ```
 
 ## DESCRIPTION
@@ -30,7 +29,7 @@ This cmdlet returns a termset from the taxonomy store.
 Get-PnPTermSet -TermGroup "Corporate"
 ```
 
-Returns all termsets in the group "Corporate" from the site collection termstore
+Returns all termset's in the group "Corporate" from the site collection termstore
 
 ### EXAMPLE 2
 ```powershell
@@ -45,6 +44,13 @@ Get-PnPTermSet -Identity ab2af486-e097-4b4a-9444-527b251f1f8d -TermGroup "Corpor
 ```
 
 Returns the termset with the given id from the termgroup called "Corporate" from the site collection termstore
+
+### EXAMPLE 4
+```powershell
+Get-PnPTermSet -Identity "Departments" -TermGroup "Corporate -Include "Terms"
+```
+
+Returns the termset with the given name from the termgroup called "Corporate" including the terms below it from the site collection termstore
 
 ## PARAMETERS
 
@@ -100,6 +106,20 @@ Term store to use; if not specified the default term store is used.
 Type: TaxonomyTermStorePipeBind
 Parameter Sets: (All)
 Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Includes
+Optionally allows properties to be retrieved for the returned term set which are not included in the response by default
+
+```yaml
+Type: String[]
+Parameter Sets: (All)
 
 Required: False
 Position: Named

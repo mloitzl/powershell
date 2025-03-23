@@ -5,6 +5,7 @@ using PnP.Framework.Entities;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 using System.Collections.Generic;
 using Microsoft.SharePoint.Client.Taxonomy;
+using PnP.PowerShell.Commands.Base.Completers;
 
 namespace PnP.PowerShell.Commands.Fields
 {
@@ -19,9 +20,11 @@ namespace PnP.PowerShell.Commands.Fields
 
         [Parameter(Mandatory = false, ValueFromPipeline = true, ParameterSetName = ParameterSet_ADDFIELDTOLIST)]
         [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = ParameterSet_ADDFIELDREFERENCETOLIST)]
+        [ArgumentCompleter(typeof(ListNameCompleter))]
         public ListPipeBind List;
 
         [Parameter(Mandatory = true, ParameterSetName = ParameterSet_ADDFIELDREFERENCETOLIST)]
+        [ArgumentCompleter(typeof(FieldInternalNameCompleter))]
         public FieldPipeBind Field;
 
         [Parameter(Mandatory = true, ParameterSetName = ParameterSet_ADDFIELDTOLIST)]
@@ -112,7 +115,7 @@ namespace PnP.PowerShell.Commands.Fields
                         fieldCI.FieldOptions |= AddFieldOptions.AddToAllContentTypes;
                     }
 
-                    if (ClientSideComponentId != null)
+                    if (ClientSideComponentId != Guid.Empty)
                     {
                         fieldCI.ClientSideComponentId = ClientSideComponentId;
                     }
@@ -122,6 +125,7 @@ namespace PnP.PowerShell.Commands.Fields
                     }
                     if (Type == FieldType.Choice || Type == FieldType.MultiChoice)
                     {
+                        EnsureDynamicParameters(choiceFieldParameters);
                         f = list.CreateField<FieldChoice>(fieldCI);
                         ((FieldChoice)f).Choices = choiceFieldParameters.Choices;
                         f.Update();
@@ -129,6 +133,8 @@ namespace PnP.PowerShell.Commands.Fields
                     }
                     else if (Type == FieldType.Calculated)
                     {
+                        EnsureDynamicParameters(calculatedFieldParameters);
+
                         // Either set the ResultType as input parameter or set it to the default Text
                         if (!string.IsNullOrEmpty(calculatedFieldParameters.ResultType))
                         {
@@ -164,7 +170,87 @@ namespace PnP.PowerShell.Commands.Fields
                         ClientContext.Load(f);
                         ClientContext.ExecuteQueryRetry();
                     }
-                    WriteObject(f);
+                    f.EnsureProperty(f => f.FieldTypeKind);
+                    switch (f.FieldTypeKind)
+                    {
+                        case FieldType.DateTime:
+                            {
+                                WriteObject(ClientContext.CastTo<FieldDateTime>(f));
+                                break;
+                            }
+                        case FieldType.Choice:
+                            {
+                                WriteObject(ClientContext.CastTo<FieldChoice>(f));
+                                break;
+                            }
+                        case FieldType.Calculated:
+                            {
+                                var calculatedField = ClientContext.CastTo<FieldCalculated>(f);
+                                calculatedField.EnsureProperty(fc => fc.Formula);
+                                WriteObject(calculatedField);
+                                break;
+                            }
+                        case FieldType.Computed:
+                            {
+                                WriteObject(ClientContext.CastTo<FieldComputed>(f));
+                                break;
+                            }
+                        case FieldType.Geolocation:
+                            {
+                                WriteObject(ClientContext.CastTo<FieldGeolocation>(f));
+                                break;
+
+                            }
+                        case FieldType.User:
+                            {
+                                WriteObject(ClientContext.CastTo<FieldUser>(f));
+                                break;
+                            }
+                        case FieldType.Currency:
+                            {
+                                WriteObject(ClientContext.CastTo<FieldCurrency>(f));
+                                break;
+                            }
+                        case FieldType.Guid:
+                            {
+                                WriteObject(ClientContext.CastTo<FieldGuid>(f));
+                                break;
+                            }
+                        case FieldType.URL:
+                            {
+                                WriteObject(ClientContext.CastTo<FieldUrl>(f));
+                                break;
+                            }
+                        case FieldType.Lookup:
+                            {
+                                WriteObject(ClientContext.CastTo<FieldLookup>(f));
+                                break;
+                            }
+                        case FieldType.MultiChoice:
+                            {
+                                WriteObject(ClientContext.CastTo<FieldMultiChoice>(f));
+                                break;
+                            }
+                        case FieldType.Number:
+                            {
+                                WriteObject(ClientContext.CastTo<FieldNumber>(f));
+                                break;
+                            }
+                        case FieldType.Invalid:
+                            {
+                                if (f.TypeAsString.StartsWith("TaxonomyFieldType"))
+                                {
+                                    WriteObject(ClientContext.CastTo<TaxonomyField>(f));
+                                    break;
+                                }
+                                goto default;
+                            }
+                        default:
+                            {
+                                WriteObject(f);
+                                break;
+                            }
+                    }
                 }
                 else
                 {
@@ -204,7 +290,87 @@ namespace PnP.PowerShell.Commands.Fields
                         list.Update();
                         ClientContext.ExecuteQueryRetry();
                     }
-                    WriteObject(field);
+                    field.EnsureProperty(f => f.FieldTypeKind);
+                    switch (field.FieldTypeKind)
+                    {
+                        case FieldType.DateTime:
+                            {
+                                WriteObject(ClientContext.CastTo<FieldDateTime>(field));
+                                break;
+                            }
+                        case FieldType.Choice:
+                            {
+                                WriteObject(ClientContext.CastTo<FieldChoice>(field));
+                                break;
+                            }
+                        case FieldType.Calculated:
+                            {
+                                var calculatedField = ClientContext.CastTo<FieldCalculated>(field);
+                                calculatedField.EnsureProperty(fc => fc.Formula);
+                                WriteObject(calculatedField);
+                                break;
+                            }
+                        case FieldType.Computed:
+                            {
+                                WriteObject(ClientContext.CastTo<FieldComputed>(field));
+                                break;
+                            }
+                        case FieldType.Geolocation:
+                            {
+                                WriteObject(ClientContext.CastTo<FieldGeolocation>(field));
+                                break;
+
+                            }
+                        case FieldType.User:
+                            {
+                                WriteObject(ClientContext.CastTo<FieldUser>(field));
+                                break;
+                            }
+                        case FieldType.Currency:
+                            {
+                                WriteObject(ClientContext.CastTo<FieldCurrency>(field));
+                                break;
+                            }
+                        case FieldType.Guid:
+                            {
+                                WriteObject(ClientContext.CastTo<FieldGuid>(field));
+                                break;
+                            }
+                        case FieldType.URL:
+                            {
+                                WriteObject(ClientContext.CastTo<FieldUrl>(field));
+                                break;
+                            }
+                        case FieldType.Lookup:
+                            {
+                                WriteObject(ClientContext.CastTo<FieldLookup>(field));
+                                break;
+                            }
+                        case FieldType.MultiChoice:
+                            {
+                                WriteObject(ClientContext.CastTo<FieldMultiChoice>(field));
+                                break;
+                            }
+                        case FieldType.Number:
+                            {
+                                WriteObject(ClientContext.CastTo<FieldNumber>(field));
+                                break;
+                            }
+                        case FieldType.Invalid:
+                            {
+                                if (field.TypeAsString.StartsWith("TaxonomyFieldType"))
+                                {
+                                    WriteObject(ClientContext.CastTo<TaxonomyField>(field));
+                                    break;
+                                }
+                                goto default;
+                            }
+                        default:
+                            {
+                                WriteObject(field);
+                                break;
+                            }
+                    }
                 }
             }
             else
@@ -220,7 +386,7 @@ namespace PnP.PowerShell.Commands.Fields
                     AddToDefaultView = AddToDefaultView
                 };
 
-                if (ClientSideComponentId != null)
+                if (ClientSideComponentId != Guid.Empty)
                 {
                     fieldCI.ClientSideComponentId = ClientSideComponentId;
                 }
@@ -231,6 +397,7 @@ namespace PnP.PowerShell.Commands.Fields
 
                 if (Type == FieldType.Choice || Type == FieldType.MultiChoice)
                 {
+                    EnsureDynamicParameters(choiceFieldParameters);
                     f = CurrentWeb.CreateField<FieldChoice>(fieldCI);
                     ((FieldChoice)f).Choices = choiceFieldParameters.Choices;
                     f.Update();
@@ -238,8 +405,18 @@ namespace PnP.PowerShell.Commands.Fields
                 }
                 else if (Type == FieldType.Calculated)
                 {
+                    EnsureDynamicParameters(calculatedFieldParameters);
                     f = CurrentWeb.CreateField<FieldCalculated>(fieldCI);
                     ((FieldCalculated)f).Formula = calculatedFieldParameters.Formula;
+
+                    if (!string.IsNullOrEmpty(calculatedFieldParameters.ResultType) && Enum.TryParse<FieldType>(calculatedFieldParameters.ResultType, out FieldType resultType))
+                    {
+                        ((FieldCalculated)f).OutputType = resultType;
+                    }
+                    else
+                    {
+                        ((FieldCalculated)f).OutputType = FieldType.Text;
+                    }
                     f.Update();
                     ClientContext.ExecuteQueryRetry();
                 }
@@ -335,6 +512,14 @@ namespace PnP.PowerShell.Commands.Fields
                             break;
                         }
                 }
+            }
+        }
+
+        private void EnsureDynamicParameters(object dynamicParameters)
+        {
+            if (dynamicParameters == null)
+            {
+                throw new PSArgumentException($"Please specify the parameter -{nameof(Type)} when invoking this cmdlet", nameof(Type));
             }
         }
 

@@ -1,39 +1,43 @@
-﻿using PnP.Framework.Entities;
-using PnP.Framework.Graph;
-using PnP.PowerShell.Commands.Attributes;
+﻿using PnP.PowerShell.Commands.Attributes;
 using PnP.PowerShell.Commands.Base;
 using PnP.PowerShell.Commands.Base.PipeBinds;
-using PnP.PowerShell.Commands.Model.AzureAD;
-using System.Collections.Generic;
+using PnP.PowerShell.Commands.Utilities;
+using System;
 using System.Linq;
 using System.Management.Automation;
+using Group = PnP.PowerShell.Commands.Model.Graph.Group;
 
 namespace PnP.PowerShell.Commands.Graph
 {
     [Cmdlet(VerbsCommon.Get, "PnPAzureADGroupMember")]
-    [RequiredMinimalApiPermissions("Group.Read.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/Group.Read.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/Group.ReadWrite.All")]
+    [Alias("Get-PnPEntraIDGroupMember")]
     public class GetAzureADGroupMember : PnPGraphCmdlet
     {
         [Parameter(Mandatory = true, ValueFromPipeline = true)]
         public AzureADGroupPipeBind Identity;
 
+        [Parameter(Mandatory = false, ValueFromPipeline = false)]
+        public SwitchParameter Transitive;
+
         protected override void ExecuteCmdlet()
         {
-            AzureADGroup group = null;
+            Group group = null;
 
             if (Identity != null)
             {
-                group = Identity.GetGroup(AccessToken);
+                group = Identity.GetGroup(GraphRequestHelper);
             }
 
             if (group != null)
             {
                 // Get members of the group
-                List<GroupUser> members = GroupsUtility.GetGroupMembers(group.Convert(), AccessToken);
-                if (members != null && members.Any())
-                {
-                    WriteObject(members.Select(m => AzureADGroupUser.CreateFrom(m)), true);
-                }
+                var members = Transitive
+                    ? Microsoft365GroupsUtility.GetTransitiveMembers(GraphRequestHelper, new Guid(group.Id))
+                    : Microsoft365GroupsUtility.GetMembers(GraphRequestHelper, new Guid(group.Id));
+                    WriteObject(members?.OrderBy(m => m.DisplayName), true);
+
             }
         }
     }

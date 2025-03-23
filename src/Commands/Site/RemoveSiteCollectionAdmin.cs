@@ -1,12 +1,12 @@
-﻿using System.Management.Automation;
-using Microsoft.SharePoint.Client;
-
-using System.Collections.Generic;
+﻿using Microsoft.SharePoint.Client;
 using PnP.PowerShell.Commands.Base.PipeBinds;
+using System.Collections.Generic;
+using System.Management.Automation;
 
 namespace PnP.PowerShell.Commands.Site
 {
     [Cmdlet(VerbsCommon.Remove, "PnPSiteCollectionAdmin")]
+    [OutputType(typeof(void))]
     public class RemoveSiteCollectionAdmin : PnPSharePointCmdlet
     {
         [Parameter(Mandatory = true, ValueFromPipeline = true)]
@@ -29,12 +29,12 @@ namespace PnP.PowerShell.Commands.Site
                     }
                     catch (ServerException e)
                     {
-                        WriteWarning($"Exception occurred while trying to remove the user: \"{e.Message}\". User will be skipped.");
+                        LogWarning($"Exception occurred while trying to remove the user: \"{e.Message}\". User will be skipped.");
                     }
                 }
                 else
                 {
-                    WriteWarning($"Unable to remove user as it wasn't found. User will be skipped.");
+                    LogWarning($"Unable to remove user as it wasn't found. User will be skipped.");
                 }
             }
         }

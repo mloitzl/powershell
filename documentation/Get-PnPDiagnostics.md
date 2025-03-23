@@ -15,7 +15,7 @@ Returns diagnostic information
 ## SYNTAX
 
 ```powershell
-Get-PnPDiagnostics [<CommonParameters>]
+Get-PnPDiagnostics 
 ```
 
 ## DESCRIPTION
@@ -29,9 +29,6 @@ Get-PnPDiagnostics
 ```
 
 Returns basic diagnostic information, including the last error, the stacktrace, if applicable, etc.
-
-## PARAMETERS
-
 
 ## RELATED LINKS
 

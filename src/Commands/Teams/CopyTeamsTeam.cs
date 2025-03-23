@@ -1,12 +1,11 @@
-﻿using Microsoft.Graph;
-using PnP.Framework.Provisioning.Model.Teams;
+﻿using PnP.Framework.Provisioning.Model.Teams;
 using PnP.PowerShell.Commands.Attributes;
 using PnP.PowerShell.Commands.Base;
 using PnP.PowerShell.Commands.Base.PipeBinds;
+using PnP.PowerShell.Commands.Enums;
 using PnP.PowerShell.Commands.Model.Graph;
 using PnP.PowerShell.Commands.Model.Teams;
 using PnP.PowerShell.Commands.Utilities;
-using PnP.PowerShell.Commands.Utilities.REST;
 using System;
 using System.Linq;
 using System.Management.Automation;
@@ -14,7 +13,7 @@ using System.Management.Automation;
 namespace PnP.PowerShell.Commands.Teams
 {
     [Cmdlet(VerbsCommon.Copy, "PnPTeamsTeam")]
-    [RequiredMinimalApiPermissions("Team.Create")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/Team.Create")]
     public class CopyTeamsTeam : PnPGraphCmdlet
     {
         [Parameter(Mandatory = true)]
@@ -34,7 +33,7 @@ namespace PnP.PowerShell.Commands.Teams
         * However the mailNickname is still required by the payload so to deliver better user experience
         * the CLI generates mailNickname for the user 
         * so the user does not have to specify something that will be ignored.
-        * For more see: https://docs.microsoft.com/en-us/graph/api/team-clone?view=graph-rest-1.0#request-data
+        * For more see: https://learn.microsoft.com/en-us/graph/api/team-clone?view=graph-rest-1.0#request-data
         * This method has to be removed once the graph team fixes the issue and then the actual value
         * of the mailNickname would have to be specified by the CLI user.
         *  [Parameter(Mandatory = true)]
@@ -48,8 +47,8 @@ namespace PnP.PowerShell.Commands.Teams
 
         protected override void ExecuteCmdlet()
         {
-            var groupId = Identity.GetGroupId(Connection, AccessToken);
-            
+            var groupId = Identity.GetGroupId(GraphRequestHelper);
+
             if (groupId == null)
             {
                 throw new PSArgumentException("Team not found", nameof(Identity));
@@ -58,7 +57,7 @@ namespace PnP.PowerShell.Commands.Teams
             if (!ParameterSpecified(nameof(PartsToClone)))
             {
                 // If no specific parts have been provided, all available parts will be copied
-                PartsToClone = Enum.GetValues(typeof(Microsoft.Graph.ClonableTeamParts)).Cast<Microsoft.Graph.ClonableTeamParts>().ToArray();
+                PartsToClone = Enum.GetValues(typeof(ClonableTeamParts)).Cast<ClonableTeamParts>().ToArray();
             }
 
             TeamCloneInformation teamClone = new TeamCloneInformation();
@@ -70,7 +69,7 @@ namespace PnP.PowerShell.Commands.Teams
             * but currently ignored and can't be set by user */
             teamClone.MailNickName = DisplayName;
             teamClone.Visibility = (GroupVisibility)Enum.Parse(typeof(GroupVisibility), Visibility.ToString());
-            TeamsUtility.CloneTeamAsync(AccessToken, Connection, groupId, teamClone).GetAwaiter().GetResult();
+            TeamsUtility.CloneTeam(GraphRequestHelper, groupId, teamClone);
         }
     }
 }

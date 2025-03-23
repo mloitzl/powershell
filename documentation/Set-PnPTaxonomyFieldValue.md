@@ -17,22 +17,24 @@ Sets a taxonomy term value in a listitem field
 ### ITEM (Default)
 ```powershell
 Set-PnPTaxonomyFieldValue -ListItem <ListItem> -InternalFieldName <String> -TermId <Guid>
- [-Label <String>] [-Connection <PnPConnection>] [<CommonParameters>]
+ [-Label <String>] [-Connection <PnPConnection>] 
 ```
 
 ### PATH
 ```powershell
 Set-PnPTaxonomyFieldValue -ListItem <ListItem> -InternalFieldName <String> -TermPath <String>
- [-Connection <PnPConnection>] [<CommonParameters>]
+ [-Connection <PnPConnection>] 
 ```
 
 ### ITEMS
 ```powershell
 Set-PnPTaxonomyFieldValue -ListItem <ListItem> -InternalFieldName <String> [-Terms <Hashtable>]
- [-Connection <PnPConnection>] [<CommonParameters>]
+ [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
+
+Allows to update taxonomy term value in a listitem field.
 
 ## EXAMPLES
 

@@ -1,8 +1,7 @@
-﻿using System;
-using System.Management.Automation;
-using Microsoft.SharePoint.Client;
-
+﻿using Microsoft.SharePoint.Client;
 using PnP.PowerShell.Commands.Base.PipeBinds;
+using PnP.PowerShell.Commands.Utilities;
+using System.Management.Automation;
 using Resources = PnP.PowerShell.Commands.Properties.Resources;
 
 namespace PnP.PowerShell.Commands.RecycleBin
@@ -11,7 +10,7 @@ namespace PnP.PowerShell.Commands.RecycleBin
     [OutputType(typeof(void))]
     public class RestoreRecycleBinItem : PnPSharePointCmdlet
     {
-        [Parameter(Mandatory = true, ValueFromPipeline = true)]
+        [Parameter(Mandatory = false, ValueFromPipeline = true)]
         public RecycleBinItemPipeBind Identity;
 
         [Parameter(Mandatory = false)]
@@ -24,35 +23,38 @@ namespace PnP.PowerShell.Commands.RecycleBin
         {
             if (ParameterSpecified(nameof(Identity)))
             {
+                var recycleBinItem = Identity.GetRecycleBinItem(Connection.PnPContext);
 
-                var recycleBinItem = Identity.GetRecycleBinItem(ClientContext.Site);
+                if (recycleBinItem == null)
+                {
+                    throw new PSArgumentException("Recycle bin item not found with the ID specified", nameof(Identity));
+                }
 
                 if (Force || ShouldContinue(string.Format(Resources.RestoreRecycleBinItem, recycleBinItem.LeafName), Resources.Confirm))
                 {
                     recycleBinItem.Restore();
-                    ClientContext.ExecuteQueryRetry();
                 }
             }
             else
             {
                 if (ParameterSpecified(nameof(RowLimit)))
                 {
-                    if (Force || ShouldContinue(Resources.RestoreRecycleBinItems, Resources.Confirm))
+                    if (Force || ShouldContinue(string.Format(Resources.Restore0RecycleBinItems, RowLimit), Resources.Confirm))
                     {
-                        RecycleBinItemCollection items = ClientContext.Site.GetRecycleBinItems(null, RowLimit, false, RecycleBinOrderBy.DeletedDate, RecycleBinItemState.None);
-                        ClientContext.Load(items);
-                        ClientContext.ExecuteQueryRetry();
-
-                        items.RestoreAll();
-                        ClientContext.ExecuteQueryRetry();
+                        var recycleBinItemCollection = RecycleBinUtility.GetRecycleBinItemCollection(ClientContext, RowLimit, RecycleBinItemState.None);
+                        for (var i = 0; i < recycleBinItemCollection.Count; i++)
+                        {
+                            var recycleBinItems = recycleBinItemCollection[i];
+                            recycleBinItems.RestoreAll();
+                            ClientContext.ExecuteQueryRetry();
+                        }
                     }
                 }
                 else
                 {
                     if (Force || ShouldContinue(Resources.RestoreRecycleBinItems, Resources.Confirm))
                     {
-                        ClientContext.Site.RecycleBin.RestoreAll();
-                        ClientContext.ExecuteQueryRetry();
+                        Connection.PnPContext.Site.RecycleBin.RestoreAll();
                     }
                 }
             }

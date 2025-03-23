@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Management.Automation;
 using Microsoft.SharePoint.Client;
-
+using PnP.PowerShell.Commands.Base.Completers;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 
 namespace PnP.PowerShell.Commands.InformationManagement
@@ -11,6 +11,7 @@ namespace PnP.PowerShell.Commands.InformationManagement
     public class SetListInformationRightsManagement : PnPWebCmdlet
     {
         [Parameter(Mandatory = true)]
+        [ArgumentCompleter(typeof(ListNameCompleter))]
         public ListPipeBind List;
 
         [Parameter(Mandatory = false)]
@@ -75,7 +76,7 @@ namespace PnP.PowerShell.Commands.InformationManagement
 
             if (list.IrmEnabled == false && !Enable.HasValue)
             {
-                WriteWarning("Information Rights Management is currently disabled for this list. Enable with Set-PnPListInformationRightsManagement -Enable $true");
+                LogWarning("Information Rights Management is currently disabled for this list. Enable with Set-PnPListInformationRightsManagement -Enable $true");
             }
             else
             {
@@ -172,7 +173,7 @@ namespace PnP.PowerShell.Commands.InformationManagement
                         }
                         else
                         {
-                            WriteWarning("Document Access expiration is not enabled. Enable with -EnableDocumentAccessExpire $true");
+                            LogWarning("Document Access expiration is not enabled. Enable with -EnableDocumentAccessExpire $true");
                         }
                     }
 
@@ -183,7 +184,7 @@ namespace PnP.PowerShell.Commands.InformationManagement
                             list.InformationRightsManagementSettings.LicenseCacheExpireDays = LicenseCacheExpireDays.Value;
                             isDirty = true;
                         } else {
-                            WriteWarning("License Cache expiration is not enabled. Enable with -EnableLicenseCacheExpire $true");
+                            LogWarning("License Cache expiration is not enabled. Enable with -EnableLicenseCacheExpire $true");
                         }
                     }
 
@@ -195,7 +196,7 @@ namespace PnP.PowerShell.Commands.InformationManagement
                             isDirty = true;
                         } else
                         {
-                            WriteWarning("Information Rights Management (IRM) expiration is not enabled. Enable with -EnableExpiration");
+                            LogWarning("Information Rights Management (IRM) expiration is not enabled. Enable with -EnableExpiration");
                         }
                     }
 

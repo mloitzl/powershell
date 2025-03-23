@@ -1,13 +1,12 @@
 ﻿using Microsoft.Online.SharePoint.TenantAdministration;
 using Microsoft.SharePoint.Client;
-
 using PnP.PowerShell.Commands.Base;
 using System.Management.Automation;
 
 namespace PnP.PowerShell.Commands.Admin
 {
     [Cmdlet(VerbsCommon.Get, "PnPTenantCdnEnabled")]
-    public class GetTenantCdnEnabled : PnPAdminCmdlet
+    public class GetTenantCdnEnabled : PnPSharePointOnlineAdminCmdlet
     {
         [Parameter(Mandatory = true)]
         public SPOTenantCdnType CdnType;
@@ -15,7 +14,7 @@ namespace PnP.PowerShell.Commands.Admin
         protected override void ExecuteCmdlet()
         {
             var result = Tenant.GetTenantCdnEnabled(CdnType);
-            ClientContext.ExecuteQueryRetry();
+            AdminContext.ExecuteQueryRetry();
             WriteObject(result);
         }
     }

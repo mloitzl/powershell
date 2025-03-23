@@ -5,16 +5,106 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": ".NET Core Attach",
+            "name": "Debug with nugets in new PowerShell session",
             "type": "coreclr",
-            "request": "attach",
-            "processId": "${command:pickProcess}"
+            "request": "launch",
+            "preLaunchTask": "Build with nugets",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false,
+            "console": "externalTerminal",
+            "program": "pwsh",
+            "osx": {
+                "program": "pwsh",
+            },
+            "windows": {
+                "program": "pwsh.exe"
+            }
         },
         {
-            "name": ".NET Framework Attach",
-            "type": "clr",
+            "preLaunchTask": "Build with nugets",
+            "name": "Debug with nugets in existing PowerShell session",
+            "type": "coreclr",
             "request": "attach",
-            "processId": "${command:pickProcess}"
+            "processId": "${command:pickProcess}",
+        },
+        {
+            "name": "Debug with local copy of PnP Framework in new PowerShell session",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "Build with local copy of PnP Framework",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false,
+            "console": "externalTerminal",
+            "program": "pwsh",
+            "osx": {
+                "program": "pwsh",
+            },
+            "windows": {
+                "program": "pwsh.exe"
+            }
+        },
+        {
+            "preLaunchTask": "Build with local copy of PnP Framework",
+            "name": "Debug with local copy of PnP Framework in existing PowerShell session",
+            "type": "coreclr",
+            "request": "attach",
+            "processId": "${command:pickProcess}",
+        },
+        {
+            "name": "Debug with local copy of PnP Core in new PowerShell session",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "Build with local copy of PnP Core SDK",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false,
+            "console": "externalTerminal",
+            "program": "pwsh",
+            "osx": {
+                "program": "pwsh",
+            },
+            "windows": {
+                "program": "pwsh.exe"
+            }
+        },
+        {
+            "preLaunchTask": "Build with local copy of PnP Core SDK",
+            "name": "Debug with local copy of PnP Core in existing PowerShell session",
+            "type": "coreclr",
+            "request": "attach",
+            "processId": "${command:pickProcess}",
+        },
+        {
+            "name": "Debug with local copy of PnP Framework and Core in new PowerShell session",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "Build with local copy of PnP Framework/PnP Core SDK",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false,
+            "console": "externalTerminal",
+            "program": "pwsh",
+            "osx": {
+                "program": "pwsh",
+            },
+            "windows": {
+                "program": "pwsh.exe"
+            }
+        },
+        {
+            "preLaunchTask": "Build with local copy of PnP Framework/PnP Core SDK",
+            "name": "Debug with local copy of PnP Framework and Core in existing PowerShell session",
+            "type": "coreclr",
+            "request": "attach",
+            "processId": "${command:pickProcess}",
+        },
+        {
+            "name": "Attach to existing PowerShell session",
+            "type": "coreclr",
+            "request": "attach",
+            "processId": "${command:pickProcess}",
         }
     ]
 }

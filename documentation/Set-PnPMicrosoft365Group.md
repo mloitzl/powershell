@@ -15,67 +15,104 @@ online version: https://pnp.github.io/powershell/cmdlets/Set-PnPMicrosoft365Grou
 
   * Microsoft Graph API: Group.ReadWrite.All
 
-Sets Microsoft 365 Group properties
+Sets Microsoft 365 Group properties.
 
 ## SYNTAX
 
 ```powershell
-Set-PnPMicrosoft365Group -Identity <Microsoft365GroupPipeBind> [-DisplayName <String>] [-Description <String>]
- [-Owners <String[]>] [-Members <String[]>] [-IsPrivate] [-LogoPath <String>] [-CreateTeam]
- [-HideFromAddressLists <Boolean>] [-HideFromOutlookClients <Boolean>] [-SensitivityLabels <GUID[]>]
- [<CommonParameters>]
+Set-PnPMicrosoft365Group -Identity <Microsoft365GroupPipeBind> [-DisplayName <String>] [-Description <String>] [-Owners <String[]>] [-Members <String[]>] [-IsPrivate] [-LogoPath <String>] [-CreateTeam]  [-HideFromAddressLists <Boolean>] [-HideFromOutlookClients <Boolean>] [-RequireSenderAuthenticationEnabled <Boolean>] [-AutoSubscribeNewMembers <Boolean>] [-MailNickname <String>] [-SensitivityLabels <GUID[]>] [-Verbose] 
 ```
 
 ## DESCRIPTION
+
+Allows to modify Microsoft 365 Group.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
-Set-PnPMicrosoft365Group -Identity $group -DisplayName "My Displayname"
+Set-PnPMicrosoft365Group -Identity $group -DisplayName "My DisplayName"
 ```
 
-Sets the display name of the group where $group is a Group entity
+Sets the display name of the group where $group is a Group entity.
 
 ### EXAMPLE 2
 ```powershell
-Set-PnPMicrosoft365Group -Identity $groupId -Descriptions "My Description" -DisplayName "My DisplayName"
+Set-PnPMicrosoft365Group -Identity $groupId -Description "My Description" -DisplayName "My DisplayName"
 ```
 
-Sets the display name and description of a group based upon its ID
+Sets the display name and description of a group based upon its ID.
 
 ### EXAMPLE 3
 ```powershell
 Set-PnPMicrosoft365Group -Identity $group -GroupLogoPath ".\MyLogo.png"
 ```
 
-Sets a specific Microsoft 365 Group logo
+Sets a specific Microsoft 365 Group logo.
 
 ### EXAMPLE 4
 ```powershell
 Set-PnPMicrosoft365Group -Identity $group -IsPrivate:$false
 ```
 
-Sets a group to be Public if previously Private
+Sets a group to be Public if previously Private.
 
 ### EXAMPLE 5
 ```powershell
 Set-PnPMicrosoft365Group -Identity $group -Owners demo@contoso.com
 ```
 
-Sets demo@contoso.com as owner of the group
+Sets demo@contoso.com as owner of the group.
 
 ### EXAMPLE 6
 ```powershell
 Set-PnPMicrosoft365Group -Identity $group -SensitivityLabels "bc98af29-59eb-4869-baaa-9a8dff631aa4"
 ```
 
-Sets the sensitivity label of the group
+Sets the sensitivity label of the group.
 
 ## PARAMETERS
 
+### -AllowExternalSenders
+Allows configuring if the Microsoft 365 Group should accept e-mail from senders outside of the organisation (true) or if both internal as well as external senders can send e-mail to the e-mail address of the Microsoft 365 group (false).
+
+In the Exchange Online PowerShell cmdlet this would be the RequireSenderAuthenticationEnabled property, but then inversed, so when that would be set to $true it would not accept e-mail from outside the organisation and when set to $false it would.
+
+This property can only be set using a Delegated logon, not with an Application logon.
+
+```yaml
+Type: Boolean
+Parameter Sets: (All)
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -AutoSubscribeNewMembers
+The AutoSubscribeNewMembers switch specifies whether to automatically subscribe new members that are added to the Microsoft 365 Group to conversations and calendar events. Only users that are added to the group after you enable this setting are automatically subscribed to the group.
+
+To subscribe new members to conversations and calendar events, use this exact syntax: -AutoSubscribeNewMembers:$true.
+If you don't want to subscribe new members to conversations and calendar events, use this exact syntax: -AutoSubscribeNewMembers:$false.
+
+Note: This property is evaluated only when you add internal members from your organization. Guest user accounts are always subscribed when added as a member.
+
+This property can only be set using a Delegated logon, not with an Application logon.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -CreateTeam
-Creates a Microsoft Teams team associated with created group
+Creates a Microsoft Teams team associated with the created group.
 
 ```yaml
 Type: SwitchParameter
@@ -89,7 +126,7 @@ Accept wildcard characters: False
 ```
 
 ### -Description
-The Description of the group to set
+The Description of the group to set.
 
 ```yaml
 Type: String
@@ -103,21 +140,7 @@ Accept wildcard characters: False
 ```
 
 ### -DisplayName
-The DisplayName of the group to set
-
-```yaml
-Type: String
-Parameter Sets: (All)
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -LogoPath
-The path to the logo file of to set. Logo must be at least 48 pixels wide and may be at most 4 MB in size. Requires Site.ReadWrite.All permissions.
+The DisplayName of the group to set.
 
 ```yaml
 Type: String
@@ -159,7 +182,7 @@ Accept wildcard characters: False
 ```
 
 ### -Identity
-The Identity of the Microsoft 365 Group
+The Identity of the Microsoft 365 Group.
 
 ```yaml
 Type: Microsoft365GroupPipeBind
@@ -173,10 +196,38 @@ Accept wildcard characters: False
 ```
 
 ### -IsPrivate
-Makes the group private when selected
+Makes the group private when selected.
 
 ```yaml
 Type: SwitchParameter
+Parameter Sets: (All)
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -LogoPath
+The path to the logo file of to set. Logo must be at least 48 pixels wide and may be at most 4 MB in size. Requires Site.ReadWrite.All permissions.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -MailNickname
+The mail alias for the group, unique for Microsoft 365 groups in the organization. Maximum length is 64 characters. This property can contain only characters in the ASCII character set 0 - 127 except the following: @ () \ [] " ; : . <> , SPACE
+
+```yaml
+Type: String
 Parameter Sets: (All)
 
 Required: False
@@ -215,7 +266,7 @@ Accept wildcard characters: False
 ```
 
 ### -SensitivityLabels
-The Sensitivity label to be set to the Microsoft 365 Group. To retrieve the sensitivity label you need to use the Graph API mentioned [here](https://docs.microsoft.com/en-us/graph/api/informationprotectionlabel-get?view=graph-rest-beta&tabs=http).
+The Sensitivity label to be set to the Microsoft 365 Group. To retrieve the sensitivity label Ids you can use [Get-PnPAvailableSensitivityLabel](Get-PnPAvailableSensitivityLabel.md).
 
 ```yaml
 Type: GUID[]
@@ -227,7 +278,21 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Verbose
+When provided, additional debug statements will be shown while executing the cmdlet.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ## RELATED LINKS
 
 [Microsoft 365 Patterns and Practices](https://aka.ms/m365pnp)
-[Microsoft Graph documentation](https://docs.microsoft.com/graph/api/group-update)
+[Microsoft Graph documentation](https://learn.microsoft.com/graph/api/group-update)

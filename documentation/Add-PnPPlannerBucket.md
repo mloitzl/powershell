@@ -4,7 +4,7 @@ schema: 2.0.0
 applicable: SharePoint Online
 online version: https://pnp.github.io/powershell/cmdlets/Add-PnPPlannerBucket.html
 external help file: PnP.PowerShell.dll-Help.xml
-title: add-pnpplannerbucket
+title: Add-PnPPlannerBucket
 ---
   
 # Add-PnPPlannerBucket
@@ -13,7 +13,7 @@ title: add-pnpplannerbucket
 
 **Required Permissions**
 
-  * Microsoft Graph API: Group.ReadWrite.All
+  * Microsoft Graph API: One of Tasks.ReadWrite, Tasks.ReadWrite.All, Group.ReadWrite.All, 
   
 Adds a new bucket to a Planner plan
 
@@ -21,12 +21,12 @@ Adds a new bucket to a Planner plan
 
 ### By Group
 ```powershell
-Add-PnPPlannerBucket -Group <PlannerGroupPipeBind> -Plan <PlannerPlanPipeBind> -Name <String> [<CommonParameters>]
+Add-PnPPlannerBucket -Group <PlannerGroupPipeBind> -Plan <PlannerPlanPipeBind> -Name <String> 
 ```
 
 ### By Plan Id
 ```powershell
-Add-PnPPlannerBucket -PlanId <String> -Name <String> [<CommonParameters>]
+Add-PnPPlannerBucket -PlanId <String> -Name <String> 
 ```
 
 ## DESCRIPTION

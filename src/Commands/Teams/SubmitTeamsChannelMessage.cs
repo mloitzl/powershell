@@ -4,12 +4,11 @@ using PnP.PowerShell.Commands.Base.PipeBinds;
 using PnP.PowerShell.Commands.Model.Teams;
 using PnP.PowerShell.Commands.Utilities;
 using System.Management.Automation;
-using System.Threading.Tasks;
 
-namespace PnP.PowerShell.Commands.Graph
+namespace PnP.PowerShell.Commands.Teams
 {
     [Cmdlet(VerbsLifecycle.Submit, "PnPTeamsChannelMessage")]
-    [RequiredMinimalApiPermissions("Group.ReadWrite.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/Group.ReadWrite.All")]
     public class SubmitTeamsChannelMessage : PnPGraphCmdlet
     {
         [Parameter(Mandatory = true)]
@@ -29,10 +28,10 @@ namespace PnP.PowerShell.Commands.Graph
 
         protected override void ExecuteCmdlet()
         {
-            var groupId = Team.GetGroupId(Connection, AccessToken);
+            var groupId = Team.GetGroupId(GraphRequestHelper);
             if (groupId != null)
             {
-                var channel = Channel.GetChannel(Connection, AccessToken, groupId);
+                var channel = Channel.GetChannel(GraphRequestHelper, groupId);
                 if (channel != null)
                 {
                     var channelMessage = new TeamChannelMessage();
@@ -40,7 +39,7 @@ namespace PnP.PowerShell.Commands.Graph
                     channelMessage.Body.Content = Message;
                     channelMessage.Body.ContentType = ContentType == TeamChannelMessageContentType.Html ? "html" : "text";
 
-                    TeamsUtility.PostMessageAsync(Connection, AccessToken, groupId, channel.Id, channelMessage).GetAwaiter().GetResult();
+                    TeamsUtility.PostMessage(GraphRequestHelper, groupId, channel.Id, channelMessage);
                 }
                 else
                 {

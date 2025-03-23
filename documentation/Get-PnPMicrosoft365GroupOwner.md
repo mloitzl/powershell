@@ -21,10 +21,12 @@ Gets owners of a particular Microsoft 365 Group
 ## SYNTAX
 
 ```powershell
-Get-PnPMicrosoft365GroupOwner -Identity <Microsoft365GroupPipeBind> [<CommonParameters>]
+Get-PnPMicrosoft365GroupOwner -Identity <Microsoft365GroupPipeBind> 
 ```
 
 ## DESCRIPTION
+
+Allows to retrieve owners of Microsoft 365 Group.
 
 ## EXAMPLES
 

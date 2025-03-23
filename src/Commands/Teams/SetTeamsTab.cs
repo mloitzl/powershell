@@ -4,10 +4,10 @@ using PnP.PowerShell.Commands.Base.PipeBinds;
 using PnP.PowerShell.Commands.Utilities;
 using System.Management.Automation;
 
-namespace PnP.PowerShell.Commands.Graph
+namespace PnP.PowerShell.Commands.Teams
 {
     [Cmdlet(VerbsCommon.Set, "PnPTeamsTab")]
-    [RequiredMinimalApiPermissions("Group.ReadWrite.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/Group.ReadWrite.All")]
     public class SetTeamsTab : PnPGraphCmdlet
     {
         [Parameter(Mandatory = true, ValueFromPipeline = true)]
@@ -24,20 +24,20 @@ namespace PnP.PowerShell.Commands.Graph
 
         protected override void ExecuteCmdlet()
         {
-            var groupId = Team.GetGroupId(Connection, AccessToken);
+            var groupId = Team.GetGroupId(GraphRequestHelper);
             if (groupId != null)
             {
-                var channelId = Channel.GetId(Connection, AccessToken, groupId);
+                var channelId = Channel.GetId(GraphRequestHelper, groupId);
                 if (channelId != null)
                 {
-                    var tab = Identity.GetTab(this,Connection, AccessToken, groupId, channelId);
+                    var tab = Identity.GetTab(GraphRequestHelper, groupId, channelId);
                     if (tab != null)
                     {
                         if (ParameterSpecified(nameof(DisplayName)) && tab.DisplayName != DisplayName)
                         {
                             tab.DisplayName = DisplayName;
                         }
-                        TeamsUtility.UpdateTabAsync(Connection, AccessToken, groupId, channelId, tab).GetAwaiter().GetResult();
+                        TeamsUtility.UpdateTab(GraphRequestHelper, groupId, channelId, tab);
                     }
                     else
                     {

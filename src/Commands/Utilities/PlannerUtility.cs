@@ -1,4 +1,3 @@
-using PnP.PowerShell.Commands.Base;
 using PnP.PowerShell.Commands.Model.Graph;
 using PnP.PowerShell.Commands.Model.Planner;
 using PnP.PowerShell.Commands.Utilities.REST;
@@ -6,26 +5,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace PnP.PowerShell.Commands.Utilities
 {
     internal static class PlannerUtility
     {
         #region Plans
-        public static async Task<IEnumerable<PlannerPlan>> GetPlansAsync(PnPConnection connection, string accessToken, string groupId, bool resolveDisplayNames)
+        public static IEnumerable<PlannerPlan> GetPlans(ApiRequestHelper requestHelper, string groupId, bool resolveDisplayNames)
         {
             var returnCollection = new List<PlannerPlan>();
-            var collection = await GraphHelper.GetResultCollectionAsync<PlannerPlan>(connection, $"v1.0/groups/{groupId}/planner/plans", accessToken);
+            var collection = requestHelper.GetResultCollection<PlannerPlan>($"v1.0/groups/{groupId}/planner/plans");
             if (collection != null && collection.Any())
             {
                 if (resolveDisplayNames)
                 {
                     foreach (var plan in collection)
                     {
-                        var fullIdentity = await ResolveIdentityAsync(connection, accessToken, plan.CreatedBy.User);
+                        var fullIdentity = ResolveIdentity(requestHelper, plan.CreatedBy.User);
                         plan.CreatedBy.User = fullIdentity;
-                        var owner = await ResolveGroupName(connection, accessToken, plan.Owner);
+                        var owner = ResolveGroupName(requestHelper, plan.Owner);
                         plan.Owner = owner;
                         returnCollection.Add(plan);
                     }
@@ -38,48 +36,48 @@ namespace PnP.PowerShell.Commands.Utilities
             return returnCollection;
         }
 
-        public static async Task<PlannerPlan> GetPlanAsync(PnPConnection connection, string accessToken, string planId, bool resolveDisplayNames)
+        public static PlannerPlan GetPlan(ApiRequestHelper requestHelper, string planId, bool resolveDisplayNames)
         {
-            var plan = await GraphHelper.GetAsync<PlannerPlan>(connection, $"v1.0/planner/plans/{planId}", accessToken);
+            var plan = requestHelper.Get<PlannerPlan>($"v1.0/planner/plans/{planId}");
             if (resolveDisplayNames)
             {
-                plan.CreatedBy.User = await ResolveIdentityAsync(connection, accessToken, plan.CreatedBy.User);
+                plan.CreatedBy.User = ResolveIdentity(requestHelper, plan.CreatedBy.User);
             }
             return plan;
         }
 
-        public static async Task<PlannerPlan> CreatePlanAsync(PnPConnection connection, string accessToken, string groupId, string title)
+        public static PlannerPlan CreatePlan(ApiRequestHelper requestHelper, string groupId, string title)
         {
             var stringContent = new StringContent(JsonSerializer.Serialize(new { owner = groupId, title = title }));
             stringContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
-            return await GraphHelper.PostAsync<PlannerPlan>(connection, "v1.0/planner/plans", stringContent, accessToken);
+            return requestHelper.Post<PlannerPlan>("v1.0/planner/plans", stringContent);
         }
 
-        public static async Task<PlannerPlan> UpdatePlanAsync(PnPConnection connection, string accessToken, PlannerPlan plan, string title)
+        public static PlannerPlan UpdatePlan(ApiRequestHelper requestHelper, PlannerPlan plan, string title)
         {
             var stringContent = new StringContent(JsonSerializer.Serialize(new { title }));
             stringContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
-            var responseMessage = await GraphHelper.PatchAsync(connection, accessToken, stringContent, $"v1.0/planner/plans/{plan.Id}", new Dictionary<string, string>() { { "IF-MATCH", plan.ETag } });
+            var responseMessage = requestHelper.Patch(stringContent, $"v1.0/planner/plans/{plan.Id}", new Dictionary<string, string>() { { "IF-MATCH", plan.ETag } });
             while (responseMessage.StatusCode == System.Net.HttpStatusCode.PreconditionFailed)
             {
                 // retrieve the plan again
-                plan = await GraphHelper.GetAsync<PlannerPlan>(connection, $"v1.0/planner/plans/{plan.Id}", accessToken);
-                responseMessage = await GraphHelper.PatchAsync(connection, accessToken, stringContent, $"v1.0/planner/plans/{plan.Id}", new Dictionary<string, string>() { { "IF-MATCH", plan.ETag } });
+                plan = requestHelper.Get<PlannerPlan>($"v1.0/planner/plans/{plan.Id}");
+                responseMessage = requestHelper.Patch(stringContent, $"v1.0/planner/plans/{plan.Id}", new Dictionary<string, string>() { { "IF-MATCH", plan.ETag } });
             }
             if (responseMessage.IsSuccessStatusCode)
             {
-                var responseContent = await responseMessage.Content.ReadAsStringAsync();
+                var responseContent = responseMessage.Content.ReadAsStringAsync().GetAwaiter().GetResult();
                 return JsonSerializer.Deserialize<PlannerPlan>(responseContent);
             }
             return null;
         }
 
-        public static async Task DeletePlanAsync(PnPConnection connection, string accessToken, string planId)
+        public static void DeletePlan(ApiRequestHelper requestHelper, string planId)
         {
-            var plan = await GetPlanAsync(connection, accessToken, planId, false);
+            var plan = GetPlan(requestHelper, planId, false);
             if (plan != null)
             {
-                await GraphHelper.DeleteAsync(connection, $"v1.0/planner/plans/{planId}", accessToken, new Dictionary<string, string>() { { "IF-MATCH", plan.ETag } });
+                requestHelper.Delete($"v1.0/planner/plans/{planId}", new Dictionary<string, string>() { { "IF-MATCH", plan.ETag } });
             }
         }
 
@@ -87,23 +85,23 @@ namespace PnP.PowerShell.Commands.Utilities
 
         #region Tasks
 
-        public static async Task<IEnumerable<PlannerTask>> GetTasksAsync(PnPConnection connection, string accessToken, string planId, bool resolveDisplayNames)
+        public static IEnumerable<PlannerTask> GetTasks(ApiRequestHelper requestHelper, string planId, bool resolveDisplayNames)
         {
             var returnCollection = new List<PlannerTask>();
-            var collection = await GraphHelper.GetResultCollectionAsync<PlannerTask>(connection, $"v1.0/planner/plans/{planId}/tasks", accessToken);
+            var collection = requestHelper.GetResultCollection<PlannerTask>($"v1.0/planner/plans/{planId}/tasks");
             if (collection != null && collection.Any())
             {
                 if (resolveDisplayNames)
                 {
                     foreach (var task in collection)
                     {
-                        var fullIdentity = await ResolveIdentityAsync(connection, accessToken, task.CreatedBy.User);
+                        var fullIdentity = ResolveIdentity(requestHelper, task.CreatedBy.User);
                         task.CreatedBy.User = fullIdentity;
                         if (task.Assignments != null)
                         {
                             foreach (var assignment in task.Assignments)
                             {
-                                assignment.Value.AssignedBy.User = await ResolveIdentityAsync(connection, accessToken, assignment.Value.AssignedBy.User);
+                                assignment.Value.AssignedBy.User = ResolveIdentity(requestHelper, assignment.Value.AssignedBy.User);
                             }
                         }
                         returnCollection.Add(task);
@@ -112,30 +110,30 @@ namespace PnP.PowerShell.Commands.Utilities
                 else
                 {
                     returnCollection = collection.ToList();
-                }                
+                }
             }
             return returnCollection;
         }
 
-        public static async Task<PlannerTask> GetTaskAsync(PnPConnection connection, string accessToken, string taskId, bool resolveDisplayNames, bool includeDetails)
+        public static PlannerTask GetTask(ApiRequestHelper requestHelper, string taskId, bool resolveDisplayNames, bool includeDetails)
         {
-            var task = await GraphHelper.GetAsync<PlannerTask>(connection, $"v1.0/planner/tasks/{taskId}", accessToken);
+            var task = requestHelper.Get<PlannerTask>($"v1.0/planner/tasks/{taskId}");
             if (resolveDisplayNames)
             {
-                task.CreatedBy.User = await ResolveIdentityAsync(connection, accessToken, task.CreatedBy.User);
+                task.CreatedBy.User = ResolveIdentity(requestHelper, task.CreatedBy.User);
             }
             if (includeDetails)
             {
-                var taskDetails = await GetTaskDetailsAsync(connection, accessToken, taskId, resolveDisplayNames);
+                var taskDetails = GetTaskDetails(requestHelper, taskId, resolveDisplayNames);
                 task.Details = taskDetails;
             }
             return task;
         }
 
-        public static async Task<PlannerTaskDetails> GetTaskDetailsAsync(PnPConnection connection, string accessToken, string taskId, bool resolveDisplayNames)
+        public static PlannerTaskDetails GetTaskDetails(ApiRequestHelper requestHelper, string taskId, bool resolveDisplayNames)
         {
-            var taskDetails = await GraphHelper.GetAsync<PlannerTaskDetails>(connection, $"v1.0/planner/tasks/{taskId}/details", accessToken);
-            if (!resolveDisplayNames) 
+            var taskDetails = requestHelper.Get<PlannerTaskDetails>($"v1.0/planner/tasks/{taskId}/details");
+            if (!resolveDisplayNames)
                 return taskDetails;
 
             var newItems = new Dictionary<string, PlannerTaskCheckListItem>();
@@ -152,7 +150,7 @@ namespace PnP.PowerShell.Commands.Utilities
                 {
                     newCheckListItem.LastModifiedBy = new IdentitySet
                     {
-                        User = await ResolveIdentityAsync(connection, accessToken, checklistItem.Value.LastModifiedBy.User)
+                        User = ResolveIdentity(requestHelper, checklistItem.Value.LastModifiedBy.User)
                     };
                 }
                 newItems.Add(checklistItem.Key, newCheckListItem);
@@ -162,32 +160,32 @@ namespace PnP.PowerShell.Commands.Utilities
             return taskDetails;
         }
 
-        public static async Task<PlannerTask> AddTaskAsync(PnPConnection connection, string accessToken, PlannerTask task)
+        public static PlannerTask AddTask(ApiRequestHelper requestHelper, PlannerTask task)
         {
-            return await GraphHelper.PostAsync(connection, "v1.0/planner/tasks", task, accessToken);
+            return requestHelper.Post("v1.0/planner/tasks", task);
         }
 
-        public static async Task DeleteTaskAsync(PnPConnection connection, string accessToken, string taskId)
+        public static void DeleteTask(ApiRequestHelper requestHelper, string taskId)
         {
-            var task = await GraphHelper.GetAsync<PlannerTask>(connection, $"v1.0/planner/tasks/{taskId}", accessToken);
+            var task = requestHelper.Get<PlannerTask>($"v1.0/planner/tasks/{taskId}");
             if (task != null)
             {
-                await GraphHelper.DeleteAsync(connection, $"v1.0/planner/tasks/{taskId}", accessToken, new Dictionary<string, string>() { { "IF-MATCH", task.ETag } });
+                requestHelper.Delete($"v1.0/planner/tasks/{taskId}", new Dictionary<string, string>() { { "IF-MATCH", task.ETag } });
             }
         }
 
-        public static async Task<PlannerTask> UpdateTaskAsync(PnPConnection connection, string accessToken, PlannerTask taskToUpdate, PlannerTask task)
+        public static PlannerTask UpdateTask(ApiRequestHelper requestHelper, PlannerTask taskToUpdate, PlannerTask task)
         {
-            return await GraphHelper.PatchAsync(connection, accessToken, $"v1.0/planner/tasks/{taskToUpdate.Id}", task, new Dictionary<string, string> { { "IF-MATCH", taskToUpdate.ETag } });
+            return requestHelper.Patch($"v1.0/planner/tasks/{taskToUpdate.Id}", task, new Dictionary<string, string> { { "IF-MATCH", taskToUpdate.ETag } });
         }
 
-        public static async Task UpdateTaskDetailsAsync(PnPConnection connection, string accessToken, PlannerTaskDetails taskToUpdate, string description)
+        public static void UpdateTaskDetails(ApiRequestHelper requestHelper, PlannerTaskDetails taskToUpdate, string description)
         {
             var body = new PlannerTaskDetails
             {
                 Description = description,
             };
-            await GraphHelper.PatchAsync(connection, accessToken, $"v1.0/planner/tasks/{taskToUpdate.Id}/details", body, new Dictionary<string, string> { { "IF-MATCH", taskToUpdate.ETag } });
+            requestHelper.Patch($"v1.0/planner/tasks/{taskToUpdate.Id}/details", body, new Dictionary<string, string> { { "IF-MATCH", taskToUpdate.ETag } });
         }
 
         #endregion
@@ -200,11 +198,11 @@ namespace PnP.PowerShell.Commands.Utilities
         /// <param name="httpClient">HttpClient instance to use to send out requests</param>
         /// <param name="accessToken">AccessToken to use to authenticate the request</param>
         /// <returns>PlannerRoster</returns>
-        public static async Task<PlannerRoster> CreateRosterAsync(PnPConnection connection, string accessToken)
+        public static PlannerRoster CreateRoster(ApiRequestHelper requestHelper)
         {
             var stringContent = new StringContent("{ \"@odata.type\": \"#microsoft.graph.plannerRoster\" }");
             stringContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
-            return await GraphHelper.PostAsync<PlannerRoster>(connection, "beta/planner/rosters", stringContent, accessToken);
+            return requestHelper.Post<PlannerRoster>("beta/planner/rosters", stringContent);
         }
 
         /// <summary>
@@ -214,10 +212,10 @@ namespace PnP.PowerShell.Commands.Utilities
         /// <param name="httpClient">HttpClient instance to use to send out requests</param>
         /// <param name="accessToken">AccessToken to use to authenticate the request</param>
         /// <returns>PlannerRoster</returns>
-        public static async Task<PlannerRoster> GetRosterAsync(PnPConnection connection, string accessToken, string rosterId)
+        public static PlannerRoster GetRoster(ApiRequestHelper requestHelper, string rosterId)
         {
-            return await GraphHelper.GetAsync<PlannerRoster>(connection, $"beta/planner/rosters/{rosterId}", accessToken);
-        }        
+            return requestHelper.Get<PlannerRoster>($"beta/planner/rosters/{rosterId}");
+        }
 
         /// <summary>
         /// Deletes a Planner Roster
@@ -226,9 +224,9 @@ namespace PnP.PowerShell.Commands.Utilities
         /// <param name="httpClient">HttpClient instance to use to send out requests</param>
         /// <param name="accessToken">AccessToken to use to authenticate the request</param>
         /// <returns>HttpResponseMessage</returns>
-        public static async Task<HttpResponseMessage> DeleteRosterAsync(PnPConnection connection, string accessToken, string rosterId)
+        public static HttpResponseMessage DeleteRoster(ApiRequestHelper requestHelper, string rosterId)
         {
-            return await GraphHelper.DeleteAsync(connection, $"beta/planner/rosters/{rosterId}", accessToken);
+            return requestHelper.Delete($"beta/planner/rosters/{rosterId}");
         }
 
         /// <summary>
@@ -239,11 +237,11 @@ namespace PnP.PowerShell.Commands.Utilities
         /// <param name="httpClient">HttpClient instance to use to send out requests</param>
         /// <param name="accessToken">AccessToken to use to authenticate the request</param>
         /// <returns>PlannerRoster</returns>
-        public static async Task<PlannerRoster> AddRosterMemberAsync(PnPConnection connection, string accessToken, string rosterId, string userId)
+        public static PlannerRoster AddRosterMember(ApiRequestHelper requestHelper, string rosterId, string userId)
         {
             var stringContent = new StringContent("{ \"@odata.type\": \"#microsoft.graph.plannerRosterMember\", \"userId\": \"" + userId + "\" }");
             stringContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
-            return await GraphHelper.PostAsync<PlannerRoster>(connection, $"beta/planner/rosters/{rosterId}/members", stringContent, accessToken);
+            return requestHelper.Post<PlannerRoster>($"beta/planner/rosters/{rosterId}/members", stringContent);
         }
 
         /// <summary>
@@ -254,10 +252,10 @@ namespace PnP.PowerShell.Commands.Utilities
         /// <param name="httpClient">HttpClient instance to use to send out requests</param>
         /// <param name="accessToken">AccessToken to use to authenticate the request</param>
         /// <returns>HttpResponseMessage</returns>
-        public static async Task<HttpResponseMessage> RemoveRosterMemberAsync(PnPConnection connection, string accessToken, string rosterId, string userId)
+        public static HttpResponseMessage RemoveRosterMember(ApiRequestHelper requestHelper, string rosterId, string userId)
         {
-            return await GraphHelper.DeleteAsync(connection, $"beta/planner/rosters/{rosterId}/members/{userId}", accessToken);
-        } 
+            return requestHelper.Delete($"beta/planner/rosters/{rosterId}/members/{userId}");
+        }
 
         /// <summary>
         /// Returns all current members of an existing Planner Roster
@@ -266,10 +264,10 @@ namespace PnP.PowerShell.Commands.Utilities
         /// <param name="httpClient">HttpClient instance to use to send out requests</param>
         /// <param name="accessToken">AccessToken to use to authenticate the request</param>
         /// <returns>IEnumerable<PlannerRosterMember></returns>
-        public static async Task<IEnumerable<PlannerRosterMember>> GetRosterMembersAsync(PnPConnection connection, string accessToken, string rosterId)
+        public static IEnumerable<PlannerRosterMember> GetRosterMembers(ApiRequestHelper requestHelper, string rosterId)
         {
             var returnCollection = new List<PlannerRosterMember>();
-            var collection = await GraphHelper.GetResultCollectionAsync<PlannerRosterMember>(connection, $"beta/planner/rosters/{rosterId}/members", accessToken);
+            var collection = requestHelper.GetResultCollection<PlannerRosterMember>($"beta/planner/rosters/{rosterId}/members");
             if (collection != null && collection.Any())
             {
                 returnCollection = collection.ToList();
@@ -284,9 +282,9 @@ namespace PnP.PowerShell.Commands.Utilities
         /// <param name="httpClient">HttpClient instance to use to send out requests</param>
         /// <param name="accessToken">AccessToken to use to authenticate the request</param>
         /// <returns>PlannerRoster</returns>
-        public static async Task<PlannerRoster> GetRosterPlansByUserAsync(PnPConnection connection, string accessToken, string userId)
+        public static PlannerRoster GetRosterPlansByUser(ApiRequestHelper requestHelper, string userId)
         {
-            return await GraphHelper.GetAsync<PlannerRoster>(connection, $"beta/users/{userId}/planner/rosterPlans", accessToken);
+            return requestHelper.Get<PlannerRoster>($"beta/users/{userId}/planner/rosterPlans");
         }
 
         /// <summary>
@@ -296,10 +294,10 @@ namespace PnP.PowerShell.Commands.Utilities
         /// <param name="httpClient">HttpClient instance to use to send out requests</param>
         /// <param name="accessToken">AccessToken to use to authenticate the request</param>
         /// <returns>PlannerRoster</returns>
-        public static async Task<PlannerRoster> GetRosterPlansByRosterAsync(PnPConnection connection, string accessToken, string rosterId)
+        public static PlannerRoster GetRosterPlansByRoster(ApiRequestHelper requestHelper, string rosterId)
         {
-            return await GraphHelper.GetAsync<PlannerRoster>(connection, $"beta/planner/rosters/{rosterId}/plans", accessToken);
-        }         
+            return requestHelper.Get<PlannerRoster>($"beta/planner/rosters/{rosterId}/plans");
+        }
 
         #endregion
 
@@ -311,9 +309,9 @@ namespace PnP.PowerShell.Commands.Utilities
         /// <param name="httpClient">HttpClient instance to use to send out requests</param>
         /// <param name="accessToken">AccessToken to use to authenticate the request</param>
         /// <returns>PlannerTenantConfig</returns>
-        public static async Task<PlannerTenantConfig> GetPlannerConfigAsync(PnPConnection connection, string accessToken)
+        public static PlannerTenantConfig GetPlannerConfig(ApiRequestHelper requestHelper)
         {
-            var result = await GraphHelper.GetAsync<PlannerTenantConfig>(connection, "https://tasks.office.com/taskAPI/tenantAdminSettings/Settings", accessToken);
+            var result = requestHelper.Get<PlannerTenantConfig>("https://tasks.office.com/taskAPI/tenantAdminSettings/Settings");
             return result;
         }
 
@@ -323,7 +321,7 @@ namespace PnP.PowerShell.Commands.Utilities
         /// <param name="httpClient">HttpClient instance to use to send out requests</param>
         /// <param name="accessToken">AccessToken to use to authenticate the request</param>
         /// <returns>PlannerTenantConfig</returns>
-        public static async Task<PlannerTenantConfig> SetPlannerConfigAsync(PnPConnection connection, string accessToken, bool? isPlannerAllowed, bool? allowCalendarSharing, bool? allowTenantMoveWithDataLoss, bool? allowTenantMoveWithDataMigration, bool? allowRosterCreation, bool? allowPlannerMobilePushNotifications)
+        public static PlannerTenantConfig SetPlannerConfig(ApiRequestHelper requestHelper, bool? isPlannerAllowed, bool? allowCalendarSharing, bool? allowTenantMoveWithDataLoss, bool? allowTenantMoveWithDataMigration, bool? allowRosterCreation, bool? allowPlannerMobilePushNotifications)
         {
             var content = new PlannerTenantConfig
             {
@@ -334,7 +332,7 @@ namespace PnP.PowerShell.Commands.Utilities
                 AllowRosterCreation = allowRosterCreation,
                 AllowPlannerMobilePushNotifications = allowPlannerMobilePushNotifications
             };
-            var result = await GraphHelper.PatchAsync(connection, accessToken, "https://tasks.office.com/taskAPI/tenantAdminSettings/Settings", content);
+            var result = requestHelper.Patch("https://tasks.office.com/taskAPI/tenantAdminSettings/Settings", content);
             return result;
         }
 
@@ -345,11 +343,11 @@ namespace PnP.PowerShell.Commands.Utilities
         /// <param name="httpClient">HttpClient instance to use to send out requests</param>
         /// <param name="accessToken">AccessToken to use to authenticate the request</param>
         /// <returns>PlannerUserPolicy</returns>
-        public static async Task<PlannerUserPolicy> GetPlannerUserPolicyAsync(PnPConnection connection, string accessToken, string userId)
+        public static PlannerUserPolicy GetPlannerUserPolicy(ApiRequestHelper requestHelper, string userId)
         {
-            var result = await GraphHelper.GetAsync<PlannerUserPolicy>(connection, $"https://tasks.office.com/taskAPI/tenantAdminSettings/UserPolicy('{userId}')", accessToken);
+            var result = requestHelper.Get<PlannerUserPolicy>($"https://tasks.office.com/taskAPI/tenantAdminSettings/UserPolicy('{userId}')");
             return result;
-        }        
+        }
 
         /// <summary>
         /// Sets the Planner User Policy for the provided user
@@ -358,19 +356,19 @@ namespace PnP.PowerShell.Commands.Utilities
         /// <param name="httpClient">HttpClient instance to use to send out requests</param>
         /// <param name="accessToken">AccessToken to use to authenticate the request</param>
         /// <returns>PlannerUserPolicy</returns>
-        public static async Task<PlannerUserPolicy> SetPlannerUserPolicyAsync(PnPConnection connection, string accessToken, string userId, bool? blockDeleteTasksNotCreatedBySelf)
+        public static PlannerUserPolicy SetPlannerUserPolicy(ApiRequestHelper requestHelper, string userId, bool? blockDeleteTasksNotCreatedBySelf)
         {
             var content = new PlannerUserPolicy
             {
                 BlockDeleteTasksNotCreatedBySelf = blockDeleteTasksNotCreatedBySelf
             };
-            var result = await GraphHelper.PutAsync<PlannerUserPolicy>(connection, $"https://tasks.office.com/taskAPI/tenantAdminSettings/UserPolicy('{userId}')", content, accessToken);
+            var result = requestHelper.Put<PlannerUserPolicy>($"https://tasks.office.com/taskAPI/tenantAdminSettings/UserPolicy('{userId}')", content);
             return result;
         }
 
         #endregion
 
-        private static async Task<Identity> ResolveIdentityAsync(PnPConnection connection, string accessToken, Identity identity)
+        private static Identity ResolveIdentity(ApiRequestHelper requestHelper, Identity identity)
         {
             if (identity == null)
             {
@@ -378,7 +376,7 @@ namespace PnP.PowerShell.Commands.Utilities
             }
             if (identity.DisplayName == null)
             {
-                return await GraphHelper.GetAsync<Identity>(connection, $"v1.0/users/{identity.Id}", accessToken);
+                return requestHelper.Get<Identity>($"v1.0/users/{identity.Id}");
             }
             else
             {
@@ -386,9 +384,9 @@ namespace PnP.PowerShell.Commands.Utilities
             }
         }
 
-        private static async Task<string> ResolveGroupName(PnPConnection connection, string accessToken, string id)
+        private static string ResolveGroupName(ApiRequestHelper requestHelper, string id)
         {
-            var group = await GraphHelper.GetAsync<Group>(connection, $"v1.0/groups/{id}?$select=displayName", accessToken);
+            var group = requestHelper.Get<Group>($"v1.0/groups/{id}?$select=displayName");
             if (group != null)
             {
                 return group.DisplayName;
@@ -401,45 +399,45 @@ namespace PnP.PowerShell.Commands.Utilities
 
         #region Buckets
 
-        public static async Task<IEnumerable<PlannerBucket>> GetBucketsAsync(PnPConnection connection, string accessToken, string planId)
+        public static IEnumerable<PlannerBucket> GetBuckets(ApiRequestHelper requestHelper, string planId)
         {
-            return await GraphHelper.GetResultCollectionAsync<PlannerBucket>(connection, $"v1.0/planner/plans/{planId}/buckets", accessToken); 
+            return requestHelper.GetResultCollection<PlannerBucket>($"v1.0/planner/plans/{planId}/buckets");
         }
 
-        public static async Task<PlannerBucket> CreateBucketAsync(PnPConnection connection, string accessToken, string name, string planId)
+        public static PlannerBucket CreateBucket(ApiRequestHelper requestHelper, string name, string planId)
         {
             var stringContent = new StringContent(JsonSerializer.Serialize(new { name = name, planId = planId, orderHint = " !" }));
             stringContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
-            return await GraphHelper.PostAsync<PlannerBucket>(connection, $"v1.0/planner/buckets", stringContent, accessToken);
+            return requestHelper.Post<PlannerBucket>($"v1.0/planner/buckets", stringContent);
         }
 
-        public static async System.Threading.Tasks.Task RemoveBucketAsync(PnPConnection connection, string accessToken, string bucketId)
+        public static void RemoveBucket(ApiRequestHelper requestHelper, string bucketId)
         {
-            var bucket = GraphHelper.GetAsync<PlannerBucket>(connection, $"v1.0/planner/buckets/{bucketId}", accessToken).GetAwaiter().GetResult();
+            var bucket = requestHelper.Get<PlannerBucket>($"v1.0/planner/buckets/{bucketId}");
             if (bucket != null)
             {
-                await GraphHelper.DeleteAsync(connection, $"v1.0/planner/buckets/{bucketId}", accessToken, new Dictionary<string, string>() { { "IF-MATCH", bucket.ETag } });
+                requestHelper.Delete($"v1.0/planner/buckets/{bucketId}", new Dictionary<string, string>() { { "IF-MATCH", bucket.ETag } });
             }
         }
 
 
-        public static async Task<IEnumerable<PlannerTask>> GetBucketTasksAsync(PnPConnection connection, string accessToken, string bucketId, bool resolveDisplayNames)
+        public static IEnumerable<PlannerTask> GetBucketTasks(ApiRequestHelper requestHelper, string bucketId, bool resolveDisplayNames)
         {
             var returnCollection = new List<PlannerTask>();
-            var collection = await GraphHelper.GetAsync<RestResultCollection<PlannerTask>>(connection, $"v1.0/planner/buckets/{bucketId}/tasks", accessToken);
+            var collection = requestHelper.Get<RestResultCollection<PlannerTask>>($"v1.0/planner/buckets/{bucketId}/tasks");
             if (collection != null && collection.Items.Any())
             {
                 if (resolveDisplayNames)
                 {
                     foreach (var task in collection.Items)
                     {
-                        var fullIdentity = await ResolveIdentityAsync(connection, accessToken, task.CreatedBy.User);
+                        var fullIdentity = ResolveIdentity(requestHelper, task.CreatedBy.User);
                         task.CreatedBy.User = fullIdentity;
                         if (task.Assignments != null)
                         {
                             foreach (var assignment in task.Assignments)
                             {
-                                assignment.Value.AssignedBy.User = await ResolveIdentityAsync(connection, accessToken, assignment.Value.AssignedBy.User);
+                                assignment.Value.AssignedBy.User = ResolveIdentity(requestHelper, assignment.Value.AssignedBy.User);
                             }
                         }
                         returnCollection.Add(task);
@@ -456,13 +454,13 @@ namespace PnP.PowerShell.Commands.Utilities
                     {
                         foreach (var task in collection.Items)
                         {
-                            var fullIdentity = await ResolveIdentityAsync(connection, accessToken, task.CreatedBy.User);
+                            var fullIdentity = ResolveIdentity(requestHelper, task.CreatedBy.User);
                             task.CreatedBy.User = fullIdentity;
                             if (task.Assignments != null)
                             {
                                 foreach (var assignment in task.Assignments)
                                 {
-                                    assignment.Value.AssignedBy.User = await ResolveIdentityAsync(connection, accessToken, assignment.Value.AssignedBy.User);
+                                    assignment.Value.AssignedBy.User = ResolveIdentity(requestHelper, assignment.Value.AssignedBy.User);
                                 }
                             }
                             returnCollection.Add(task);
@@ -478,14 +476,14 @@ namespace PnP.PowerShell.Commands.Utilities
             return returnCollection;
         }
 
-        public static async Task<PlannerBucket> UpdateBucketAsync(PnPConnection connection, string accessToken, string name, string bucketId)
+        public static PlannerBucket UpdateBucket(ApiRequestHelper requestHelper, string name, string bucketId)
         {
-            var bucket = await GraphHelper.GetAsync<PlannerBucket>(connection, $"v1.0/planner/buckets/{bucketId}", accessToken);
+            var bucket = requestHelper.Get<PlannerBucket>($"v1.0/planner/buckets/{bucketId}");
             if (bucket != null)
             {
                 var stringContent = new StringContent(JsonSerializer.Serialize(new { name = name }));
                 stringContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
-                return await GraphHelper.PatchAsync<PlannerBucket>(connection, accessToken, $"v1.0/planner/buckets/{bucketId}", stringContent, new Dictionary<string, string>() { { "IF-MATCH", bucket.ETag } });
+                return requestHelper.Patch<PlannerBucket>($"v1.0/planner/buckets/{bucketId}", stringContent, new Dictionary<string, string>() { { "IF-MATCH", bucket.ETag } });
             }
             return null;
         }

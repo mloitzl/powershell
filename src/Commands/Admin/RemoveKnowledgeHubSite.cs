@@ -1,12 +1,11 @@
 ﻿using Microsoft.SharePoint.Client;
-
 using PnP.PowerShell.Commands.Base;
 using System.Management.Automation;
 
 namespace PnP.PowerShell.Commands.Admin
 {
     [Cmdlet(VerbsCommon.Remove, "PnPKnowledgeHubSite")]
-    public class RemoveKnowledgeHubSite : PnPAdminCmdlet
+    public class RemoveKnowledgeHubSite : PnPSharePointOnlineAdminCmdlet
     {
         protected override void ExecuteCmdlet()
         {

@@ -1,15 +1,15 @@
 ﻿using Microsoft.SharePoint.Client;
 using PnP.PowerShell.Commands.Base;
-using System.Management.Automation;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 using System;
-using System.Text;
 using System.Collections.Generic;
+using System.Management.Automation;
+using System.Text;
 
 namespace PnP.PowerShell.Commands.Admin
 {
     [Cmdlet(VerbsDiagnostic.Test, "PnPSite", SupportsShouldProcess = true)]
-    public class TestSite : PnPAdminCmdlet
+    public class TestSite : PnPSharePointOnlineAdminCmdlet
     {
         [Parameter(Mandatory = false, ValueFromPipeline = true)]
         public SitePipeBind Identity;
@@ -28,9 +28,9 @@ namespace PnP.PowerShell.Commands.Admin
                 siteUrl = Identity.Url;
             }
 
-            var site = this.Tenant.GetSiteByUrl(siteUrl);
-            ClientContext.Load(site);
-            ClientContext.ExecuteQueryRetry();
+            var site = Tenant.GetSiteByUrl(siteUrl);
+            AdminContext.Load(site);
+            AdminContext.ExecuteQueryRetry();
 
             var builder = new StringBuilder();
 
@@ -39,14 +39,14 @@ namespace PnP.PowerShell.Commands.Admin
             {
                 builder.Append($", RuleId {RuleId}");
             }
-            if (this.ShouldProcess(builder.ToString()))
+            if (ShouldContinue(builder.ToString(), Properties.Resources.Confirm))
             {
                 var result = new PSObject();
                 result.Properties.Add(new PSNoteProperty("SiteUrl", site.Url));
 
                 var summary = site.RunHealthCheck(RuleId, false, RunAlways);
-                ClientContext.Load(summary);
-                ClientContext.ExecuteQueryRetry();
+                AdminContext.Load(summary);
+                AdminContext.ExecuteQueryRetry();
                 var results = new List<PSObject>();
                 foreach (var summaryItem in summary.Results)
                 {

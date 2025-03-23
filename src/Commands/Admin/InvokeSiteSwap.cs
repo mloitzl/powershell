@@ -1,5 +1,4 @@
 ﻿using Microsoft.SharePoint.Client;
-
 using PnP.PowerShell.Commands.Base;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 using System.Management.Automation;
@@ -7,7 +6,7 @@ using System.Management.Automation;
 namespace PnP.PowerShell.Commands.Admin
 {
     [Cmdlet(VerbsLifecycle.Invoke, "PnPSiteSwap")]
-    public class InvokeSiteSwap : PnPAdminCmdlet
+    public class InvokeSiteSwap : PnPSharePointOnlineAdminCmdlet
     {
         [Parameter(Mandatory =true)]
         public string SourceUrl;
@@ -31,9 +30,11 @@ namespace PnP.PowerShell.Commands.Admin
         {
             var includeSmartGestures = !DisableRedirection;
 
+            LogDebug($"Invoking site swap with source {SourceUrl}, target {TargetUrl} and archive {ArchiveUrl}");
+
             var operation = this.Tenant.SwapSiteWithSmartGestureOption(SourceUrl, TargetUrl, ArchiveUrl, includeSmartGestures);
-            ClientContext.Load(operation);
-            ClientContext.ExecuteQueryRetry();
+            AdminContext.Load(operation);
+            AdminContext.ExecuteQueryRetry();
 
             if(!ParameterSpecified(nameof(NoWait)))
             {

@@ -17,12 +17,12 @@ Updates the SharePoint Online owner and permission levels on a group inside a si
 
 ```powershell
 Set-PnPSiteGroup -Identity <String> [-Name <String>] [-Owner <String>] [-PermissionLevelsToAdd <String[]>] 
-    [-PermissionLevelsToRemove <String[]>] [-Site <PipeBind>]
+    [-PermissionLevelsToRemove <String[]>] [-Site <PipeBind>] [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
 
-For permissions and the most current information about Windows PowerShell for SharePoint Online, see the online documentation at [Intro to SharePoint Online Management Shell](https://docs.microsoft.com/powershell/sharepoint/sharepoint-online/introduction-sharepoint-online-management-shell?view=sharepoint-ps).
+For permissions and the most current information about Windows PowerShell for SharePoint Online, see the online documentation at [Intro to SharePoint Online Management Shell](https://learn.microsoft.com/powershell/sharepoint/sharepoint-online/introduction-sharepoint-online-management-shell?view=sharepoint-ps).
 
 ## EXAMPLES
 
@@ -43,6 +43,20 @@ Set-PnPSiteGroup -Site "https://contoso.sharepoint.com" -Identity "ProjectViewer
 Example 2 sets user@domain.com as the owner of the ProjectViewers group.
 
 ## PARAMETERS
+
+### -Connection
+Optional connection to be used by the cmdlet. Retrieve the value for this parameter by either specifying -ReturnConnection on Connect-PnPOnline or by executing Get-PnPConnection.
+
+```yaml
+Type: PnPConnection
+Parameter Sets: (All)
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -Identity
 
@@ -76,7 +90,7 @@ Accept wildcard characters: False
 
 ### -Owner
 
-Specifies the owner (individual or a security group) of the group to be created.
+Specifies the owner (individual or a security group) of the group to be set.
 
 ```yaml
 Type: String
@@ -133,7 +147,6 @@ Specifies the site collection the group belongs to. If not defined, the currentl
 Type: SitePipeBind
 Parameter Sets: (All)
 Aliases:
-Applicable: SharePoint Online
 Required: False
 Position: Named
 Default value: None

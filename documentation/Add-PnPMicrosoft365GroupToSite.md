@@ -15,14 +15,14 @@ title: Add-PnPMicrosoft365GroupToSite
 
 * SharePoint: Access to the SharePoint Tenant Administration site
 
-Groupifies a classic team site by creating a Microsoft 365 group for it and connecting the site with the newly created group
+Groupifies a classic team site by creating a Microsoft 365 group for it and connecting the site with the newly created group.
 
 ## SYNTAX
 
 ```powershell
 Add-PnPMicrosoft365GroupToSite -Url <String> -Alias <String> -DisplayName <String> [-Description <String>]
  [-Classification <String>] [-IsPublic] [-KeepOldHomePage] [-HubSiteId <Guid>] [-Owners <String[]>]
- [-Connection <PnPConnection>] [<CommonParameters>]
+ [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
@@ -35,7 +35,20 @@ This command allows you to add a Microsoft 365 Unified group to an existing clas
 Add-PnPMicrosoft365GroupToSite -Url "https://contoso.sharepoint.com/sites/FinanceTeamsite" -Alias "FinanceTeamsite" -DisplayName "My finance team site group"
 ```
 
-This will groupify the FinanceTeamsite
+This will groupify the FinanceTeamsite at the provided URL.
+
+### EXAMPLE 2
+```powershell
+Add-PnPMicrosoft365GroupToSite -Alias "HRTeamsite" -DisplayName "My HR team site group"
+```
+
+This will groupify the currently connected site.
+
+### EXAMPLE 3
+```powershell
+Add-PnPMicrosoft365GroupToSite -Url $SiteURL -Alias $GroupAlias -DisplayName $GroupName -IsPublic -KeepOldHomePage
+```
+This will groupify the $SiteURL site, make the Group public (default is Private) and keep the old Home page as the default homepage. The new Home.aspx is created but not set as default Homepage.
 
 ## PARAMETERS
 
@@ -54,7 +67,7 @@ Accept wildcard characters: False
 ```
 
 ### -Classification
-Specifies the classification of the group
+Specifies the classification of the group.
 
 ```yaml
 Type: String
@@ -82,7 +95,7 @@ Accept wildcard characters: False
 ```
 
 ### -Description
-The optional description of the group
+The optional description of the group.
 
 ```yaml
 Type: String
@@ -96,7 +109,7 @@ Accept wildcard characters: False
 ```
 
 ### -DisplayName
-The display name of the group
+The display name of the group.
 
 ```yaml
 Type: String
@@ -110,7 +123,7 @@ Accept wildcard characters: False
 ```
 
 ### -HubSiteId
-If specified the site will be associated to the hubsite as identified by this id
+If specified the site will be associated to the hubsite as identified by this id.
 
 ```yaml
 Type: Guid
@@ -152,7 +165,7 @@ Accept wildcard characters: False
 ```
 
 ### -Owners
-The array UPN values of the group's owners
+The array of the UPN values of the group's owners.
 
 ```yaml
 Type: String[]
@@ -166,15 +179,15 @@ Accept wildcard characters: False
 ```
 
 ### -Url
-Url of the site to be connected to an Microsoft 365 Group
+Url of the site to be connected to an Microsoft 365 Group. When not provided, the site currently being connected to will be used.
 
 ```yaml
 Type: String
 Parameter Sets: (All)
 
-Required: True
+Required: False
 Position: Named
-Default value: None
+Default value: Currently connected site
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -182,5 +195,3 @@ Accept wildcard characters: False
 ## RELATED LINKS
 
 [Microsoft 365 Patterns and Practices](https://aka.ms/m365pnp)
-
-

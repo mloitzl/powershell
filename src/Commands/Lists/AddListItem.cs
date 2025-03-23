@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
@@ -7,6 +6,7 @@ using Microsoft.SharePoint.Client;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 using PnP.PowerShell.Commands.Model;
 using PnP.PowerShell.Commands.Utilities;
+using PnP.PowerShell.Commands.Base.Completers;
 
 // IMPORTANT: If you make changes to this cmdlet, also make the similar/same changes to the Set-PnPListItem Cmdlet
 
@@ -22,6 +22,7 @@ namespace PnP.PowerShell.Commands.Lists
         [Parameter(Mandatory = false, ParameterSetName = ParameterSet_SINGLE)]
         [Parameter(Mandatory = false, ParameterSetName = ParameterSet_BATCHED)]
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 0)]
+        [ArgumentCompleter(typeof(ListNameCompleter))]
         [ValidateNotNull]
         public ListPipeBind List;
 
@@ -51,29 +52,21 @@ namespace PnP.PowerShell.Commands.Lists
         {
             if (ParameterSpecified(nameof(Batch)))
             {
-                var list = List.GetList(Batch, false);
-                if (list == null)
-                {
-                    throw new PSArgumentException("The specified list was not found. Notice that the title is case sensitive.", nameof(List));
-                }
+                var list = List.GetList(Batch, false) ?? throw new PSArgumentException($"The specified list through the {nameof(List)} parameter was not found. Notice that the title is case sensitive.", nameof(List));
 
                 var values = ListItemHelper.GetFieldValues(list, null, Values, ClientContext, Batch);
                 if (ContentType != null)
-                {
-                    var contentType = ContentType.GetContentType(Batch, list);
+                {                
+                    var contentType = ContentType.GetContentTypeOrWarn(this, Batch, list);
                     values.Add("ContentTypeId", contentType.StringId);
                 }
                 list.Items.AddBatch(Batch.Batch, values, Folder);
             }
             else
             {
-                List list = List.GetList(CurrentWeb);
-                if (list == null)
-                {
-                    throw new PSArgumentException("The specified list was not found. Notice that the title is case sensitive.", nameof(List));
-                }
+                List list = List.GetList(CurrentWeb) ?? throw new PSArgumentException($"The specified list through the {nameof(List)} parameter was not found. Notice that the title is case sensitive.", nameof(List));
 
-                ListItemCreationInformation liCI = new ListItemCreationInformation();
+                ListItemCreationInformation liCI = new();
                 if (Folder != null)
                 {
                     // Create the folder if it doesn't exist
@@ -103,7 +96,7 @@ namespace PnP.PowerShell.Commands.Lists
                     ListItemHelper.SetFieldValues(item, Values, this);
                 }
 
-                if (!String.IsNullOrEmpty(Label))
+                if (!string.IsNullOrEmpty(Label))
                 {
                     IList<Microsoft.SharePoint.Client.CompliancePolicy.ComplianceTag> tags = Microsoft.SharePoint.Client.CompliancePolicy.SPPolicyStoreProxy.GetAvailableTagsForSite(ClientContext, ClientContext.Url);
                     ClientContext.ExecuteQueryRetry();
@@ -112,11 +105,11 @@ namespace PnP.PowerShell.Commands.Lists
 
                     if (tag != null)
                     {
-                        item.SetComplianceTag(tag.TagName, tag.BlockDelete, tag.BlockEdit, tag.IsEventTag, tag.SuperLock, false);
+                        item.SetComplianceTag(tag.TagName, tag.BlockDelete, tag.BlockEdit, tag.IsEventTag, tag.SuperLock, tag.UnlockedAsDefault);
                     }
                     else
                     {
-                        WriteWarning("Can not find compliance tag with value: " + Label);
+                        LogWarning("Can not find compliance tag with value: " + Label);
                     }
                 }
 

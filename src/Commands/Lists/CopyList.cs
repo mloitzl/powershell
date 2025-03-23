@@ -2,10 +2,11 @@
 using Microsoft.SharePoint.Client;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 using System;
-using System.Text.RegularExpressions;
 using System.Linq;
 using PnP.PowerShell.Commands.Utilities.REST;
 using PnP.PowerShell.Commands.Model.SharePoint;
+using System.Text.Json.Nodes;
+using PnP.PowerShell.Commands.Base.Completers;
 
 namespace PnP.PowerShell.Commands.Lists
 {
@@ -26,6 +27,7 @@ namespace PnP.PowerShell.Commands.Lists
 
         [Parameter(ParameterSetName = ParameterSet_TOCURRENTSITEBYPIPE, Mandatory = true)]
         [Parameter(ParameterSetName = ParameterSet_LISTBYPIPE, Mandatory = true, ValueFromPipeline = true)]
+        [ArgumentCompleter(typeof(ListNameCompleter))]
         public ListPipeBind Identity;
 
         [Parameter(ParameterSetName = ParameterSet_TOCURRENTSITEBYURL, Mandatory = true)]
@@ -47,7 +49,7 @@ namespace PnP.PowerShell.Commands.Lists
             if(ParameterSpecified(nameof(Identity)))
             {
                 // Retrieve the list to copy
-                WriteVerbose($"Looking up list provided through {nameof(Identity)}");
+                LogDebug($"Looking up list provided through {nameof(Identity)}");
                 var list = Identity.GetList(ClientContext.Web);
 
                 if(list == null)
@@ -61,17 +63,23 @@ namespace PnP.PowerShell.Commands.Lists
             }
 
             // Generate a site script from the list that needs to be copied
-            WriteVerbose($"Generating script from list at {SourceListUrl}");
-            var generatedScript = RestHelper.PostAsync<RestResult<string>>(Connection.HttpClient, $"{Connection.Url}/_api/Microsoft.Sharepoint.Utilities.WebTemplateExtensions.SiteScriptUtility.GetSiteScriptFromList()", ClientContext, new { listUrl = SourceListUrl}).GetAwaiter().GetResult();
+            LogDebug($"Generating script from list at {SourceListUrl}");
+            var generatedScript = RestHelper.Post<RestResult<string>>(Connection.HttpClient, $"{Connection.Url}/_api/Microsoft.Sharepoint.Utilities.WebTemplateExtensions.SiteScriptUtility.GetSiteScriptFromList()", ClientContext, new { listUrl = SourceListUrl});
 
             // Take the site script of the list to copy
             var script = generatedScript.Content;
 
             if (ParameterSpecified(nameof(Title)) && !string.IsNullOrWhiteSpace(Title))
             {
-                // Update the list name in the site script using a regular expression
-                WriteVerbose($"Setting list title to '{Title}'");
-                script = Regex.Replace(script, "(?<=\"listName\":\\s?\")(.*?)(?=\")", Title);
+                // Update the list name in the site script in the first *_listName binding parameter 
+                LogDebug($"Setting list title to '{Title}'");
+
+                JsonNode scriptAsJson = JsonNode.Parse(script);
+
+                var listNameElement = scriptAsJson["bindings"].AsObject().Where(b => b.Key.EndsWith("_listName")).First();
+                listNameElement.Value["defaultValue"] = Title;
+
+                script = scriptAsJson.ToJsonString();
             }
 
             // Check if we need to set the destination to the current site
@@ -82,13 +90,13 @@ namespace PnP.PowerShell.Commands.Lists
 
             if(ParameterSpecified(nameof(WhatIf)))
             {
-                WriteVerbose($"Skipping execution of site script to site at {DestinationWebUrl} due to {nameof(WhatIf)} flag being provided");
+                LogDebug($"Skipping execution of site script to site at {DestinationWebUrl} due to {nameof(WhatIf)} flag being provided");
                 return;
             }
 
             // Execute site script on destination site so the list will be created
-            WriteVerbose($"Executing site script to site at {DestinationWebUrl}");
-            var actionResults = RestHelper.PostAsync<RestResultCollection<InvokeSiteScriptActionResponse>>(Connection.HttpClient, $"{Connection.Url}/_api/Microsoft.Sharepoint.Utilities.WebTemplateExtensions.SiteScriptUtility.ExecuteTemplateScript()", ClientContext, new { script = script}).GetAwaiter().GetResult();
+            LogDebug($"Executing site script to site at {DestinationWebUrl}");
+            var actionResults = RestHelper.Post<RestResultCollection<InvokeSiteScriptActionResponse>>(Connection.HttpClient, $"{DestinationWebUrl}/_api/Microsoft.Sharepoint.Utilities.WebTemplateExtensions.SiteScriptUtility.ExecuteTemplateScript()", ClientContext, new { script = script});
             
             // Ensure site script actions have been executed
             if(actionResults.Items.Count() == 0)
@@ -99,7 +107,7 @@ namespace PnP.PowerShell.Commands.Lists
             // Display the results of each action in verbose
             foreach(var actionResult in actionResults.Items)
             {
-                WriteVerbose($"Action {actionResult.Title} {(actionResult.ErrorCode != 0 ? $"failed: {actionResult.OutcomeText}" : "succeeded")}");
+                LogDebug($"Action {actionResult.Title} {(actionResult.ErrorCode != 0 ? $"failed: {actionResult.OutcomeText}" : "succeeded")}");
             }
 
             // Ensure the list creation succeeded
@@ -114,10 +122,10 @@ namespace PnP.PowerShell.Commands.Lists
             // Retrieve the newly created list
             var newListId = actionResults.Items.ElementAt(0).TargetId;
 
-            WriteVerbose($"Retrieving newly created list hosted in {DestinationWebUrl} with ID {newListId}");
+            LogDebug($"Retrieving newly created list hosted in {DestinationWebUrl} with ID {newListId}");
             var createdList = destinationContext.Web.Lists.GetById(Guid.Parse(newListId));
             destinationContext.Load(createdList, l => l.Id, l => l.BaseTemplate, l => l.OnQuickLaunch, l => l.DefaultViewUrl, l => l.Title, l => l.Hidden, l => l.ContentTypesEnabled, l => l.RootFolder.ServerRelativeUrl);
-            destinationContext.ExecuteQuery();
+            destinationContext.ExecuteQueryRetry();
 
             // Return the new list
             WriteObject(createdList);

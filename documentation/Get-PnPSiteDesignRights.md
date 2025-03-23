@@ -21,10 +21,12 @@ Returns the principals with design rights on a specific Site Design
 
 ```powershell
 Get-PnPSiteDesignRights [-Identity] <TenantSiteDesignPipeBind> [-Connection <PnPConnection>] 
-  [<CommonParameters>]
+  
 ```
 
 ## DESCRIPTION
+
+Allows to retrieve the principals with design rights on a specific Site Design.
 
 ## EXAMPLES
 
@@ -77,21 +79,6 @@ Required: True
 Position: 0
 Default value: None
 Accept pipeline input: True (ByValue)
-Accept wildcard characters: False
-```
-
-### -WhatIf
-Shows what would happen if the cmdlet runs. The cmdlet is not run.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: wi
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
 Accept wildcard characters: False
 ```
 

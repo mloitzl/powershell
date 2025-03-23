@@ -16,10 +16,12 @@ Retrieve Storage Entities / Farm Properties from either the Tenant App Catalog o
 
 ```powershell
 Get-PnPStorageEntity [-Key <String>] [-Scope <StorageEntityScope>] [-Connection <PnPConnection>] 
-  [<CommonParameters>]
+  
 ```
 
 ## DESCRIPTION
+
+Allows to retrieve storage entities from either tenant app catalog or current site app catalog.
 
 ## EXAMPLES
 
@@ -88,21 +90,6 @@ Defines the scope of the storage entity. Defaults to Tenant.
 Type: StorageEntityScope
 Parameter Sets: (All)
 Accepted values: Site, Tenant
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -WhatIf
-Shows what would happen if the cmdlet runs. The cmdlet is not run.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: wi
 
 Required: False
 Position: Named

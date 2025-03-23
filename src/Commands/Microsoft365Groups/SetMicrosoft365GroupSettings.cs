@@ -1,10 +1,8 @@
-﻿using PnP.Framework.Graph;
-using PnP.PowerShell.Commands.Attributes;
+﻿using PnP.PowerShell.Commands.Attributes;
 using PnP.PowerShell.Commands.Base;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 using PnP.PowerShell.Commands.Model;
 using PnP.PowerShell.Commands.Utilities;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Management.Automation;
@@ -12,7 +10,7 @@ using System.Management.Automation;
 namespace PnP.PowerShell.Commands.Microsoft365Groups
 {
     [Cmdlet(VerbsCommon.Set, "PnPMicrosoft365GroupSettings")]
-    [RequiredMinimalApiPermissions("Directory.ReadWrite.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/Directory.ReadWrite.All")]
     public class SetMicrosoft365GroupSettings : PnPGraphCmdlet
     {
         [Parameter(Mandatory = true, ValueFromPipeline = true)]
@@ -28,15 +26,15 @@ namespace PnP.PowerShell.Commands.Microsoft365Groups
         {
             if (Group != null)
             {
-                var groupId = Group.GetGroupId(Connection, AccessToken);
+                var groupId = Group.GetGroupId(GraphRequestHelper);
                 var groupSettingObject = GroupSettingsObject();
 
-                Microsoft365GroupsUtility.UpdateGroupSetting(Connection, AccessToken, Identity, groupId.ToString(), groupSettingObject).GetAwaiter().GetResult();
+                Microsoft365GroupsUtility.UpdateGroupSetting(GraphRequestHelper, Identity, groupId.ToString(), groupSettingObject);
             }
             else
             {
                 var groupSettingObject = GroupSettingsObject();
-                Microsoft365GroupsUtility.UpdateGroupSetting(Connection, AccessToken, Identity, groupSettingObject).GetAwaiter().GetResult();
+                Microsoft365GroupsUtility.UpdateGroupSetting(GraphRequestHelper, Identity, groupSettingObject);
             }
         }
 

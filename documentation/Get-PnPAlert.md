@@ -16,10 +16,12 @@ Returns registered alerts for a user.
 
 ```powershell
 Get-PnPAlert [[-List] <ListPipeBind>] [-User <UserPipeBind>] [-Title <String>] [-AllUsers]
- [-Connection <PnPConnection>] [<CommonParameters>]
+ [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
+
+Allows to retrieve all registered alerts for given users. Using `AllUsers` option will allow to retrieve all alerts in the current site, regardless of the user or list it belongs to.
 
 ## EXAMPLES
 

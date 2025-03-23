@@ -20,10 +20,12 @@ Creates a new Site Script Package on the current tenant. Site script packages ca
 ## SYNTAX
 
 ```powershell
-Add-PnPSiteScriptPackage -Title <String> [-Description <String>] -ContentPath <String> [-Connection <PnPConnection>] [<CommonParameters>]
+Add-PnPSiteScriptPackage -Title <String> [-Description <String>] -ContentPath <String> [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
+
+Allows to add a new Site Script Package on the current tenant
 
 ## EXAMPLES
 

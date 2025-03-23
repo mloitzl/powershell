@@ -6,7 +6,7 @@ using System;
 namespace PnP.PowerShell.Commands.Admin
 {
     [Cmdlet(VerbsCommon.Set, "PnPBrowserIdleSignout", DefaultParameterSetName = DisableBrowserIdleSignout)]
-    public class SetBrowserIdleSignout : PnPAdminCmdlet
+    public class SetBrowserIdleSignout : PnPSharePointOnlineAdminCmdlet
     {
         private const string DisableBrowserIdleSignout = "DisableBrowserIdleSignout";
         private const string EnableBrowserIdleSignout = "EnableBrowserIdleSignout";
@@ -29,7 +29,7 @@ namespace PnP.PowerShell.Commands.Admin
             }
 
             var result = this.Tenant.SetIdleSessionSignOutForUnmanagedDevices(Enabled,WarnAfter,SignoutAfter);
-            ClientContext.ExecuteQueryRetry();
+            AdminContext.ExecuteQueryRetry();
         }
     }
 }

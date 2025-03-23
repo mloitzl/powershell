@@ -1,64 +1,58 @@
 $runPublish = $false
 
-$pnppowershell_hash = git ls-files -s ./src | git hash-object --stdin
-$existing_pnppowershell_hash = Get-Content ./pnppowershell_hash.txt -Raw -ErrorAction SilentlyContinue
+$dependencies = Invoke-RestMethod -Method Get -Uri https://raw.githubusercontent.com/pnp/powershell/dev/dependencies.json
 
-$existing_pnpframework_hash = Get-Content ./pnpframework_hash.txt -Raw -ErrorAction SilentlyContinue
+$pnppowershell_hash = git ls-files -s ./src | git hash-object --stdin
+#$existing_pnppowershell_hash = Get-Content ./pnppowershell_hash.txt -Raw -ErrorAction SilentlyContinue
+
+#$existing_pnpframework_hash = Get-Content ./pnpframework_hash.txt -Raw -ErrorAction SilentlyContinue
 $pnpframework_response = Invoke-RestMethod -Method Get -Uri "$($env:GITHUB_API_URL)/repos/pnp/pnpframework/branches/dev" -SkipHttpErrorCheck
-if($null -ne $pnpframework_response)
-{
-	if($null -ne $pnpframework_response.commit)
-	{
+if ($null -ne $pnpframework_response) {
+	if ($null -ne $pnpframework_response.commit) {
 		$pnpframework_hash = $pnpframework_response.commit.sha
 	}
 }
 
-$existing_pnpcoresdk_hash = Get-Content ./pnpcoresdk_hash.txt -Raw -ErrorAction SilentlyContinue
+#$existing_pnpcoresdk_hash = Get-Content ./pnpcoresdk_hash.txt -Raw -ErrorAction SilentlyContinue
 $pnpcoresdk_response = Invoke-RestMethod -Method Get -Uri "$($env:GITHUB_API_URL)/repos/pnp/pnpcore/branches/dev" -SkipHttpErrorCheck
-if($null -ne $pnpcoresdk_response)
-{
-	if($null -ne $pnpcoresdk_response.commit)
-	{
+if ($null -ne $pnpcoresdk_response) {
+	if ($null -ne $pnpcoresdk_response.commit) {
 		$pnpcoresdk_hash = $pnpcoresdk_response.commit.sha
 	}
 }
 
-#Write-host "Latest PnP PowerShell Commit hash $pnppowershell_hash" -ForegroundColor Yellow
-#Write-Host "Stored PnP PowerShell Commit hash: $existing_pnppowershell_hash" -ForegroundColor Yellow
-#Write-host "Latest PnP Framework Commit hash $pnpframework_hash" -ForegroundColor Yellow
-#Write-Host "Stored PnP Framework Commit hash: $existing_pnpframework_hash" -ForegroundColor Yellow
-
-if ($existing_pnppowershell_hash -ne $pnppowershell_hash)
-{
-	Write-Host "PnP PowerShell is newer"
-	Set-Content ./pnppowershell_hash.txt -Value $pnppowershell_hash -NoNewline -Force
+if ($dependencies.PnPPowershell -ne $pnppowershell_hash) {
+	Write-Host "PnP Powershell is newer"
 	$runPublish = $true
 }
 
-if($runPublish -eq $false -and $existing_pnpframework_hash -ne $pnpframework_hash)
-{
+if ($runPublish -eq $false -and $dependencies.PnPFramework -ne $pnpframework_hash) {
 	Write-Host "PnP Framework is newer"
-	Set-Content ./pnpframework_hash.txt -Value $pnpframework_hash -NoNewline -Force
 	$runPublish = $true
 }
 
-if($runPublic -eq $false -and $existing_pnpcoresdk_hash -ne $pnpcoresdk_hash)
-{
+if ($runPublish -eq $false -and $dependencies.PnPCore -ne $pnpcoresdk_hash) {
 	Write-Host "PnP Core SDK is newer"
-	Set-Content ./pnpcoresdk_hash.txt -Value $pnpcoresdk_hash -NoNewLine -Force
 	$runPublish = $true
 }
 
 if ($runPublish -eq $true) {
+	$dependencies.Updated = Get-Date -Format "yyyyMMdd-HHmmss"
+	$dependencies.PnPCore = $pnpcoresdk_hash
+	$dependencies.PnPFramework = $pnpframework_hash
+	$dependencies.PnPPowershell = $pnppowershell_hash
 
-	$versionFileContents = (Get-Content "$PSScriptRoot/../version.txt" -Raw).Trim()
-	if ($versionFileContents.Contains("%")) {
-		$versionString = $versionFileContents.Replace("%", "0");
+	Set-Content ./dependencies.json -Value $(ConvertTo-Json $dependencies) -Force
+
+	$versionFileContents = Get-Content "$PSScriptRoot/../version.json" -Raw | ConvertFrom-Json
+
+	if ($versionFileContents.Version.Contains("%")) {
+		$versionString = $versionFileContents.Version.Replace("%", "0");
 		$versionObject = [System.Management.Automation.SemanticVersion]::Parse($versionString)
 		$buildVersion = $versionObject.Patch;
 	}
 	else {	
-		$versionObject = [System.Management.Automation.SemanticVersion]::Parse($versionFileContents)
+		$versionObject = [System.Management.Automation.SemanticVersion]::Parse($versionFileContents.Version)
 		$buildVersion = $versionObject.Patch + 1;
 	}
 
@@ -80,16 +74,24 @@ if ($runPublish -eq $true) {
 
 	$documentsFolder = [environment]::getfolderpath("mydocuments");
 
-	if ($IsLinux -or $isMacOS) {
+	if ($IsLinux) {
 		$destinationFolder = "$documentsFolder/.local/share/powershell/Modules/PnP.PowerShell"
+		$helpfileDestinationFolder = "$documentsFolder/.local/share/powershell/Modules"
 	}
- else {
+	elseif ($IsMacOS) {
+		$destinationFolder = "$HOME/.local/share/powershell/Modules/PnP.PowerShell"
+		$helpfileDestinationFolder = "$HOME/.local/share/powershell/Modules"
+	}
+	else {
 		$destinationFolder = "$documentsFolder/PowerShell/Modules/PnP.PowerShell"
+		$helpfileDestinationFolder = "$documentsFolder/PowerShell/Modules"
 	}
 
 	$corePath = "$destinationFolder/Core"
 	$commonPath = "$destinationFolder/Common"
-	$frameworkPath = "$destinationFolder/Framework"
+	$coreRuntimePathWin64 = "$destinationFolder/Core/runtimes/win-x64/native"
+	$coreRuntimePathArm64 = "$destinationFolder/Core/runtimes/win-arm64/native"
+	$coreRuntimePathx86 = "$destinationFolder/Core/runtimes/win-x86/native"
 
 	$assemblyExceptions = @("System.Memory.dll");
 
@@ -103,20 +105,21 @@ if ($runPublish -eq $true) {
 		Write-Host "Creating target folders: $destinationFolder" -ForegroundColor Yellow
 		New-Item -Path $destinationFolder -ItemType Directory -Force | Out-Null
 		New-Item -Path "$destinationFolder\Core" -ItemType Directory -Force | Out-Null
+		New-Item -Path "$destinationFolder\Core\runtimes" -ItemType Directory -Force | Out-Null
+		New-Item -Path "$destinationFolder\Core\runtimes\win-x64\native" -ItemType Directory -Force | Out-Null
+		New-Item -Path "$destinationFolder\Core\runtimes\win-arm64\native" -ItemType Directory -Force | Out-Null
+		New-Item -Path "$destinationFolder\Core\runtimes\win-x86\native" -ItemType Directory -Force | Out-Null
 		New-Item -Path "$destinationFolder\Common" -ItemType Directory -Force | Out-Null
-		if (!$IsLinux -and !$IsMacOs) {
-			New-Item -Path "$destinationFolder\Framework" -ItemType Directory -Force | Out-Null
-		}
 
 		Write-Host "Copying files to $destinationFolder" -ForegroundColor Yellow
 
 		$commonFiles = [System.Collections.Generic.Hashset[string]]::new()
 		Copy-Item -Path "$PSscriptRoot/../resources/*.ps1xml" -Destination "$destinationFolder"
-		Get-ChildItem -Path "$PSScriptRoot/../src/ALC/bin/Release/netstandard2.0" | Where-Object { $_.Extension -in '.dll', '.pdb' } | Foreach-Object { if (!$assemblyExceptions.Contains($_.Name)) { [void]$commonFiles.Add($_.Name) }; Copy-Item -LiteralPath $_.FullName -Destination $commonPath }
-		Get-ChildItem -Path "$PSScriptRoot/../src/Commands/bin/Release/netcoreapp3.1" | Where-Object { $_.Extension -in '.dll', '.pdb' -and -not $commonFiles.Contains($_.Name) } | Foreach-Object { Copy-Item -LiteralPath $_.FullName -Destination $corePath }
-		if (!$IsLinux -and !$IsMacOs) {
-			Get-ChildItem -Path "$PSScriptRoot/../src/Commands/bin/Release/net462" | Where-Object { $_.Extension -in '.dll', '.pdb' -and -not $commonFiles.Contains($_.Name) } | Foreach-Object { Copy-Item -LiteralPath $_.FullName -Destination $frameworkPath }
-		}
+		Get-ChildItem -Path "$PSScriptRoot/../src/ALC/bin/Release/net8.0" | Where-Object { $_.Extension -in '.dll', '.pdb' } | Foreach-Object { if (!$assemblyExceptions.Contains($_.Name)) { [void]$commonFiles.Add($_.Name) }; Copy-Item -LiteralPath $_.FullName -Destination $commonPath }
+		Get-ChildItem -Path "$PSScriptRoot/../src/Commands/bin/Release/net8.0" | Where-Object { $_.Extension -in '.dll', '.pdb' -and -not $commonFiles.Contains($_.Name) } | Foreach-Object { Copy-Item -LiteralPath $_.FullName -Destination $corePath }
+		Get-ChildItem -Path "$PSScriptRoot/../src/Commands/bin/Release/net8.0/runtimes/win-x64/native" -Recurse | Where-Object { $_.Extension -in '.dll', '.pdb' -and -not $commonFiles.Contains($_.Name) } | Foreach-Object { Copy-Item -LiteralPath $_.FullName -Destination $coreRuntimePathWin64 }
+		Get-ChildItem -Path "$PSScriptRoot/../src/Commands/bin/Release/net8.0/runtimes/win-arm64/native" -Recurse | Where-Object { $_.Extension -in '.dll', '.pdb' -and -not $commonFiles.Contains($_.Name) } | Foreach-Object { Copy-Item -LiteralPath $_.FullName -Destination $coreRuntimePathArm64 }
+		Get-ChildItem -Path "$PSScriptRoot/../src/Commands/bin/Release/net8.0/runtimes/win-x86/native" -Recurse | Where-Object { $_.Extension -in '.dll', '.pdb' -and -not $commonFiles.Contains($_.Name) } | Foreach-Object { Copy-Item -LiteralPath $_.FullName -Destination $coreRuntimePathx86 }
 	}
 	Catch {
 		Write-Host "Error: Cannot copy files to $destinationFolder. Maybe a PowerShell session is still using the module?"
@@ -132,20 +135,18 @@ if ($runPublish -eq $true) {
 		$scriptBlock = {
 			$documentsFolder = [environment]::getfolderpath("mydocuments");
 
-			if ($IsLinux -or $isMacOS) {
+			if ($IsLinux) {
 				$destinationFolder = "$documentsFolder/.local/share/powershell/Modules/PnP.PowerShell"
+			}
+			elseif ($IsMacOS) {
+				$destinationFolder = "~/.local/share/powershell/Modules/PnP.PowerShell"
 			}
 			else {
 				$destinationFolder = "$documentsFolder/PowerShell/Modules/PnP.PowerShell"
 			}
-			if($PSVersionTable.PSVersion.Major -eq 5)
-			{
-				Write-Host "Importing Framework version of assembly" -ForegroundColor Yellow
-				Import-Module -Name "$destinationFolder/Framework/PnP.PowerShell.dll" -DisableNameChecking
-			} else {
-				Write-Host "Importing dotnet core version of assembly" -ForegroundColor Yellow
-				Import-Module -Name "$destinationFolder/Core/PnP.PowerShell.dll" -DisableNameChecking
-			}
+			Write-Host "Importing dotnet core version of assembly" -ForegroundColor Yellow
+			Import-Module -Name "$destinationFolder/Core/PnP.PowerShell.dll" -DisableNameChecking
+
 			Write-Host "Getting cmdlet info" -ForegroundColor Yellow
 			$cmdlets = Get-Command -Module PnP.PowerShell | ForEach-Object { "`"$_`"" }
 			$cmdlets -Join ","
@@ -156,22 +157,13 @@ if ($runPublish -eq $true) {
 
 		Write-Host "Writing PSD1" -ForegroundColor Yellow
 		$manifest = "@{
-	NestedModules =  if (`$PSEdition -eq 'Core')
-	{
-		'Core/PnP.PowerShell.dll'
-	}
-	else
-	{
-		'Framework/PnP.PowerShell.dll'
-	}
+	NestedModules =  'Core/PnP.PowerShell.dll'
 	ModuleVersion = '$version'
 	Description = 'Microsoft 365 Patterns and Practices PowerShell Cmdlets'
 	GUID = '0b0430ce-d799-4f3b-a565-f0dca1f31e17'
 	Author = 'Microsoft 365 Patterns and Practices'
 	CompanyName = 'Microsoft 365 Patterns and Practices'
-	CompatiblePSEditions = @(`"Core`",`"Desktop`")
-	PowerShellVersion = '5.1'
-	DotNetFrameworkVersion = '4.6.2'
+	PowerShellVersion = '7.4.4'	
 	ProcessorArchitecture = 'None'
 	FunctionsToExport = '*'  
 	CmdletsToExport = @($cmdletsString)
@@ -195,10 +187,17 @@ if ($runPublish -eq $true) {
 		exit 1
 	}
 
+	# Generate predictor commands
+	./build/Generate-PredictorCommands.ps1 -Version "nightly"
+
 	Write-Host "Generating Documentation" -ForegroundColor Yellow
 	Set-PSRepository PSGallery -InstallationPolicy Trusted
-	Install-Module PlatyPS -ErrorAction Stop
-	New-ExternalHelp -Path ./documentation -OutputPath $destinationFolder -Force
+	Install-Module -Name Microsoft.PowerShell.PlatyPS -AllowPrerelease -RequiredVersion 1.0.0-preview1
+	Write-Host "Generating external help"
+	$mdFiles = Measure-PlatyPSMarkdown -Path ./documentation/*.md
+	$mdFiles | Import-MarkdownCommandHelp -Path {$_.FilePath} | Export-MamlCommandHelp -OutputFolder $helpfileDestinationFolder -Force
+	# Install-Module Microsoft.PlatyPS -ErrorAction Stop
+	# New-ExternalHelp -Path ./documentation -OutputPath $destinationFolder -Force
 
 	$apiKey = $("$env:POWERSHELLGALLERY_API_KEY")
 
@@ -208,4 +207,8 @@ if ($runPublish -eq $true) {
 
 	# Write version back to version
 	Set-Content ./version.txt -Value $version -Force -NoNewline
+
+	# Write version back to version.json
+	$json = @{Version = "$version"; Message = "" } | ConvertTo-Json
+	Set-Content ./version.json -Value $json -Force -NoNewline
 }

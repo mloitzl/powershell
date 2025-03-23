@@ -22,10 +22,12 @@ Grants the specified principals rights to use the site design.
 ```powershell
 Grant-PnPSiteDesignRights [-Identity] <TenantSiteDesignPipeBind> -Principals <String[]>
  [-Rights <TenantSiteDesignPrincipalRights>] [-Connection <PnPConnection>]  
- [<CommonParameters>]
+ 
 ```
 
 ## DESCRIPTION
+
+Allows to grant permission to use the site design for specified principal.
 
 ## EXAMPLES
 
@@ -109,21 +111,6 @@ The rights to set. Defaults to 'View'
 Type: TenantSiteDesignPrincipalRights
 Parameter Sets: (All)
 Accepted values: None, View
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -WhatIf
-Shows what would happen if the cmdlet runs. The cmdlet is not run.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: wi
 
 Required: False
 Position: Named

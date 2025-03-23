@@ -10,16 +10,18 @@ title: Clear-PnPListItemAsRecord
 # Clear-PnPListItemAsRecord
 
 ## SYNOPSIS
-Undeclares a list item as a record
+Un declares a list item as a record
 
 ## SYNTAX
 
 ```powershell
 Clear-PnPListItemAsRecord [-List] <ListPipeBind> -Identity <ListItemPipeBind> 
- [-Connection <PnPConnection>] [<CommonParameters>]
+ [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
+
+Allows to un declares a list item in a list as a record.
 
 ## EXAMPLES
 
@@ -28,7 +30,7 @@ Clear-PnPListItemAsRecord [-List] <ListPipeBind> -Identity <ListItemPipeBind>
 Clear-PnPListItemAsRecord -List "Documents" -Identity 4
 ```
 
-Undeclares the document in the documents library with id 4 as a record
+Un declares the document in the documents library with id 4 as a record
 
 ## PARAMETERS
 

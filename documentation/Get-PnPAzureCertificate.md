@@ -23,10 +23,12 @@ PrivateKey contains the PEM encoded private key of the certificate.
 ## SYNTAX
 
 ```powershell
-Get-PnPAzureCertificate -Path <String> [-Password <SecureString>] [<CommonParameters>]
+Get-PnPAzureCertificate -Path <String> [-Password <SecureString>] 
 ```
 
 ## DESCRIPTION
+
+Allows to PEM values and manifest settings for an existing certificate (.pfx) for use when using CSOM via an app-only ADAL application.
 
 ## EXAMPLES
 

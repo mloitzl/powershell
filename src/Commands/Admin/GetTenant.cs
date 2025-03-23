@@ -1,5 +1,4 @@
 ﻿using Microsoft.SharePoint.Client;
-
 using PnP.PowerShell.Commands.Base;
 using System.Management.Automation;
 using PnP.PowerShell.Commands.Model;
@@ -7,14 +6,14 @@ using PnP.PowerShell.Commands.Model;
 namespace PnP.PowerShell.Commands.Admin
 {
     [Cmdlet(VerbsCommon.Get, "PnPTenant")]
-    public class GetTenant : PnPAdminCmdlet
+    public class GetTenant : PnPSharePointOnlineAdminCmdlet
     {
         protected override void ExecuteCmdlet()
         {
-            ClientContext.Load(Tenant);
-            ClientContext.Load(Tenant, t => t.HideDefaultThemes);
-            ClientContext.ExecuteQueryRetry();
-            WriteObject(new SPOTenant(Tenant, ClientContext));
+            AdminContext.Load(Tenant);
+            AdminContext.Load(Tenant, t => t.HideDefaultThemes);
+            AdminContext.ExecuteQueryRetry();
+            WriteObject(new SPOTenant(Tenant, AdminContext, this));
         }
     }
 }

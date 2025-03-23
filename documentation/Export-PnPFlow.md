@@ -1,8 +1,10 @@
 ---
-online version: https://pnp.github.io/powershell/cmdlets/Export-PnPFlow.html
 Module Name: PnP.PowerShell
-external help file: PnP.PowerShell.dll-Help.xml
 schema: 2.0.0
+applicable: SharePoint Online
+online version: https://pnp.github.io/powershell/cmdlets/Export-PnPFlow.html
+external help file: PnP.PowerShell.dll-Help.xml
+title: Export-PnPFlow
 ---
   
 # Export-PnPFlow
@@ -18,17 +20,17 @@ Exports a Microsoft Power Automate Flow
 ## SYNTAX
 
 ### As ZIP Package
-```
-Export-PnPFlow -Environment <PowerAutomateEnvironmentPipeBind> -Identity <PowerAutomateFlowPipeBind>
+```powershell
+Export-PnPFlow [-Environment <PowerAutomateEnvironmentPipeBind>] -Identity <PowerAutomateFlowPipeBind>
  [-AsZipPackage] [-PackageDisplayName <String>] [-PackageDescription <String>] [-PackageCreatedBy <String>]
  [-PackageSourceEnvironment <String>] [-OutPath <String>] [-Force] [-Connection <PnPConnection>]
- [<CommonParameters>]
+ 
 ```
 
 ### As Json
-```
-Export-PnPFlow -Environment <PowerAutomateEnvironmentPipeBind> -Identity <PowerAutomateFlowPipeBind>
- [-Connection <PnPConnection>] [<CommonParameters>]
+```powershell
+Export-PnPFlow [-Environment <PowerAutomateEnvironmentPipeBind>] -Identity <PowerAutomateFlowPipeBind>
+ [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
@@ -40,13 +42,19 @@ Many times exporting a Microsoft Power Automate Flow will not be possible due to
 
 ### Example 1
 ```powershell
-$environment = Get-PnPPowerPlatformEnvironment -IsDefault $true
-Export-PnPFlow -Environment $environment -Identity fba63225-baf9-4d76-86a1-1b42c917a182
+Export-PnPFlow -Environment (Get-PnPPowerPlatformEnvironment -Identity "myenvironment") -Identity fba63225-baf9-4d76-86a1-1b42c917a182
+```
+
+This will export the specified Microsoft Power Automate Flow from the specified Power Platform environment as an output to the current output of PowerShell
+
+### Example 2
+```powershell
+Export-PnPFlow -Environment (Get-PnPPowerPlatformEnvironment -IsDefault) -Identity fba63225-baf9-4d76-86a1-1b42c917a182
 ```
 
 This will export the specified Microsoft Power Automate Flow from the default Power Platform environment as an output to the current output of PowerShell
 
-### Example 2
+### Example 3
 ```powershell
 Get-PnPPowerPlatformEnvironment | foreach { Get-PnPFlow -Environment $_.Name } | foreach { Export-PnPFlow -Environment $_.Properties.EnvironmentDetails.Name -Identity $_ -OutPath "c:\flows\$($_.Name).zip" -AsZipPackage }
 ```
@@ -87,17 +95,17 @@ Accept wildcard characters: False
 ```
 
 ### -Environment
-The environment which contains the flow.
+The name of the Power Platform environment or an Environment instance. If omitted, the default environment will be used.
 
 ```yaml
-Type: PowerAutomateEnvironmentPipeBind
+Type: PowerPlatformEnvironmentPipeBind
 Parameter Sets: (All)
 Aliases:
 
-Required: True
+Required: False
 Position: Named
-Default value: None
-Accept pipeline input: False
+Default value: The default environment
+Accept pipeline input: True
 Accept wildcard characters: False
 ```
 

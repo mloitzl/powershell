@@ -21,10 +21,12 @@ Permanently removes one deleted Microsoft 365 Group
 
 ```powershell
 Remove-PnPDeletedMicrosoft365Group -Identity <Microsoft365GroupPipeBind> 
- [<CommonParameters>]
+ 
 ```
 
 ## DESCRIPTION
+
+Allows to permanently remove a deleted Microsoft 365 Group.
 
 ## EXAMPLES
 

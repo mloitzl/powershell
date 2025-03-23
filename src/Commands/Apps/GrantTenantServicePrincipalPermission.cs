@@ -10,8 +10,7 @@ using System.Management.Automation;
 namespace PnP.PowerShell.Commands.Apps
 {
     [Cmdlet(VerbsSecurity.Grant, "PnPTenantServicePrincipalPermission")]
-    // [MicrosoftGraphApiPermissionCheckAttribute(MicrosoftGraphApiPermission.Directory_ReadWrite_All)]
-    [RequiredMinimalApiPermissions("Directory.ReadWrite.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/Directory.ReadWrite.All")]
     public class GrantTenantServicePrincipalPermission : PnPGraphCmdlet
     {
         [Parameter(Mandatory = true)]
@@ -21,12 +20,12 @@ namespace PnP.PowerShell.Commands.Apps
         public string Resource = "Microsoft Graph";
         protected override void ExecuteCmdlet()
         {
-            var tenantUrl = UrlUtilities.GetTenantAdministrationUrl(ClientContext.Url);
+            var tenantUrl = Connection.TenantAdminUrl ?? UrlUtilities.GetTenantAdministrationUrl(ClientContext.Url);
             using (var tenantContext = ClientContext.Clone(tenantUrl))
             {
                 var spoWebAppServicePrincipal = new SPOWebAppServicePrincipal(tenantContext);
                 var appId = spoWebAppServicePrincipal.EnsureProperty(a => a.AppId);
-                var results = GraphHelper.GetAsync<RestResultCollection<ServicePrincipal>>(Connection, $"/v1.0/servicePrincipals?$filter=appId eq '{appId}'&$select=id", AccessToken).GetAwaiter().GetResult();
+                var results = GraphRequestHelper.Get<RestResultCollection<ServicePrincipal>>($"/v1.0/servicePrincipals?$filter=appId eq '{appId}'&$select=id");
                 if (results.Items.Any())
                 {
                     var servicePrincipal = results.Items.First();

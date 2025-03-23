@@ -1,6 +1,6 @@
 ---
 Module Name: PnP.PowerShell
-title: get-pnpplannerbucket
+title: Get-PnPPlannerBucket
 schema: 2.0.0
 applicable: SharePoint Online
 external help file: PnP.PowerShell.dll-Help.xml
@@ -13,8 +13,7 @@ online version: https://pnp.github.io/powershell/cmdlets/Get-PnPPlannerBucket.ht
 
 **Required Permissions**
 
-  * Microsoft Graph API: Group.ReadWrite.All
-  * Microsoft Graph API: Group.Read.All
+  * Microsoft Graph API: One of Tasks.Read, Tasks.ReadWrite, Tasks.Read.All, Tasks.ReadWrite.All, Group.Read.All, Group.ReadWrite.All  
 
 Returns all or a specific Planner bucket
 
@@ -23,13 +22,13 @@ Returns all or a specific Planner bucket
 ### By Group
 ```powershell
 Get-PnPPlannerBucket -Group <PlannerGroupPipeBind> -Plan <PlannerPlanPipeBind>
- [-Identity <PlannerBucketPipeBind>] [<CommonParameters>]
+ [-Identity <PlannerBucketPipeBind>] 
 ```
 
 ### By Plan Id
 ```powershell
 Get-PnPPlannerBucket -PlanId <String> [-Identity <PlannerBucketPipeBind>] 
- [<CommonParameters>]
+ 
 ```
 
 ## DESCRIPTION

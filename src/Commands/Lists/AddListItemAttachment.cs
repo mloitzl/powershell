@@ -1,10 +1,8 @@
 ﻿using PnP.Core.Model.SharePoint;
+using PnP.PowerShell.Commands.Base.Completers;
 using PnP.PowerShell.Commands.Base.PipeBinds;
-using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Management.Automation;
-using System.Text;
 
 namespace PnP.PowerShell.Commands.Lists
 {
@@ -19,6 +17,7 @@ namespace PnP.PowerShell.Commands.Lists
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 0, ParameterSetName = ParameterSet_ASSTREAM)]
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 0, ParameterSetName = ParameterSet_ASFILE)]
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 0, ParameterSetName = ParameterSet_ASTEXT)]
+        [ArgumentCompleter(typeof(ListNameCompleter))]
         public ListPipeBind List;
 
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 1, ParameterSetName = ParameterSet_ASSTREAM)]
@@ -48,7 +47,7 @@ namespace PnP.PowerShell.Commands.Lists
 
         protected override void ExecuteCmdlet()
         {
-            IList list = List.GetList(PnPContext);
+            IList list = List.GetList(Connection.PnPContext);
 
             if (list == null)
             {
@@ -84,7 +83,7 @@ namespace PnP.PowerShell.Commands.Lists
             switch (ParameterSetName)
             {
                 case ParameterSet_ASFILE:
-                    addedAttachment = item.AttachmentFiles.AddAsync(FileName, File.OpenRead(Path)).GetAwaiter().GetResult();
+                    addedAttachment = item.AttachmentFiles.Add(FileName, File.OpenRead(Path));
                     WriteObject(addedAttachment);
                     break;
 
@@ -96,14 +95,14 @@ namespace PnP.PowerShell.Commands.Lists
                             writer.Write(Content);
                             writer.Flush();
                             stream.Position = 0;
-                            addedAttachment = item.AttachmentFiles.AddAsync(FileName, stream).GetAwaiter().GetResult();
+                            addedAttachment = item.AttachmentFiles.Add(FileName, stream);
                             WriteObject(addedAttachment);
                         }
                     }
                     break;
 
                 default:
-                    addedAttachment = item.AttachmentFiles.AddAsync(FileName, Stream).GetAwaiter().GetResult();
+                    addedAttachment = item.AttachmentFiles.Add(FileName, Stream);
                     WriteObject(addedAttachment);
                     break;
             }

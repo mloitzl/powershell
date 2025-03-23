@@ -1,14 +1,13 @@
 ﻿using Microsoft.Online.SharePoint.TenantAdministration;
 using Microsoft.SharePoint.Client;
-
-using PnP.PowerShell.Commands.Base;
 using System.Management.Automation;
+using PnP.PowerShell.Commands.Base;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 
 namespace PnP.PowerShell.Commands.Admin
 {
     [Cmdlet(VerbsCommon.Get, "PnPSiteUserInvitations")]
-    public class GetSiteUserInvitations : PnPAdminCmdlet
+    public class GetSiteUserInvitations : PnPSharePointOnlineAdminCmdlet
     {
         [Parameter(Mandatory = false)]
         public SitePipeBind Site;
@@ -24,8 +23,8 @@ namespace PnP.PowerShell.Commands.Admin
                 url = Site.Url;
             }
             var invitations = Tenant.GetSPOTenantSiteUserInvitations(url, EmailAddress);
-            ClientContext.Load(invitations);
-            ClientContext.ExecuteQueryRetry();
+            AdminContext.Load(invitations);
+            AdminContext.ExecuteQueryRetry();
             WriteObject(invitations,true);
             
         }

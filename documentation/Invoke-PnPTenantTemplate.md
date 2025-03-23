@@ -26,7 +26,7 @@ Invoke-PnPTenantTemplate [-Path] <String> [-SequenceId <String>] [-ResourceFolde
  [-TemplateProviderExtensions <ITemplateProviderExtension[]>] [-Parameters <Hashtable>]
  [-OverwriteSystemPropertyBagValues] [-IgnoreDuplicateDataRowErrors] [-ProvisionContentTypesToSubWebs]
  [-ProvisionFieldsToSubWebs] [-ClearNavigation] [-Configuration <ApplyConfigurationPipeBind>]
- [-Connection <PnPConnection>]   [<CommonParameters>]
+ [-Connection <PnPConnection>]   
 ```
 
 ### By Object
@@ -36,10 +36,12 @@ Invoke-PnPTenantTemplate [-Template] <ProvisioningHierarchy> [-SequenceId <Strin
  [-TemplateProviderExtensions <ITemplateProviderExtension[]>] [-Parameters <Hashtable>]
  [-OverwriteSystemPropertyBagValues] [-IgnoreDuplicateDataRowErrors] [-ProvisionContentTypesToSubWebs]
  [-ProvisionFieldsToSubWebs] [-ClearNavigation] [-Configuration <ApplyConfigurationPipeBind>]
- [-Connection <PnPConnection>]   [<CommonParameters>]
+ [-Connection <PnPConnection>]   
 ```
 
 ## DESCRIPTION
+
+Allows to apply a tenant template on current tenant.
 
 ## EXAMPLES
 
@@ -126,7 +128,7 @@ Accept wildcard characters: False
 ```
 
 ### -ExtensibilityHandlers
-Allows you to specify ExtensbilityHandlers to execute while applying a template
+Allows you to specify ExtensibilityHandlers to execute while applying a template
 
 ```yaml
 Type: ExtensibilityHandler[]
@@ -284,21 +286,6 @@ Allows you to specify ITemplateProviderExtension to execute while applying a tem
 ```yaml
 Type: ITemplateProviderExtension[]
 Parameter Sets: (All)
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -WhatIf
-Shows what would happen if the cmdlet runs. The cmdlet is not run.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: wi
 
 Required: False
 Position: Named

@@ -1,15 +1,13 @@
 ﻿using Microsoft.Online.SharePoint.TenantAdministration;
 using Microsoft.SharePoint.Client;
-
 using PnP.PowerShell.Commands.Base;
 using PnP.PowerShell.Commands.Base.PipeBinds;
-using System;
 using System.Management.Automation;
 
 namespace PnP.PowerShell.Commands.Admin
 {
     [Cmdlet(VerbsSecurity.Grant, "PnPHubSiteRights")]
-    public class GrantHubSiteRights : PnPAdminCmdlet
+    public class GrantHubSiteRights : PnPSharePointOnlineAdminCmdlet
     {
         [Parameter(Position = 0, ValueFromPipeline = true, Mandatory = true)]
         public HubSitePipeBind Identity { get; set; }
@@ -20,7 +18,7 @@ namespace PnP.PowerShell.Commands.Admin
         protected override void ExecuteCmdlet()
         {
             base.Tenant.GrantHubSiteRights(Identity.Url ?? Identity.GetHubSite(Tenant).SiteUrl, Principals, SPOHubSiteUserRights.Join);
-            ClientContext.ExecuteQueryRetry();
+            AdminContext.ExecuteQueryRetry();
         }
     }
 }

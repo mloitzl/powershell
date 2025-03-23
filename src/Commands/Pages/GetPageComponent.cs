@@ -3,16 +3,15 @@ using PnP.PowerShell.Commands.Base.PipeBinds;
 using System;
 using System.Linq;
 using System.Management.Automation;
-using PnP.PowerShell.Commands.Attributes;
+using PnP.PowerShell.Commands.Base.Completers;
 
 namespace PnP.PowerShell.Commands.Pages
 {
     [Cmdlet(VerbsCommon.Get, "PnPPageComponent")]
-    [Alias("Get-PnPClientSideComponent")]
-    [WriteAliasWarning("Please use 'Get-PnPPageComponent'. The alias 'Get-PnPClientSideComponent' will be removed in the 1.5.0 release")]
     public class GetPageComponent : PnPWebCmdlet
     {
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 0)]
+        [ArgumentCompleter(typeof(PageCompleter))]
         public PagePipeBind Page;
 
         [Parameter(Mandatory = false, ValueFromPipeline = true)]

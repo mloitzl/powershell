@@ -1,12 +1,11 @@
 ﻿using Microsoft.SharePoint.Client;
-
 using PnP.PowerShell.Commands.Base;
 using System.Management.Automation;
 
 namespace PnP.PowerShell.Commands.Apps
 {
     [Cmdlet(VerbsLifecycle.Register, "PnPAppCatalogSite")]
-    public class RegisterAppCatalogSite : PnPAdminCmdlet
+    public class RegisterAppCatalogSite : PnPSharePointOnlineAdminCmdlet
     {
 
         [Parameter(Mandatory = true)]
@@ -23,7 +22,7 @@ namespace PnP.PowerShell.Commands.Apps
 
         protected override void ExecuteCmdlet()
         {
-            WriteWarning("Notice that this cmdlet can take considerate time to finish executing.");
+            LogWarning("Notice that this cmdlet can take considerate time to finish executing.");
             Tenant.EnsureAppCatalogAsync(Url, Owner, TimeZoneId, Force).GetAwaiter().GetResult();
         }
     }

@@ -16,10 +16,12 @@ Returns the manual record declaration settings for a list
 
 ```powershell
 Get-PnPListRecordDeclaration -List <ListPipeBind> [-Connection <PnPConnection>]
- [<CommonParameters>]
+ 
 ```
 
 ## DESCRIPTION
+
+Allows to retrieve the record declaration settings for given list.
 
 ## EXAMPLES
 

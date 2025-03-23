@@ -1,714 +1,387 @@
 ﻿using Microsoft.Online.SharePoint.TenantAdministration;
 using Microsoft.Online.SharePoint.TenantManagement;
 using Microsoft.SharePoint.Client;
+using Microsoft.SharePoint.Client.Administration;
+using Microsoft.SharePoint.Client.Sharing;
+using PnP.PowerShell.Commands.Attributes;
+using PnP.PowerShell.Commands.Base;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Management.Automation;
+using System.Reflection;
 
 namespace PnP.PowerShell.Commands.Model
 {
     public class SPOTenant
     {
-        public SPOTenant(Tenant tenant, ClientContext clientContext)
+        #region Properties
+
+        public bool? HideDefaultThemes { private set; get; }
+
+        public long? StorageQuota { private set; get; }
+
+        public long? StorageQuotaAllocated { private set; get; }
+
+        public double? ResourceQuota { private set; get; }
+
+        public double? ResourceQuotaAllocated { private set; get; }
+
+        public long? OneDriveStorageQuota { private set; get; }
+
+        public string CompatibilityRange { private set; get; }
+
+        public bool? ExternalServicesEnabled { private set; get; }
+        public string NoAccessRedirectUrl { private set; get; }
+
+        public SharingCapabilities? SharingCapability { private set; get; }
+
+        public bool? DisplayStartASiteOption { private set; get; }
+
+        public string StartASiteFormUrl { private set; get; }
+
+        public bool? ShowEveryoneClaim { private set; get; }
+
+        public bool? ShowAllUsersClaim { private set; get; }
+
+        public bool? OfficeClientADALDisabled { private set; get; }
+
+        public bool? LegacyAuthProtocolsEnabled { private set; get; }
+
+        public bool? ShowEveryoneExceptExternalUsersClaim { private set; get; }
+
+        public bool? SearchResolveExactEmailOrUPN { private set; get; }
+
+        public bool? RequireAcceptingAccountMatchInvitedAccount { private set; get; }
+
+        public bool? ProvisionSharedWithEveryoneFolder { private set; get; }
+
+        public string SignInAccelerationDomain { private set; get; }
+
+        public bool? EnableGuestSignInAcceleration { private set; get; }
+
+        public bool? UsePersistentCookiesForExplorerView { private set; get; }
+
+        public bool? BccExternalSharingInvitations { private set; get; }
+
+        public string BccExternalSharingInvitationsList { private set; get; }
+
+        public bool? PublicCdnEnabled { private set; get; }
+
+        public string PublicCdnAllowedFileTypes { private set; get; }
+
+        public List<string> PublicCdnOrigins { private set; get; }
+
+        public IList<SPOPublicCdnOrigin> PublicCdnOriginParsed => PublicCdnOrigins.Select(o => new SPOPublicCdnOrigin(o.Split(',')[1], o.Split(',')[0])).ToList();
+
+        public int? RequireAnonymousLinksExpireInDays { private set; get; }
+
+        public string SharingAllowedDomainList { private set; get; }
+
+        public string SharingBlockedDomainList { private set; get; }
+
+        public SharingDomainRestrictionModes? SharingDomainRestrictionMode { private set; get; }
+
+        public bool? OneDriveForGuestsEnabled { private set; get; }
+
+        public bool? IPAddressEnforcement { private set; get; }
+
+        public string IPAddressAllowList { private set; get; }
+
+        public int? IPAddressWACTokenLifetime { private set; get; }
+
+        public bool? UseFindPeopleInPeoplePicker { private set; get; }
+
+        public SharingLinkType DefaultSharingLinkType { private set; get; }
+
+        public SharingState? ODBMembersCanShare { private set; get; }
+
+        public SharingState? ODBAccessRequests { private set; get; }
+
+        public bool? PreventExternalUsersFromResharing { private set; get; }
+
+        public bool? ShowPeoplePickerSuggestionsForGuestUsers { private set; get; }
+
+        public AnonymousLinkType? FileAnonymousLinkType { private set; get; }
+
+        public AnonymousLinkType? FolderAnonymousLinkType { private set; get; }
+
+        public bool? NotifyOwnersWhenItemsReshared { private set; get; }
+
+        public bool? NotifyOwnersWhenInvitationsAccepted { private set; get; }
+
+        public bool? NotificationsInOneDriveForBusinessEnabled { private set; get; }
+
+        public bool? NotificationsInSharePointEnabled { private set; get; }
+
+        public SpecialCharactersState? SpecialCharactersStateInFileFolderNames { private set; get; }
+
+        public bool? OwnerAnonymousNotification { private set; get; }
+
+        public bool? CommentsOnSitePagesDisabled { private set; get; }
+
+        public bool? SocialBarOnSitePagesDisabled { private set; get; }
+
+        public int? OrphanedPersonalSitesRetentionPeriod { private set; get; }
+
+        public bool? PermissiveBrowserFileHandlingOverride { private set; get; }
+
+        public bool? DisallowInfectedFileDownload { private set; get; }
+
+        public SharingPermissionType DefaultLinkPermission { private set; get; }
+
+        public SPOConditionalAccessPolicyType? ConditionalAccessPolicy { private set; get; }
+
+        public bool? AllowDownloadingNonWebViewableFiles { private set; get; }
+
+        public bool? AllowEditing { private set; get; }
+
+        public bool? ApplyAppEnforcedRestrictionsToAdHocRecipients { private set; get; }
+
+        public bool? FilePickerExternalImageSearchEnabled { private set; get; }
+
+        public bool? EmailAttestationRequired { private set; get; }
+
+        public int? EmailAttestationReAuthDays { private set; get; }
+
+        public Guid[] DisabledWebPartIds { private set; get; }
+
+        public bool? DisableCustomAppAuthentication { private set; get; }
+
+        public SensitiveByDefaultState? MarkNewFilesSensitiveByDefault { private set; get; }
+
+        public bool? StopNew2013Workflows { private set; get; }
+
+        public bool? ViewInFileExplorerEnabled { private set; get; }
+
+        public bool? DisableSpacesActivation { private set; get; }
+
+        public bool? AllowFilesWithKeepLabelToBeDeletedSPO { private set; get; }
+
+        public bool? AllowFilesWithKeepLabelToBeDeletedODB { private set; get; }
+
+        public bool? DisableAddToOneDrive { private set; get; }
+
+        public bool? IsFluidEnabled { private set; get; }
+
+        public bool? DisablePersonalListCreation { private set; get; }
+
+        public bool? ExternalUserExpirationRequired { private set; get; }
+
+        public int? ExternalUserExpireInDays { private set; get; }
+
+        public bool? DisplayNamesOfFileViewers { private set; get; }
+
+        public bool? DisplayNamesOfFileViewersInSpo { private set; get; }
+
+        public bool? IsLoopEnabled { private set; get; }
+
+        public Guid[] DisabledModernListTemplateIds { private set; get; }
+
+        public bool? RestrictedAccessControl { private set; get; }
+
+        public bool? DisableDocumentLibraryDefaultLabeling { private set; get; }
+
+        public bool? IsEnableAppAuthPopUpEnabled { private set; get; }
+
+        public int? ExpireVersionsAfterDays { private set; get; }
+
+        public int? MajorVersionLimit { private set; get; }
+
+        public bool? EnableAutoExpirationVersionTrim { private set; get; }
+
+        public bool? EnableAzureADB2BIntegration { private set; get; }
+
+        public bool? SiteOwnerManageLegacyServicePrincipalEnabled { private set; get; }
+
+        public bool? CoreRequestFilesLinkEnabled { private set; get; }
+
+        public int? CoreRequestFilesLinkExpirationInDays { private set; get; }
+
+        public bool? OneDriveRequestFilesLinkEnabled { private set; get; }
+
+        public int? OneDriveRequestFilesLinkExpirationInDays { private set; get; }
+
+        public bool? BusinessConnectivityServiceDisabled { private set; get; }
+
+        public bool? EnableSensitivityLabelForPDF { private set; get; }
+
+        public bool? IsDataAccessInCardDesignerEnabled { private set; get; }
+
+        public bool? ShowPeoplePickerGroupSuggestionsForIB { private set; get; }
+
+        public bool? InformationBarriersSuspension { private set; get; }
+
+        public bool? IBImplicitGroupBased { private set; get; }
+
+        public bool? AppBypassInformationBarriers { private set; get; }
+
+        [CsomToModelConverter(Skip = true)]
+        public Enums.InformationBarriersMode? DefaultOneDriveInformationBarrierMode { private set; get; }
+
+        public SharingCapabilities? CoreSharingCapability { private set; get; }
+
+        public TenantBrowseUserInfoPolicyValue? BlockUserInfoVisibilityInOneDrive { private set; get; }
+
+        public bool? AllowOverrideForBlockUserInfoVisibility { private set; get; }
+
+        public bool? AllowEveryoneExceptExternalUsersClaimInPrivateSite { private set; get; }
+
+        public bool? AIBuilderEnabled { private set; get; }
+
+        public bool? AllowSensitivityLabelOnRecords { private set; get; }
+
+        public bool? AnyoneLinkTrackUsers { private set; get; }
+
+        public bool? EnableSiteArchive { private set; get; }
+
+        public bool? ESignatureEnabled { private set; get; }
+
+        public TenantBrowseUserInfoPolicyValue? BlockUserInfoVisibilityInSharePoint { private set; get; }
+
+        public SharingScope? OneDriveLoopDefaultSharingLinkScope { private set; get; }
+
+        public SharingScope? CoreLoopDefaultSharingLinkScope { private set; get; }
+
+        public SharingCapabilities? OneDriveLoopSharingCapability { private set; get; }
+
+        public SharingCapabilities? CoreLoopSharingCapability { private set; get; }
+
+        public Role? OneDriveLoopDefaultSharingLinkRole { private set; get; }
+
+        public Role? CoreLoopDefaultSharingLinkRole { private set; get; }
+
+        public bool? IsCollabMeetingNotesFluidEnabled { private set; get; }
+
+        public SharingState? AllowAnonymousMeetingParticipantsToAccessWhiteboards { private set; get; }
+
+        public SharingScope? OneDriveDefaultShareLinkScope { private set; get; }
+
+        public Role? OneDriveDefaultShareLinkRole { private set; get; }
+
+        public bool? OneDriveDefaultLinkToExistingAccess { private set; get; }
+
+        public SharingState? OneDriveBlockGuestsAsSiteAdmin { private set; get; }
+
+        public int? RecycleBinRetentionPeriod { private set; get; }
+
+        public bool? EnableAIPIntegration { private set; get; }
+
+        public SharingScope? CoreDefaultShareLinkScope { private set; get; }
+
+        public Role? CoreDefaultShareLinkRole { private set; get; }
+
+        public bool? SharePointAddInsDisabled { private set; get; }
+
+        [CsomToModelConverter("ODBSharingCapability")]
+        public SharingCapabilities? OneDriveSharingCapability { private set; get; }
+
+        public string[] GuestSharingGroupAllowListInTenantByPrincipalIdentity { private set; get; }
+
+        public bool? AllowWebPropertyBagUpdateWhenDenyAddAndCustomizePagesIsEnabled { private set; get; }
+
+        public bool? SelfServiceSiteCreationDisabled { private set; get; }
+
+        public string WhoCanShareAllowListInTenant { private set; get; }
+
+        public bool? ExtendPermissionsToUnprotectedFiles { private set; get; }
+
+        public bool? LegacyBrowserAuthProtocolsEnabled { private set; get; }
+
+        public bool? EnableDiscoverableByOrganizationForVideos { private set; get; }
+
+        public string RestrictedAccessControlforSitesErrorHelpLink { private set; get; }
+
+        public bool? Workflow2010Disabled { private set; get; }
+
+        public bool? AllowSharingOutsideRestrictedAccessControlGroups { private set; get; }
+
+        public Workflows2013State Workflows2013State { private set; get; }
+
+        public bool? DisableVivaConnectionsAnalytics { private set; get; }
+
+        public bool? HideSyncButtonOnDocLib { private set; get; }
+
+        public bool? HideSyncButtonOnODB { private set; get; }
+
+        public int? StreamLaunchConfig { private set; get; }
+
+        public bool? EnableRestrictedAccessControl { private set; get; }
+
+        public SPBlockDownloadFileTypeId[] BlockDownloadFileTypeIds { private set; get; }
+
+        public Guid[] ExcludedBlockDownloadGroupIds { private set; get; }
+
+        public bool? EnableMediaReactions { private set; get; }
+
+        public bool? ContentSecurityPolicyEnforcement { private set; get; }
+
+        #endregion
+
+        public SPOTenant(Tenant tenant, ClientContext clientContext, BasePSCmdlet cmdlet)
         {
-            this.hideDefaultThemes = tenant.HideDefaultThemes;
-            this.storageQuota = tenant.StorageQuota;
-            this.storageQuotaAllocated = tenant.StorageQuotaAllocated;
-            this.resourceQuota = tenant.ResourceQuota;
-            this.resourceQuotaAllocated = tenant.ResourceQuotaAllocated;
-            this.oneDriveStorageQuota = tenant.OneDriveStorageQuota;
-            this.compatibilityRange = tenant.CompatibilityRange;
-            this.externalServicesEnabled = tenant.ExternalServicesEnabled;
-            this.noAccessRedirectUrl = tenant.NoAccessRedirectUrl;
-            this.sharingCapability = tenant.SharingCapability;
-            this.displayStartASiteOption = tenant.DisplayStartASiteOption;
-            this.startASiteFormUrl = tenant.StartASiteFormUrl;
-            this.showEveryoneClaim = tenant.ShowEveryoneClaim;
-            this.showAllUsersClaim = tenant.ShowAllUsersClaim;
-            this.officeClientADALDisabled = tenant.OfficeClientADALDisabled;
-            this.orphanedPersonalSitesRetentionPeriod = tenant.OrphanedPersonalSitesRetentionPeriod;
-            this.legacyAuthProtocolsEnabled = tenant.LegacyAuthProtocolsEnabled;
-            this.showEveryoneExceptExternalUsersClaim = tenant.ShowEveryoneExceptExternalUsersClaim;
-            this.searchResolveExactEmailOrUPN = tenant.SearchResolveExactEmailOrUPN;
-            this.requireAcceptingAccountMatchInvitedAccount = tenant.RequireAcceptingAccountMatchInvitedAccount;
-            this.provisionSharedWithEveryoneFolder = tenant.ProvisionSharedWithEveryoneFolder;
-            this.signInAccelerationDomain = tenant.SignInAccelerationDomain;
-            this.disabledWebPartIds = tenant.DisabledWebPartIds;
-            this.stopNew2013Workflows = tenant.StopNew2013Workflows;
-            this.viewInFileExplorerEnabled = tenant.ViewInFileExplorerEnabled;
-            this.externalUserExpirationRequired = tenant.ExternalUserExpirationRequired;
-            this.externalUserExpireInDays = tenant.ExternalUserExpireInDays;
+            // Loop through all properties defined in this class and load the corresponding property from the Tenant object
+            var properties = GetType().GetProperties();
+            var failedProperties = 0;
+            foreach(var property in properties)
+            {
+                var propertyName = property.Name;
 
-            try
-            {
-                this.enableGuestSignInAcceleration = tenant.EnableGuestSignInAcceleration;
-            }
-            catch
-            {
-                this.enableGuestSignInAcceleration = false;
-            }
-            this.usePersistentCookiesForExplorerView = tenant.UsePersistentCookiesForExplorerView;
-            this.bccExternalSharingInvitations = tenant.BccExternalSharingInvitations;
-            this.bccExternalSharingInvitationsList = tenant.BccExternalSharingInvitationsList;
-            try
-            {
-                this.useFindPeopleInPeoplePicker = tenant.UseFindPeopleInPeoplePicker;
-            }
-            catch
-            {
-                this.useFindPeopleInPeoplePicker = false;
-            }
-            try
-            {
-                this.userVoiceForFeedbackEnabled = tenant.UserVoiceForFeedbackEnabled;
-            }
-            catch
-            {
-                this.userVoiceForFeedbackEnabled = true;
-            }
-            try
-            {
-                this.requireAnonymousLinksExpireInDays = tenant.RequireAnonymousLinksExpireInDays;
-            }
-            catch
-            {
-                this.requireAnonymousLinksExpireInDays = 0;
-            }
-            this.sharingAllowedDomainList = tenant.SharingAllowedDomainList;
-            this.sharingBlockedDomainList = tenant.SharingBlockedDomainList;
-            this.sharingDomainRestrictionMode = tenant.SharingDomainRestrictionMode;
-            try
-            {
-                this.oneDriveStorageQuota = tenant.OneDriveStorageQuota;
-            }
-            catch
-            {
-                this.oneDriveStorageQuota = 0L;
-            }
-            this.oneDriveForGuestsEnabled = tenant.OneDriveForGuestsEnabled;
-            try
-            {
-                this.ipAddressEnforcement = tenant.IPAddressEnforcement;
-            }
-            catch
-            {
-                this.ipAddressEnforcement = false;
-            }
-            try
-            {
-                this.ipAddressAllowList = tenant.IPAddressAllowList;
-            }
-            catch
-            {
-                this.ipAddressAllowList = "";
-            }
-            try
-            {
-                this.ipAddressWACTokenLifetime = tenant.IPAddressWACTokenLifetime;
-            }
-            catch
-            {
-                this.ipAddressWACTokenLifetime = 600;
-            }
-            try
-            {
-                this.defaultSharingLinkType = tenant.DefaultSharingLinkType;
-            }
-            catch
-            {
-                this.defaultSharingLinkType = SharingLinkType.None;
-            }
-            try
-            {
-                this.showPeoplePickerSuggestionsForGuestUsers = tenant.ShowPeoplePickerSuggestionsForGuestUsers;
-            }
-            catch
-            {
-                this.showPeoplePickerSuggestionsForGuestUsers = false;
-            }
-            try
-            {
-                this.odbMembersCanShare = tenant.ODBMembersCanShare;
-            }
-            catch
-            {
-                this.odbMembersCanShare = SharingState.Unspecified;
-            }
-            try
-            {
-                this.odbAccessRequests = tenant.ODBAccessRequests;
-            }
-            catch
-            {
-                this.odbAccessRequests = SharingState.Unspecified;
-            }
-            try
-            {
-                this.preventExternalUsersFromResharing = tenant.PreventExternalUsersFromResharing;
-            }
-            catch
-            {
-                this.preventExternalUsersFromResharing = false;
-            }
-            try
-            {
-                this.publicCdnEnabled = tenant.PublicCdnEnabled;
-            }
-            catch
-            {
-                this.publicCdnEnabled = false;
-            }
-            try
-            {
-                this.publicCdnAllowedFileTypes = tenant.PublicCdnAllowedFileTypes;
-            }
-            catch
-            {
-                this.publicCdnAllowedFileTypes = string.Empty;
-            }
-            try
-            {
-                this.notifyOwnersWhenItemsReshared = tenant.NotifyOwnersWhenItemsReshared;
-            }
-            catch
-            {
-                this.notifyOwnersWhenItemsReshared = true;
-            }
-            try
-            {
-                this.notifyOwnersWhenInvitationsAccepted = tenant.NotifyOwnersWhenInvitationsAccepted;
-            }
-            catch
-            {
-                this.notifyOwnersWhenInvitationsAccepted = true;
-            }
-            try
-            {
-                this.notificationsInOneDriveForBusinessEnabled = tenant.NotificationsInOneDriveForBusinessEnabled;
-            }
-            catch
-            {
-                this.notificationsInOneDriveForBusinessEnabled = true;
-            }
-            try
-            {
-                this.notificationsInSharePointEnabled = tenant.NotificationsInSharePointEnabled;
-            }
-            catch
-            {
-                this.notificationsInSharePointEnabled = true;
-            }
-            try
-            {
-                this.ownerAnonymousNotification = tenant.OwnerAnonymousNotification;
-            }
-            catch
-            {
-                this.ownerAnonymousNotification = true;
-            }
-            this.publicCdnOrigins = new List<SPOPublicCdnOrigin>();
-            try
-            {
-                tenant.PublicCdnOrigins.ToList<string>().ForEach(delegate (string s)
+                try
                 {
-                    string[] array = s.Split(new char[]
+                    // Check if the property has a CsomToModelConverter attribute, if so use the PropertyName defined in the attribute instead of looking for a property with the same name on the Tenant object
+                    if(property.IsDefined(typeof(CsomToModelConverter)))
                     {
-                        ','
-                    });
-                    this.publicCdnOrigins.Add(new SPOPublicCdnOrigin(array[1], array[0]));
-                });
-            }
-            catch
-            {
-            }
-            try
-            {
-                this.fileAnonymousLinkType = tenant.FileAnonymousLinkType;
-            }
-            catch
-            {
-                this.fileAnonymousLinkType = AnonymousLinkType.None;
-            }
-            try
-            {
-                this.folderAnonymousLinkType = tenant.FolderAnonymousLinkType;
-            }
-            catch
-            {
-                this.folderAnonymousLinkType = AnonymousLinkType.None;
-            }
-            try
-            {
-                this.permissiveBrowserFileHandlingOverride = tenant.PermissiveBrowserFileHandlingOverride;
-            }
-            catch
-            {
-                this.permissiveBrowserFileHandlingOverride = false;
-            }
-            try
-            {
-                this.specialCharactersStateInFileFolderNames = tenant.SpecialCharactersStateInFileFolderNames;
-            }
-            catch
-            {
-                this.specialCharactersStateInFileFolderNames = SpecialCharactersState.NoPreference;
-            }
-            try
-            {
-                this.disallowInfectedFileDownload = tenant.DisallowInfectedFileDownload;
-            }
-            catch
-            {
-                this.disallowInfectedFileDownload = false;
-            }
-            try
-            {
-                this.commentsOnSitePagesDisabled = tenant.CommentsOnSitePagesDisabled;
-            }
-            catch
-            {
-                this.commentsOnSitePagesDisabled = false;
-            }
-            try
-            {
-                this.socialBarOnSitePagesDisabled = tenant.SocialBarOnSitePagesDisabled;
-            }
-            catch
-            {
-                this.socialBarOnSitePagesDisabled = true;
-            }
-            try
-            {
-                this.defaultLinkPermission = tenant.DefaultLinkPermission;
-            }
-            catch
-            {
-                this.defaultLinkPermission = SharingPermissionType.None;
-            }
-            try
-            {
-                this.conditionalAccessPolicy = tenant.ConditionalAccessPolicy;
-            }
-            catch
-            {
-                this.conditionalAccessPolicy = SPOConditionalAccessPolicyType.AllowFullAccess;
-            }
-            try
-            {
-                this.allowDownloadingNonWebViewableFiles = tenant.AllowDownloadingNonWebViewableFiles;
-            }
-            catch
-            {
-                this.allowDownloadingNonWebViewableFiles = true;
-            }
-            try
-            {
-                this.allowEditing = tenant.AllowEditing;
-            }
-            catch
-            {
-                this.allowEditing = true;
-            }
-            try
-            {
-                this.applyAppEnforcedRestrictionsToAdHocRecipients = tenant.ApplyAppEnforcedRestrictionsToAdHocRecipients;
-            }
-            catch
-            {
-                this.applyAppEnforcedRestrictionsToAdHocRecipients = true;
-            }
-            try
-            {
-                this.filePickerExternalImageSearchEnabled = tenant.FilePickerExternalImageSearchEnabled;
-            }
-            catch
-            {
-                this.filePickerExternalImageSearchEnabled = true;
-            }
-            try
-            {
-                this.emailAttestationRequired = tenant.EmailAttestationRequired;
-            }
-            catch
-            {
-                this.emailAttestationRequired = false;
-            }
-            try
-            {
-                this.emailAttestationReAuthDays = tenant.EmailAttestationReAuthDays;
-            }
-            catch
-            {
-                this.emailAttestationReAuthDays = 30;
-            }
-            try
-            {
-                this.disableCustomAppAuthentication = tenant.DisableCustomAppAuthentication;
-            }
-            catch
-            {
-                this.disableCustomAppAuthentication = false;
-            }
-            this.markNewFilesSensitiveByDefault = tenant.MarkNewFilesSensitiveByDefault;
-            try
-            {
-                this.disableSpacesActivation = tenant.DisableSpacesActivation;
-            }
-            catch
-            {
-                this.disableSpacesActivation = false;
-            }
-            try
-            {
-                this.disableAddToOneDrive = tenant.DisableAddToOneDrive;
-            }
-            catch
-            {
-                this.disableAddToOneDrive = false;
-            }
-            try
-            {
-                this.isFluidEnabled = tenant.IsFluidEnabled;
-            }
-            catch
-            {
-                this.isFluidEnabled = false;
-            }
-            try
-            {
-                this.disablePersonalListCreation = tenant.DisablePersonalListCreation;
-            }
-            catch
-            {
-                this.disablePersonalListCreation = false;
+                        var converter = property.GetCustomAttribute<CsomToModelConverter>();
+
+                        if(converter.Skip) continue;
+                        propertyName = converter.PropertyName;
+                    }
+                    var tenantProperty = tenant.GetType().GetProperty(propertyName);
+                    if (tenantProperty != null)
+                    {
+                        property.SetValue(this, tenantProperty.GetValue(tenant));
+                    }
+                }
+                catch(Exception e)
+                {
+                    failedProperties++;
+                    cmdlet.LogDebug($"Property {propertyName} not loaded due to error '{e.Message}'");
+                }
             }
 
-            this.disabledModernListTemplateIds = tenant.DisabledModernListTemplateIds;
-
+            // Load the properties that are not part of the Tenant object and require special handling to be retrieved
             try
             {
                 var getAllowFilesWithKeepLabelToBeDeletedSPO = Microsoft.SharePoint.Client.CompliancePolicy.SPPolicyStoreProxy.GetAllowFilesWithKeepLabelToBeDeletedSPO(clientContext);
                 var getAllowFilesWithKeepLabelToBeDeletedODB = Microsoft.SharePoint.Client.CompliancePolicy.SPPolicyStoreProxy.GetAllowFilesWithKeepLabelToBeDeletedODB(clientContext);
                 clientContext.ExecuteQueryRetry();
 
-                this.allowFilesWithKeepLabelToBeDeletedSPO = getAllowFilesWithKeepLabelToBeDeletedSPO.Value;
-                this.allowFilesWithKeepLabelToBeDeletedODB = getAllowFilesWithKeepLabelToBeDeletedODB.Value;
+                AllowFilesWithKeepLabelToBeDeletedSPO = getAllowFilesWithKeepLabelToBeDeletedSPO.Value;
+                AllowFilesWithKeepLabelToBeDeletedODB = getAllowFilesWithKeepLabelToBeDeletedODB.Value;
             }
-            catch { }
+            catch(Exception e)
+            {
+                failedProperties++;
+                cmdlet.LogDebug($"Property AllowFilesWithKeepLabelToBeDeletedSPO and/or AllowFilesWithKeepLabelToBeDeletedODB not loaded due to error '{e.Message}'");
+            }
+
+            // DefaultOneDriveInformationBarrierMode requires manual handling as it cannot be parsed directly from the Tenant object value
+            try
+            {
+                DefaultOneDriveInformationBarrierMode = Enum.Parse<Enums.InformationBarriersMode>(tenant.DefaultODBMode);
+            }
+            catch(Exception e)
+            {
+                failedProperties++;
+                cmdlet.LogDebug($"Property DefaultOneDriveInformationBarrierMode not loaded due to error '{e.Message}'");
+            }
+
+            // If one or more properties failed to load, show a warning
+            if(failedProperties > 0)
+            {
+                cmdlet.LogWarning($"Failed to load {(failedProperties != 1 ? $"{failedProperties} properties" : "one property")}. Use -Verbose to see the details.");
+            }
         }
-
-        public bool HideDefaultThemes => hideDefaultThemes;
-
-        public long StorageQuota => storageQuota;
-
-        public long StorageQuotaAllocated => storageQuotaAllocated;
-
-        public double ResourceQuota => resourceQuota;
-
-        public double ResourceQuotaAllocated => resourceQuotaAllocated;
-
-        public double OneDriveStorageQuota => oneDriveStorageQuota;
-
-        public string CompatibilityRange => compatibilityRange;
-
-        public bool ExternalServicesEnabled => externalServicesEnabled;
-
-        public string NoAccessRedirectUrl => noAccessRedirectUrl;
-
-        public SharingCapabilities SharingCapability => sharingCapability;
-
-        public bool DisplayStartASiteOption => displayStartASiteOption;
-
-        public string StartASiteFormUrl => startASiteFormUrl;
-
-        public bool ShowEveryoneClaim => showEveryoneClaim;
-
-        public bool ShowAllUsersClaim => showAllUsersClaim;
-
-        public bool OfficeClientADALDisabled => officeClientADALDisabled;
-
-        public bool LegacyAuthProtocolsEnabled => legacyAuthProtocolsEnabled;
-
-        public bool ShowEveryoneExceptExternalUsersClaim => showEveryoneExceptExternalUsersClaim;
-
-        public bool SearchResolveExactEmailOrUPN => searchResolveExactEmailOrUPN;
-
-        public bool RequireAcceptingAccountMatchInvitedAccount => requireAcceptingAccountMatchInvitedAccount;
-
-        public bool ProvisionSharedWithEveryoneFolder => provisionSharedWithEveryoneFolder;
-
-        public string SignInAccelerationDomain => signInAccelerationDomain;
-
-        public bool EnableGuestSignInAcceleration => enableGuestSignInAcceleration;
-
-        public bool UsePersistentCookiesForExplorerView => usePersistentCookiesForExplorerView;
-
-        public bool BccExternalSharingInvitations => bccExternalSharingInvitations;
-
-        public string BccExternalSharingInvitationsList => bccExternalSharingInvitationsList;
-
-        public bool UserVoiceForFeedbackEnabled => userVoiceForFeedbackEnabled;
-
-        public bool PublicCdnEnabled => publicCdnEnabled;
-
-        public string PublicCdnAllowedFileTypes => publicCdnAllowedFileTypes;
-
-        public IList<SPOPublicCdnOrigin> PublicCdnOrigins => publicCdnOrigins;
-
-        public int RequireAnonymousLinksExpireInDays => requireAnonymousLinksExpireInDays;
-
-        public string SharingAllowedDomainList => sharingAllowedDomainList;
-
-        public string SharingBlockedDomainList => sharingBlockedDomainList;
-
-        public SharingDomainRestrictionModes SharingDomainRestrictionMode => sharingDomainRestrictionMode;
-
-        public bool OneDriveForGuestsEnabled => oneDriveForGuestsEnabled;
-
-        public bool IPAddressEnforcement => ipAddressEnforcement;
-
-        public string IPAddressAllowList => ipAddressAllowList;
-
-        public int IPAddressWACTokenLifetime => ipAddressWACTokenLifetime;
-
-        public bool UseFindPeopleInPeoplePicker => useFindPeopleInPeoplePicker;
-
-        public SharingLinkType DefaultSharingLinkType => defaultSharingLinkType;
-
-        public SharingState ODBMembersCanShare => odbMembersCanShare;
-
-        public SharingState ODBAccessRequests => odbAccessRequests;
-
-        public bool PreventExternalUsersFromResharing => preventExternalUsersFromResharing;
-
-        public bool ShowPeoplePickerSuggestionsForGuestUsers => showPeoplePickerSuggestionsForGuestUsers;
-
-        public AnonymousLinkType FileAnonymousLinkType => fileAnonymousLinkType;
-
-        public AnonymousLinkType FolderAnonymousLinkType => folderAnonymousLinkType;
-
-        public bool NotifyOwnersWhenItemsReshared => notifyOwnersWhenItemsReshared;
-
-        public bool NotifyOwnersWhenInvitationsAccepted => notifyOwnersWhenInvitationsAccepted;
-
-        public bool NotificationsInOneDriveForBusinessEnabled => notificationsInOneDriveForBusinessEnabled;
-
-        public bool NotificationsInSharePointEnabled => notificationsInSharePointEnabled;
-
-        public SpecialCharactersState SpecialCharactersStateInFileFolderNames => specialCharactersStateInFileFolderNames;
-
-        public bool OwnerAnonymousNotification => ownerAnonymousNotification;
-
-        public bool CommentsOnSitePagesDisabled => commentsOnSitePagesDisabled;
-
-        public bool SocialBarOnSitePagesDisabled => socialBarOnSitePagesDisabled;
-
-        public int OrphanedPersonalSitesRetentionPeriod => orphanedPersonalSitesRetentionPeriod;
-
-        public bool PermissiveBrowserFileHandlingOverride => permissiveBrowserFileHandlingOverride;
-
-        public bool DisallowInfectedFileDownload => disallowInfectedFileDownload;
-
-        public SharingPermissionType DefaultLinkPermission => defaultLinkPermission;
-
-        public SPOConditionalAccessPolicyType ConditionalAccessPolicy => conditionalAccessPolicy;
-
-        public bool AllowDownloadingNonWebViewableFiles => allowDownloadingNonWebViewableFiles;
-
-        public bool AllowEditing => allowEditing;
-
-        public bool ApplyAppEnforcedRestrictionsToAdHocRecipients => applyAppEnforcedRestrictionsToAdHocRecipients;
-
-        public bool FilePickerExternalImageSearchEnabled => filePickerExternalImageSearchEnabled;
-
-        public bool EmailAttestationRequired => emailAttestationRequired;
-
-        public int EmailAttestationReAuthDays => emailAttestationReAuthDays;
-
-        public Guid[] DisabledWebPartIds => disabledWebPartIds;
-
-        public bool DisableCustomAppAuthentication => disableCustomAppAuthentication;
-
-        public SensitiveByDefaultState MarkNewFilesSensitiveByDefault => markNewFilesSensitiveByDefault;
-
-        public bool StopNew2013Workflows => stopNew2013Workflows;
-
-        public bool ViewInFileExplorerEnabled => viewInFileExplorerEnabled;
-
-        public bool DisableSpacesActivation => disableSpacesActivation;
-
-        public bool? AllowFilesWithKeepLabelToBeDeletedSPO => allowFilesWithKeepLabelToBeDeletedSPO;
-
-        public bool? AllowFilesWithKeepLabelToBeDeletedODB => allowFilesWithKeepLabelToBeDeletedODB;
-
-        public bool DisableAddToOneDrive => disableAddToOneDrive;
-
-        public bool IsFluidEnabled => isFluidEnabled;
-        public bool DisablePersonalListCreation => disablePersonalListCreation;
-
-        public bool ExternalUserExpirationRequired => externalUserExpirationRequired;
-
-        public int ExternalUserExpireInDays => externalUserExpireInDays;
-
-        public Guid[] DisabledModernListTemplateIds => disabledModernListTemplateIds;
-
-        private bool hideDefaultThemes;
-
-        private long storageQuota;
-
-        private long storageQuotaAllocated;
-
-        private double resourceQuota;
-
-        private double resourceQuotaAllocated;
-
-        private long oneDriveStorageQuota;
-
-        private string compatibilityRange;
-
-        private bool externalServicesEnabled;
-
-        private string noAccessRedirectUrl;
-
-        private SharingCapabilities sharingCapability;
-
-        private bool displayStartASiteOption;
-
-        private string startASiteFormUrl;
-
-        private bool showEveryoneClaim;
-
-        private bool showAllUsersClaim;
-
-        private bool officeClientADALDisabled;
-
-        private bool legacyAuthProtocolsEnabled;
-
-        private bool showEveryoneExceptExternalUsersClaim;
-
-        private bool searchResolveExactEmailOrUPN;
-
-        private bool requireAcceptingAccountMatchInvitedAccount;
-
-        private bool provisionSharedWithEveryoneFolder;
-
-        private string signInAccelerationDomain;
-
-        private bool enableGuestSignInAcceleration;
-
-        private bool usePersistentCookiesForExplorerView;
-
-        private bool bccExternalSharingInvitations;
-
-        private string bccExternalSharingInvitationsList;
-
-        private bool userVoiceForFeedbackEnabled;
-
-        private bool publicCdnEnabled;
-
-        private string publicCdnAllowedFileTypes;
-
-        private IList<SPOPublicCdnOrigin> publicCdnOrigins;
-
-        private int requireAnonymousLinksExpireInDays;
-
-        private string sharingAllowedDomainList;
-
-        private string sharingBlockedDomainList;
-
-        private SharingDomainRestrictionModes sharingDomainRestrictionMode;
-
-        private bool oneDriveForGuestsEnabled;
-
-        private bool ipAddressEnforcement;
-
-        private string ipAddressAllowList;
-
-        private int ipAddressWACTokenLifetime;
-
-        private bool useFindPeopleInPeoplePicker;
-
-        private SharingLinkType defaultSharingLinkType;
-
-        private SharingState odbMembersCanShare;
-
-        private SharingState odbAccessRequests;
-
-        private bool preventExternalUsersFromResharing;
-
-        private bool showPeoplePickerSuggestionsForGuestUsers;
-
-        private AnonymousLinkType fileAnonymousLinkType;
-
-        private AnonymousLinkType folderAnonymousLinkType;
-
-        private bool notifyOwnersWhenItemsReshared;
-
-        private bool notifyOwnersWhenInvitationsAccepted;
-
-        private bool notificationsInOneDriveForBusinessEnabled;
-
-        private bool notificationsInSharePointEnabled;
-
-        private SpecialCharactersState specialCharactersStateInFileFolderNames;
-
-        private bool ownerAnonymousNotification;
-
-        private bool commentsOnSitePagesDisabled;
-
-        private bool socialBarOnSitePagesDisabled;
-
-        private int orphanedPersonalSitesRetentionPeriod;
-
-        private bool permissiveBrowserFileHandlingOverride;
-
-        private bool disallowInfectedFileDownload;
-
-        private SharingPermissionType defaultLinkPermission;
-
-        private SPOConditionalAccessPolicyType conditionalAccessPolicy;
-
-        private bool allowDownloadingNonWebViewableFiles = true;
-
-        private bool allowEditing = true;
-
-        private bool applyAppEnforcedRestrictionsToAdHocRecipients;
-
-        private bool filePickerExternalImageSearchEnabled;
-
-        private bool emailAttestationRequired;
-
-        private int emailAttestationReAuthDays;
-
-        private Guid[] disabledWebPartIds;
-
-        private bool disableCustomAppAuthentication;
-
-        private SensitiveByDefaultState markNewFilesSensitiveByDefault;
-
-        private bool stopNew2013Workflows;
-
-        private bool viewInFileExplorerEnabled;
-
-        private bool disableSpacesActivation;
-
-        private bool? allowFilesWithKeepLabelToBeDeletedSPO;
-
-        private bool? allowFilesWithKeepLabelToBeDeletedODB;
-
-        private bool disableAddToOneDrive;
-
-        private bool isFluidEnabled;
-
-        private bool disablePersonalListCreation;
-
-        private Guid[] disabledModernListTemplateIds;
-
-        private bool externalUserExpirationRequired;
-
-        private int externalUserExpireInDays;
-
     }
 }

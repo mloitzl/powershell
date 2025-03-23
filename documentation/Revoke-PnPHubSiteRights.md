@@ -21,10 +21,12 @@ Revoke permissions to the permissions already in place to associate sites to Hub
 
 ```powershell
 Revoke-PnPHubSiteRights [-Identity] <HubSitePipeBind> -Principals <String[]> [-Connection <PnPConnection>]
- [<CommonParameters>]
+ 
 ```
 
 ## DESCRIPTION
+
+Allows to revoke permissions from existing once to associate sites to Hub Sites for specified users.
 
 ## EXAMPLES
 

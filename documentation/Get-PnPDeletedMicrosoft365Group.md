@@ -20,10 +20,12 @@ Gets one deleted Microsoft 365 Group or a list of deleted Microsoft 365 Groups
 ## SYNTAX
 
 ```powershell
-Get-PnPDeletedMicrosoft365Group [-Identity <Microsoft365GroupPipeBind>] [<CommonParameters>]
+Get-PnPDeletedMicrosoft365Group [-Identity <Microsoft365GroupPipeBind>] 
 ```
 
 ## DESCRIPTION
+
+Allows to get list of deleted Microsoft 365 Groups. Use the `Identity` option to specify the exact group.
 
 ## EXAMPLES
 

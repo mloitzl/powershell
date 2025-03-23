@@ -16,16 +16,16 @@ online version: https://pnp.github.io/powershell/cmdlets/Get-PnPPlannerRosterPla
   * Microsoft Graph API: Tasks.ReadWrite
   * Microsoft Graph API: Tasks.Read
   
-Returns Microsft Planner roster plans for a specific Microsoft Planner Roster or a specific user
+Returns Microsoft Planner roster plans for a specific Microsoft Planner Roster or a specific user
 
 ## SYNTAX
 
 ```powershell
-Get-PnPPlannerRosterPlan [-Identity <PlannerRosterPipeBind>] [-User <string>] [<CommonParameters>]
+Get-PnPPlannerRosterPlan [-Identity <PlannerRosterPipeBind>] [-User <string>] 
 ```
 
 ## DESCRIPTION
-This cmdlet returns Microsft Planner roster plans for a specific Microsoft Planner Roster or a specific user
+This cmdlet returns Microsoft Planner roster plans for a specific Microsoft Planner Roster or a specific user
 
 ## EXAMPLES
 
@@ -46,7 +46,7 @@ Returns all roster plans for the provided user
 ## PARAMETERS
 
 ### -Identity
-A Microsoft Planner Roster Id or instance. Documentation: https://docs.microsoft.com/graph/api/plannerroster-list-plans?view=graph-rest-beta&tabs=http
+A Microsoft Planner Roster Id or instance. Documentation: https://learn.microsoft.com/graph/api/plannerroster-list-plans?view=graph-rest-beta&tabs=http
 
 ```yaml
 Type: PlannerGroupPipeBind
@@ -61,7 +61,7 @@ Accept wildcard characters: False
 ```
 
 ### -User
-The user principal name to query for. Documentation: https://docs.microsoft.com/graph/api/planneruser-list-rosterplans?view=graph-rest-beta&tabs=http
+The user principal name to query for. Documentation: https://learn.microsoft.com/graph/api/planneruser-list-rosterplans?view=graph-rest-beta&tabs=http
 
 ```yaml
 Type: String

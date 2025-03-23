@@ -16,10 +16,12 @@ Converts a provisioning template to an other schema version
 
 ```powershell
 Convert-PnPSiteTemplate [-Path] <String> [-Out <String>] [[-ToSchema] <XMLPnPSchemaVersion>]
- [-Encoding <Encoding>] [-Force] [<CommonParameters>]
+ [-Encoding <Encoding>] [-Force] 
 ```
 
 ## DESCRIPTION
+
+Allows to convert a provisioning template to an other schema version.
 
 ## EXAMPLES
 
@@ -108,7 +110,7 @@ The schema of the output to use, defaults to the latest schema
 ```yaml
 Type: XMLPnPSchemaVersion
 Parameter Sets: (All)
-Accepted values: LATEST, V201503, V201505, V201508, V201512, V201605, V201705, V201801, V201805, V201807, V201903, V201909, V202002
+Accepted values: LATEST, V201503, V201505, V201508, V201512, V201605, V201705, V201801, V201805, V201807, V201903, V201909, V202002, V202103, V202209
 
 Required: False
 Position: 1
@@ -120,4 +122,4 @@ Accept wildcard characters: False
 ## RELATED LINKS
 
 [Microsoft 365 Patterns and Practices](https://aka.ms/m365pnp)
-[Encoding documentation](https://docs.microsoft.com/dotnet/api/system.text.encoding?view=net-6.0)
+[Encoding documentation](https://learn.microsoft.com/dotnet/api/system.text.encoding?view=net-8.0)

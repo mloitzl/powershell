@@ -3,8 +3,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Management.Automation;
 using Microsoft.SharePoint.Client;
-using PnP.PowerShell.Commands.Extensions;
-
 using PnP.PowerShell.Commands.Base.PipeBinds;
 
 namespace PnP.PowerShell.Commands.Diagnostic
@@ -17,6 +15,7 @@ namespace PnP.PowerShell.Commands.Diagnostic
         [Parameter(Mandatory = false, ValueFromPipeline = true, Position = 0)]
         public WebPipeBind Identity;
 
+        [Alias("Recurse")]
         [Parameter(Mandatory = false)]
         public SwitchParameter Recursive;
 
@@ -72,7 +71,7 @@ namespace PnP.PowerShell.Commands.Diagnostic
             }
             catch (Exception e)
             {
-                WriteWarning($"Cannot inspect folder: {e.Message}");
+                LogWarning($"Cannot inspect folder: {e.Message}");
             }
 
             return stat;
@@ -106,7 +105,7 @@ namespace PnP.PowerShell.Commands.Diagnostic
 
             foreach (var list in uniqueLists)
             {
-                WriteVerbose($"List {list.Title} has unique permissions");
+                LogDebug($"List {list.Title} has unique permissions");
             }
 
             if (Recursive)

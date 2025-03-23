@@ -1,15 +1,15 @@
-﻿using PnP.Framework.Entities;
-using PnP.Framework.Graph;
-using PnP.PowerShell.Commands.Attributes;
+﻿using PnP.PowerShell.Commands.Attributes;
 using PnP.PowerShell.Commands.Base;
 using PnP.PowerShell.Commands.Base.PipeBinds;
-using PnP.PowerShell.Commands.Model.AzureAD;
+using PnP.PowerShell.Commands.Utilities;
 using System.Management.Automation;
+using Group = PnP.PowerShell.Commands.Model.Graph.Group;
 
 namespace PnP.PowerShell.Commands.Graph
 {
     [Cmdlet(VerbsCommon.Remove, "PnPAzureADGroupMember")]
-    [RequiredMinimalApiPermissions("Group.ReadWrite.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/Group.ReadWrite.All")]
+    [Alias("Remove-PnPEntraIDGroupMember")]
     public class RemoveAzureADGroupMember : PnPGraphCmdlet
     {
         [Parameter(Mandatory = true, ValueFromPipeline = true)]
@@ -20,16 +20,16 @@ namespace PnP.PowerShell.Commands.Graph
 
         protected override void ExecuteCmdlet()
         {
-            AzureADGroup group = null;
+            Group group = null;
 
             if (Identity != null)
             {
-                group = Identity.GetGroup(AccessToken);
+                group = Identity.GetGroup(GraphRequestHelper);
             }
 
             if (group != null)
             {
-                GroupsUtility.RemoveGroupMembers(group.Id, Users, AccessToken);
+                Microsoft365GroupsUtility.RemoveMembers(GraphRequestHelper, new System.Guid(group.Id), Users);
             }
         }
     }

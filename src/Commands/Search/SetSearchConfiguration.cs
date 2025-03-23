@@ -2,7 +2,6 @@
 using System.Management.Automation;
 using Microsoft.SharePoint.Client;
 using Microsoft.SharePoint.Client.Search.Administration;
-
 using PnP.PowerShell.Commands.Enums;
 using Resources = PnP.PowerShell.Commands.Properties.Resources;
 
@@ -30,6 +29,9 @@ namespace PnP.PowerShell.Commands.Search
                 }
                 Configuration = System.IO.File.ReadAllText(Path);
             }
+
+            Configuration = Configuration.Trim(new char[] { '\uFEFF', '\u200B' }).Trim();
+
             switch (Scope)
             {
                 case SearchConfigurationScope.Web:

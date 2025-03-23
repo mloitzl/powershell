@@ -8,7 +8,7 @@ using System.Management.Automation;
 namespace PnP.PowerShell.Commands.Admin
 {
     [Cmdlet(VerbsData.Restore, "PnPTenantSite")]
-    public class RestoreTenantSite : PnPAdminCmdlet
+    public class RestoreTenantSite : PnPSharePointOnlineAdminCmdlet
     {
         [Parameter(Position = 0, ValueFromPipeline = true, Mandatory = true)]
         [Alias("Url")]
@@ -28,11 +28,13 @@ namespace PnP.PowerShell.Commands.Admin
             }
             else
             {
-                if (Force || ShouldContinue($"Restore site collection {Identity.Url}?", "Confirm"))
+                if (Force || ShouldContinue($"Restore site collection {Identity.Url}?", Properties.Resources.Confirm))
                 {
+                    LogDebug($"Restoring site collection {Identity.Url}");
+
                     SpoOperation spoOperation = Tenant.RestoreDeletedSite(Identity.Url);
-                    ClientContext.Load(spoOperation);
-                    ClientContext.ExecuteQueryRetry();
+                    AdminContext.Load(spoOperation);
+                    AdminContext.ExecuteQueryRetry();
                     if (!NoWait.ToBool())
                     {
                         PollOperation(spoOperation);

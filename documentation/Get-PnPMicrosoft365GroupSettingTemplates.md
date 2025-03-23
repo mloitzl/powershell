@@ -20,10 +20,12 @@ Gets the available system wide template of settings for Microsoft 365 Groups.
 ## SYNTAX
 
 ```powershell
-Get-PnPMicrosoft365GroupSettingTemplates [-Identity <string>] [<CommonParameters>]
+Get-PnPMicrosoft365GroupSettingTemplates [-Identity <string>] 
 ```
 
 ## DESCRIPTION
+
+Allows to retrieve available system wide template of settings for Microsoft 365 Groups.
 
 ## EXAMPLES
 
@@ -61,6 +63,6 @@ Accept wildcard characters: False
 ## RELATED LINKS
 
 [Microsoft 365 Patterns and Practices](https://aka.ms/m365pnp)
-[Microsoft Graph documentation](https://docs.microsoft.com/graph/api/groupsettingtemplate-list)
+[Microsoft Graph documentation](https://learn.microsoft.com/graph/api/groupsettingtemplate-list)
 
 

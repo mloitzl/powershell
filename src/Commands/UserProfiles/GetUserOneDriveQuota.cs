@@ -11,22 +11,22 @@ namespace PnP.PowerShell.Commands.UserProfiles
 {
     [Cmdlet(VerbsCommon.Get, "PnPUserOneDriveQuota")]
     [OutputType(typeof(long))]
-    public class GetUserOneDriveQuota : PnPAdminCmdlet
+    public class GetUserOneDriveQuota : PnPSharePointOnlineAdminCmdlet
     {
         [Parameter(Mandatory = true, Position = 0)]
         public string Account;
 
         protected override void ExecuteCmdlet()
         {
-            var peopleManager = new PeopleManager(ClientContext);
+            var peopleManager = new PeopleManager(AdminContext);
 
             var result = Tenant.EncodeClaim(Account);
-            ClientContext.ExecuteQueryRetry();
+            AdminContext.ExecuteQueryRetry();
             Account = result.Value;
 
             var properties = peopleManager.GetPropertiesFor(Account);
-            ClientContext.Load(properties);
-            ClientContext.ExecuteQueryRetry();
+            AdminContext.Load(properties);
+            AdminContext.ExecuteQueryRetry();
 
             var personalSiteUrl = properties.PersonalUrl;
 
@@ -55,7 +55,7 @@ namespace PnP.PowerShell.Commands.UserProfiles
             }
             else
             {
-                WriteWarning($"Couldn't find onedrive quota for the account: {Account} ");
+                LogWarning($"Couldn't find onedrive quota for the account: {Account} ");
             }
         }
     }

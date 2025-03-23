@@ -15,11 +15,12 @@ Publishes/Deploys/Trusts an available app in the app catalog
 ## SYNTAX
 
 ```powershell
-Publish-PnPApp [-Identity] <AppMetadataPipeBind> [-SkipFeatureDeployment] [-Scope <AppCatalogScope>]
- [-Connection <PnPConnection>] [<CommonParameters>]
+Publish-PnPApp [-Identity] <AppMetadataPipeBind> [-SkipFeatureDeployment] [-Scope <AppCatalogScope>] [-Connection <PnPConnection>] [-Force <SwitchParameter>]
 ```
 
 ## DESCRIPTION
+
+Allows to deploy/trust an available app in the app catalog.
 
 ## EXAMPLES
 
@@ -83,6 +84,20 @@ Accept wildcard characters: False
 ```
 
 ### -SkipFeatureDeployment
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Force
+If provided, no confirmation will be asked to change no-script setting.
 
 ```yaml
 Type: SwitchParameter

@@ -7,49 +7,48 @@ using Microsoft.SharePoint.Client;
 namespace PnP.PowerShell.Commands
 {
     [Cmdlet(VerbsCommon.Get, "PnPSiteScriptFromWeb", DefaultParameterSetName = ParameterSet_BASICCOMPONENTS)]
-    public class GetSiteScriptFromWeb : PnPAdminCmdlet
+    [OutputType(typeof(string))]
+    public class GetSiteScriptFromWeb : PnPSharePointOnlineAdminCmdlet
     {
         private const string ParameterSet_BASICCOMPONENTS = "Basic components";
         private const string ParameterSet_ALLCOMPONENTS = "All components";
         private const string ParameterSet_ALLLISTS = "All lists";
         private const string ParameterSet_SPECIFICCOMPONENTS = "Specific components";
 
-        [Parameter(ParameterSetName = ParameterSet_BASICCOMPONENTS)]
-        [Parameter(ParameterSetName = ParameterSet_ALLCOMPONENTS)]
-        [Parameter(ParameterSetName = ParameterSet_ALLLISTS)]
-        [Parameter(ParameterSetName = ParameterSet_SPECIFICCOMPONENTS)]
-        [Parameter(Mandatory = false, ValueFromPipeline = true)]
+        [Parameter(Mandatory = false, ValueFromPipeline = true, ParameterSetName = ParameterSet_BASICCOMPONENTS)]
+        [Parameter(Mandatory = false, ValueFromPipeline = true, ParameterSetName = ParameterSet_ALLCOMPONENTS)]
+        [Parameter(Mandatory = false, ValueFromPipeline = true, ParameterSetName = ParameterSet_ALLLISTS)]
+        [Parameter(Mandatory = false, ValueFromPipeline = true, ParameterSetName = ParameterSet_SPECIFICCOMPONENTS)]
         public string Url;
 
-        [Parameter(ParameterSetName = ParameterSet_BASICCOMPONENTS)]
-        [Parameter(ParameterSetName = ParameterSet_ALLCOMPONENTS)]
-        [Parameter(ParameterSetName = ParameterSet_SPECIFICCOMPONENTS)]
-        [Parameter(Mandatory = false)]
+        [Parameter(Mandatory = false, ParameterSetName = ParameterSet_BASICCOMPONENTS)]
+        [Parameter(Mandatory = false, ParameterSetName = ParameterSet_ALLCOMPONENTS)]
+        [Parameter(Mandatory = false, ParameterSetName = ParameterSet_SPECIFICCOMPONENTS)]
         public string[] Lists;
 
         [Parameter(Mandatory = false, ParameterSetName = ParameterSet_ALLCOMPONENTS)]
         public SwitchParameter IncludeAll;
 
-        [Parameter(Mandatory = false, ParameterSetName = ParameterSet_ALLLISTS)]
-        public SwitchParameter IncludeAllLists;        
+        [Parameter(Mandatory = true, ParameterSetName = ParameterSet_ALLLISTS)]
+        public SwitchParameter IncludeAllLists;
 
-        [Parameter(ParameterSetName = ParameterSet_ALLLISTS)]
+        [Parameter(Mandatory = false, ParameterSetName = ParameterSet_ALLLISTS)]
         [Parameter(Mandatory = false, ParameterSetName = ParameterSet_SPECIFICCOMPONENTS)]
         public SwitchParameter IncludeBranding;
         
-        [Parameter(ParameterSetName = ParameterSet_ALLLISTS)]
+        [Parameter(Mandatory = false, ParameterSetName = ParameterSet_ALLLISTS)]
         [Parameter(Mandatory = false, ParameterSetName = ParameterSet_SPECIFICCOMPONENTS)]
         public SwitchParameter IncludeLinksToExportedItems;
         
-        [Parameter(ParameterSetName = ParameterSet_ALLLISTS)]
+        [Parameter(Mandatory = false, ParameterSetName = ParameterSet_ALLLISTS)]
         [Parameter(Mandatory = false, ParameterSetName = ParameterSet_SPECIFICCOMPONENTS)]
         public SwitchParameter IncludeRegionalSettings;
         
-        [Parameter(ParameterSetName = ParameterSet_ALLLISTS)]
+        [Parameter(Mandatory = false, ParameterSetName = ParameterSet_ALLLISTS)]
         [Parameter(Mandatory = false, ParameterSetName = ParameterSet_SPECIFICCOMPONENTS)]
         public SwitchParameter IncludeSiteExternalSharingCapability;
 
-        [Parameter(ParameterSetName = ParameterSet_ALLLISTS)]
+        [Parameter(Mandatory = false, ParameterSetName = ParameterSet_ALLLISTS)]
         [Parameter(Mandatory = false, ParameterSetName = ParameterSet_SPECIFICCOMPONENTS)]
         public SwitchParameter IncludeTheme;
 
@@ -60,13 +59,23 @@ namespace PnP.PowerShell.Commands
             {
                 Url = Connection.Url;
             }
+            
+            LogDebug($"Creating site script from web {Url}");
 
-            if(IncludeAllLists || IncludeAll)
+            if (IncludeAllLists || IncludeAll)
             {
-                SiteContext.Load(SiteContext.Web.Lists, lists => lists.Where(list => !list.Hidden && !list.IsCatalog && !list.IsSystemList && !list.IsPrivate && !list.IsApplicationList && !list.IsSiteAssetsLibrary && !list.IsEnterpriseGalleryLibrary).Include(list => list.RootFolder.ServerRelativeUrl));
-                SiteContext.ExecuteQueryRetry();
+                var targetWebContext = Url != Connection.Url ? Connection.CloneContext(Url) : ClientContext;
 
-                Lists = SiteContext.Web.Lists.Select(l => System.Text.RegularExpressions.Regex.Replace(l.RootFolder.ServerRelativeUrl, @"\/(?:sites|teams)\/.*?\/", string.Empty)).ToArray();
+                targetWebContext.Load(targetWebContext.Web.Lists, lists => lists.Where(list => !list.Hidden && !list.IsCatalog && !list.IsSystemList && !list.IsPrivate && !list.IsApplicationList && !list.IsSiteAssetsLibrary && !list.IsEnterpriseGalleryLibrary).Include(list => list.RootFolder.ServerRelativeUrl));
+                targetWebContext.ExecuteQueryRetry();
+
+                Lists = targetWebContext.Web.Lists.Select(l => System.Text.RegularExpressions.Regex.Replace(l.RootFolder.ServerRelativeUrl, @"\/(?:sites|teams)\/.*?\/", string.Empty)).ToArray();
+
+                LogDebug($"Including all custom lists and libraries in the site script... {Lists.Length} found");
+                foreach (var list in Lists)
+                {
+                    LogDebug($"- {list}");
+                }
             }
             
             var tenantSiteScriptSerializationInfo = new TenantSiteScriptSerializationInfo
@@ -79,7 +88,7 @@ namespace PnP.PowerShell.Commands
                 IncludeTheme = IncludeTheme || IncludeAll
             };
             var script = Tenant.GetSiteScriptFromSite(Url, tenantSiteScriptSerializationInfo);
-            ClientContext.ExecuteQueryRetry();
+            AdminContext.ExecuteQueryRetry();
             WriteObject(script.Value.JSON);
         }
     }

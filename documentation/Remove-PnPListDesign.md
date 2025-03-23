@@ -15,16 +15,17 @@ online version: https://pnp.github.io/powershell/cmdlets/Remove-PnPListDesign.ht
 
 * SharePoint: Access to the SharePoint Tenant Administration site
 
-Removes a List Design
+Removes a list design.
 
 ## SYNTAX
 
 ```powershell
-Remove-PnPListDesign [-Identity] <TenantListDesignPipeBind> [-Force] [-Connection <PnPConnection>] 
-  [<CommonParameters>]
+Remove-PnPListDesign -Identity <TenantListDesignPipeBind> [-Force] [-WhatIf] [-Verbose] [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
+
+Allows to remove a list design.
 
 ## EXAMPLES
 
@@ -33,24 +34,9 @@ Remove-PnPListDesign [-Identity] <TenantListDesignPipeBind> [-Force] [-Connectio
 Remove-PnPListDesign -Identity 5c73382d-9643-4aa0-9160-d0cba35e40fd
 ```
 
-Removes the specified list design
+Removes the specified list design.
 
 ## PARAMETERS
-
-### -Confirm
-Prompts you for confirmation before running the cmdlet.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: cf
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
 
 ### -Connection
 Optional connection to be used by the cmdlet. Retrieve the value for this parameter by either specifying -ReturnConnection on Connect-PnPOnline or by executing Get-PnPConnection.
@@ -67,7 +53,7 @@ Accept wildcard characters: False
 ```
 
 ### -Force
-If specified you will not be asked to confirm removing the specified Site Design
+If specified you will not be asked to confirm removing the specified list design.
 
 ```yaml
 Type: SwitchParameter
@@ -81,7 +67,7 @@ Accept wildcard characters: False
 ```
 
 ### -Identity
-The ID of the list design to remove
+The ID of the list design to remove.
 
 ```yaml
 Type: TenantListDesignPipeBind
@@ -94,6 +80,20 @@ Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
+### -Verbose
+When provided, additional debug statements will be shown while executing the cmdlet.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -WhatIf
 Shows what would happen if the cmdlet runs. The cmdlet is not run.
 
@@ -101,7 +101,6 @@ Shows what would happen if the cmdlet runs. The cmdlet is not run.
 Type: SwitchParameter
 Parameter Sets: (All)
 Aliases: wi
-
 Required: False
 Position: Named
 Default value: None
@@ -112,4 +111,3 @@ Accept wildcard characters: False
 ## RELATED LINKS
 
 [Microsoft 365 Patterns and Practices](https://aka.ms/m365pnp)
-

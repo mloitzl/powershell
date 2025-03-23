@@ -20,10 +20,12 @@ Gets current service status of the Office 365 Services from the Microsoft Graph 
 ## SYNTAX
 
 ```powershell
-Get-PnPServiceCurrentHealth [-Identity <Office365Workload>] [<CommonParameters>]
+Get-PnPServiceCurrentHealth [-Identity <Office365Workload>] 
 ```
 
 ## DESCRIPTION
+
+Allows to retrieve current service status of the Office 365 Services from the Microsoft Graph API.
 
 ## EXAMPLES
 

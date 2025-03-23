@@ -10,7 +10,20 @@
                     "-NoProfile",
                     "-ExecutionPolicy",
                     "Bypass",
-                    "-File"
+                    "-Command"
+                ]
+            }
+        }
+    },
+    "osx": {
+        "options": {
+            "shell": {
+                "executable": "pwsh",
+                "args": [
+                    "-NoProfile",
+                    "-ExecutionPolicy",
+                    "Bypass",
+                    "-Command"
                 ]
             }
         }
@@ -20,11 +33,16 @@
             "label": "Build with nugets",
             "type": "shell",
             "command": "${cwd}/build/Build-Debug.ps1",
-            "problemMatcher":"$msCompile",
+            "problemMatcher": "$msCompile",
             "group": {
                 "kind": "build",
                 "isDefault": true
-            }
+            },
+            "icon": {
+                "id": "run",
+                "color": "terminal.ansiYellow"
+            },
+            
         },
         {
             "label": "Build with local copy of PnP Framework/PnP Core SDK",

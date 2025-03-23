@@ -18,14 +18,14 @@ Returns all SharePoint Framework client side extension application customizers
 ```powershell
 Get-PnPApplicationCustomizer [-Identity <Guid>] [-Scope <CustomActionScope>]
  [-ThrowExceptionIfCustomActionNotFound] [-Connection <PnPConnection>] 
-  [-Includes <String[]>] [<CommonParameters>]
+  [-Includes <String[]>] 
 ```
 
 ### Client Side Component Id
 ```powershell
 Get-PnPApplicationCustomizer -ClientSideComponentId <Guid> [-Scope <CustomActionScope>]
  [-ThrowExceptionIfCustomActionNotFound] [-Connection <PnPConnection>] 
-  [-Includes <String[]>] [<CommonParameters>]
+  [-Includes <String[]>] 
 ```
 
 ## DESCRIPTION
@@ -85,7 +85,7 @@ Accept wildcard characters: False
 ```
 
 ### -Identity
-Identity of the SharePoint Framework client side extension application customizer to return. Omit to return all SharePoint Frameworkclient side extension application customizer.
+Identity of the SharePoint Framework client side extension application customizer to return. Omit to return all SharePoint Framework client side extension application customizer.
 
 ```yaml
 Type: Guid
@@ -114,7 +114,7 @@ Accept wildcard characters: False
 ```
 
 ### -ThrowExceptionIfCustomActionNotFound
-Switch parameter if an exception should be thrown if the requested SharePoint Frameworkclient side extension application customizer does not exist (true) or if omitted, nothing will be returned in case the SharePoint Framework client side extension application customizer does not exist
+Switch parameter if an exception should be thrown if the requested SharePoint Framework client side extension application customizer does not exist (true) or if omitted, nothing will be returned in case the SharePoint Framework client side extension application customizer does not exist
 
 ```yaml
 Type: SwitchParameter
@@ -127,15 +127,12 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-
-
-### -WhatIf
-Shows what would happen if the cmdlet runs. The cmdlet is not run.
+### -Includes
+Optionally allows properties to be retrieved for the returned application customizer which are not included in the response by default
 
 ```yaml
-Type: SwitchParameter
+Type: String[]
 Parameter Sets: (All)
-Aliases: wi
 
 Required: False
 Position: Named

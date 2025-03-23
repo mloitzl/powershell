@@ -17,10 +17,12 @@ Creates a new subweb under the current web
 ```powershell
 New-PnPWeb -Title <String> -Url <String> [-Description <String>] [-Locale <Int32>] -Template <String>
  [-BreakInheritance] [-InheritNavigation] [-Connection <PnPConnection>]
- [<CommonParameters>]
+ 
 ```
 
 ## DESCRIPTION
+
+Allows to create new subweb under the current web.
 
 ## EXAMPLES
 

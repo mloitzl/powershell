@@ -12,7 +12,9 @@ using System.Management.Automation;
 namespace PnP.PowerShell.Commands.Planner
 {
     [Cmdlet(VerbsCommon.Add, "PnPPlannerTask")]
-    [RequiredMinimalApiPermissions("Group.ReadWrite.All")]
+    [RequiredApiApplicationPermissions("graph/Tasks.ReadWrite")]
+    [RequiredApiApplicationPermissions("graph/Tasks.ReadWrite.All")]
+    [RequiredApiApplicationPermissions("graph/Group.ReadWrite.All")]
     public class AddPlannerTask : PnPGraphCmdlet
     {
         private const string ParameterName_BYGROUP = "By Group";
@@ -50,6 +52,9 @@ namespace PnP.PowerShell.Commands.Planner
 
         [Parameter(Mandatory = false, ParameterSetName = ParameterAttribute.AllParameterSets)]
         public string[] AssignedTo;
+
+        [Parameter(Mandatory = false, ParameterSetName = ParameterAttribute.AllParameterSets)]
+        public SwitchParameter OutputTask;
 
         protected override void ExecuteCmdlet()
         {
@@ -90,47 +95,56 @@ namespace PnP.PowerShell.Commands.Planner
 
             if (ParameterSpecified(nameof(AssignedTo)))
             {
+                var errors = new List<Exception>();
                 newTask.Assignments = new Dictionary<string, TaskAssignment>();
-                var chunks = AssignedTo.Chunk(20);
+                var chunks = GraphBatchUtility.Chunk(AssignedTo, 20);
                 foreach (var chunk in chunks)
                 {
-                    var userIds = BatchUtility.GetPropertyBatchedAsync(Connection, AccessToken, chunk.ToArray(), "/users/{0}", "id").GetAwaiter().GetResult();
-                    foreach (var userId in userIds)
+                    var userIds = GraphBatchUtility.GetPropertyBatched(GraphRequestHelper, chunk.ToArray(), "/users/{0}", "id");
+                    foreach (var userId in userIds.Results)
                     {
                         newTask.Assignments.Add(userId.Value, new TaskAssignment());
                     }
+                    if(userIds.Errors.Any())
+                    {
+                        errors.AddRange(userIds.Errors);
+                    }
+                }
+                if(errors.Any())
+                {
+                    throw new AggregateException($"{errors.Count} error(s) occurred in a Graph batch request", errors);
                 }
             }
 
             // By Group
             if (ParameterSetName == ParameterName_BYGROUP)
             {
-                var groupId = Group.GetGroupId(Connection, AccessToken);
+                var groupId = Group.GetGroupId(GraphRequestHelper);
                 if (groupId == null)
                 {
                     throw new PSArgumentException("Group not found", nameof(Group));
                 }
 
-                var planId = Plan.GetIdAsync(Connection, AccessToken, groupId).GetAwaiter().GetResult();
+                var planId = Plan.GetId(GraphRequestHelper, groupId);
                 if (planId == null)
                 {
                     throw new PSArgumentException("Plan not found", nameof(Plan));
                 }
                 newTask.PlanId = planId;
 
-                var bucket = Bucket.GetBucket(Connection, AccessToken, planId);
+                var bucket = Bucket.GetBucket(GraphRequestHelper, planId);
                 if (bucket == null)
                 {
                     throw new PSArgumentException("Bucket not found", nameof(Bucket));
                 }
                 newTask.BucketId = bucket.Id;
 
-                createdTask = PlannerUtility.AddTaskAsync(Connection, AccessToken, newTask).GetAwaiter().GetResult();
+                createdTask = PlannerUtility.AddTask(GraphRequestHelper, newTask);
             }
             // By PlanId
             else
             {
-                var bucket = Bucket.GetBucket(Connection, AccessToken, PlanId);
+                var bucket = Bucket.GetBucket(GraphRequestHelper, PlanId);
                 if (bucket == null)
                 {
                     throw new PSArgumentException("Bucket not found", nameof(Bucket));
@@ -139,13 +153,19 @@ namespace PnP.PowerShell.Commands.Planner
                 newTask.PlanId = PlanId;
                 newTask.BucketId = bucket.Id;
 
-                createdTask = PlannerUtility.AddTaskAsync(Connection, AccessToken, newTask).GetAwaiter().GetResult();
+                createdTask = PlannerUtility.AddTask(GraphRequestHelper, newTask);
             }
 
             if (ParameterSpecified(nameof(Description)))
             {
-                var existingTaskDetails = PlannerUtility.GetTaskDetailsAsync(Connection, AccessToken, createdTask.Id, false).GetAwaiter().GetResult();
-                PlannerUtility.UpdateTaskDetailsAsync(Connection, AccessToken, existingTaskDetails, Description).GetAwaiter().GetResult();
+                var existingTaskDetails = PlannerUtility.GetTaskDetails(GraphRequestHelper, createdTask.Id, false);
+                PlannerUtility.UpdateTaskDetails(GraphRequestHelper, existingTaskDetails, Description);
+                createdTask.HasDescription = true;
+            }
+
+            if(OutputTask.IsPresent)
+            {
+                WriteObject(createdTask);
             }
         }
     }

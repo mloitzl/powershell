@@ -16,10 +16,12 @@ Retrieves a list of site designs applied to a specified site collection. If the 
 
 ```powershell
 Get-PnPSiteDesignRun [-SiteDesignId <Guid>] [-WebUrl <String>] 
- [-Connection <PnPConnection>]   [<CommonParameters>]
+ [-Connection <PnPConnection>]   
 ```
 
 ## DESCRIPTION
+
+Allows to retrieve a list of site designs applied to a specified site collection. By default the command will retrieve list of designs applied to the current site but it is also possible to get this information from a different site collection using `WebUrl` option.
 
 ## EXAMPLES
 
@@ -73,21 +75,6 @@ The URL of the site collection where the site design will be applied. If not spe
 ```yaml
 Type: String
 Parameter Sets: (All)
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -WhatIf
-Shows what would happen if the cmdlet runs. The cmdlet is not run.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: wi
 
 Required: False
 Position: Named

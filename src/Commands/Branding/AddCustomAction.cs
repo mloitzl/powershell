@@ -1,8 +1,7 @@
-﻿using System.Management.Automation;
-using PnP.Framework.Entities;
-using System;
+﻿using PnP.Core.Model.SharePoint;
 using PnP.PowerShell.Commands.Enums;
-using PnP.Core.Model.SharePoint;
+using System;
+using System.Management.Automation;
 
 namespace PnP.PowerShell.Commands.Branding
 {
@@ -120,16 +119,16 @@ namespace PnP.PowerShell.Commands.Branding
             {
                 case CustomActionScope.Web:
                     {
-                        PnPContext.Web.UserCustomActions.Add(ca);
+                        Connection.PnPContext.Web.UserCustomActions.Add(ca);
                         break;
                     }
                 case CustomActionScope.Site:
                     {
-                        PnPContext.Site.UserCustomActions.Add(ca);
+                        Connection.PnPContext.Site.UserCustomActions.Add(ca);
                         break;
                     }
                 case CustomActionScope.All:
-                    WriteWarning("CustomActionScope 'All' is not supported for adding CustomActions");
+                    LogWarning("CustomActionScope 'All' is not supported for adding CustomActions");
                     break;
             }
         }

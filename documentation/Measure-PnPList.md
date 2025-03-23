@@ -16,10 +16,12 @@ Returns statistics on the list object. This may fail on lists larger than the li
 
 ```powershell
 Measure-PnPList [-Identity] <ListPipeBind> [-ItemLevel] [-BrokenPermissions] 
- [-Connection <PnPConnection>] [-Includes <String[]>] [<CommonParameters>]
+ [-Connection <PnPConnection>] [-Includes <String[]>] 
 ```
 
 ## DESCRIPTION
+
+Allows to retrieve statistics on specified list. The command may fail on lists larger than the list view threshold.
 
 ## EXAMPLES
 
@@ -94,6 +96,19 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Includes
+Optionally allows properties to be retrieved for the returned list which are not included in the response by default
+
+```yaml
+Type: String[]
+Parameter Sets: (All)
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 
 ## RELATED LINKS

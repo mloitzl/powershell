@@ -1,5 +1,4 @@
 ﻿using Microsoft.SharePoint.Client;
-using Microsoft.SharePoint.Client.Utilities;
 using PnP.Framework.Provisioning.Connectors;
 using PnP.Framework.Provisioning.Model;
 using PnP.Framework.Provisioning.Providers;
@@ -53,7 +52,7 @@ namespace PnP.PowerShell.Commands.Provisioning.Site
             // Load the template
             var template = ProvisioningHelper.LoadSiteTemplateFromFile(Path, TemplateProviderExtensions, (e) =>
                 {
-                    WriteError(new ErrorRecord(e, "TEMPLATENOTVALID", ErrorCategory.SyntaxError, null));
+                    LogError(e);
                 });
 
             if (template == null)
@@ -87,7 +86,7 @@ namespace PnP.PowerShell.Commands.Provisioning.Site
                 }
                 catch (WebException exc)
                 {
-                    WriteWarning($"Can't add file from url {serverRelativeUrl} : {exc}");
+                    LogWarning($"Can't add file from url {serverRelativeUrl} : {exc}");
                 }
             }
             else

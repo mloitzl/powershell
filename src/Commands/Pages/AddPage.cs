@@ -1,5 +1,6 @@
 ﻿using PnP.Core.Model.SharePoint;
 using PnP.PowerShell.Commands.Base.PipeBinds;
+using PnP.PowerShell.Commands.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,7 @@ using System.Management.Automation;
 namespace PnP.PowerShell.Commands.Pages
 {
     [Cmdlet(VerbsCommon.Add, "PnPPage")]
+    [OutputType(typeof(PnP.Core.Model.SharePoint.IPage))]
     public class AddPage : PnPWebCmdlet
     {
         [Parameter(Mandatory = true, Position = 0)]
@@ -139,7 +141,14 @@ namespace PnP.PowerShell.Commands.Pages
                     {
                         var translationLanguagesList = new List<int>(TranslationLanguageCodes);
 
-                        PnPContext.Web.EnsureMultilingual(translationLanguagesList);
+                        try
+                        {
+                            MultilingualHelper.EnsureMultilingual(Connection, translationLanguagesList);
+                        }
+                        catch
+                        {
+                            // swallow exception, assumes multilingual features is activated                            
+                        }                        
 
                         foreach (int i in TranslationLanguageCodes)
                         {

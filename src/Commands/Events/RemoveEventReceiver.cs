@@ -1,7 +1,8 @@
-﻿using System.Management.Automation;
-using Microsoft.SharePoint.Client;
+﻿using Microsoft.SharePoint.Client;
+using PnP.PowerShell.Commands.Base.Completers;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 using System.Collections.Generic;
+using System.Management.Automation;
 
 namespace PnP.PowerShell.Commands.Events
 {
@@ -13,6 +14,7 @@ namespace PnP.PowerShell.Commands.Events
         private const string ParameterSet_SCOPE = "From a web or site";
 
         [Parameter(Mandatory = true, ParameterSetName = ParameterSet_LIST)]
+        [ArgumentCompleter(typeof(ListNameCompleter))]
         public ListPipeBind List;
 
         [Parameter(ParameterSetName = ParameterSet_LIST)]
@@ -35,8 +37,8 @@ namespace PnP.PowerShell.Commands.Events
             {
                 case ParameterSet_LIST:
                     var list = List.GetList(CurrentWeb);
-                   
-                    if(list == null)
+
+                    if (list == null)
                     {
                         throw new PSArgumentException("The provided List could not be found", nameof(List));
                     }
@@ -53,8 +55,8 @@ namespace PnP.PowerShell.Commands.Events
                     {
                         ClientContext.Load(list.EventReceivers);
                         ClientContext.ExecuteQueryRetry();
-                        
-                        foreach(var eventReceiver in list.EventReceivers)
+
+                        foreach (var eventReceiver in list.EventReceivers)
                         {
                             eventReceiversToDelete.Add(eventReceiver);
                         }
@@ -108,24 +110,24 @@ namespace PnP.PowerShell.Commands.Events
                                 eventReceiversToDelete.AddRange(CurrentWeb.EventReceivers);
                                 eventReceiversToDelete.AddRange(ClientContext.Site.EventReceivers);
                             }
-                            break;                            
+                            break;
                     }
                     break;
             }
 
             if (eventReceiversToDelete.Count == 0)
             {
-                WriteVerbose("No Event Receivers to remove");
+                LogDebug("No Event Receivers to remove");
                 return;
             }
 
-            for(var x = 0; x < eventReceiversToDelete.Count; x++)
+            for (var x = 0; x < eventReceiversToDelete.Count; x++)
             {
                 var eventReceiver = eventReceiversToDelete[x];
 
-                if (Force || (ParameterSpecified("Confirm") && !bool.Parse(MyInvocation.BoundParameters["Confirm"].ToString())) || ShouldContinue(string.Format(Properties.Resources.RemoveEventReceiver, eventReceiver.ReceiverName, eventReceiver.ReceiverId), Properties.Resources.Confirm))
+                if (Force || ShouldContinue(string.Format(Properties.Resources.RemoveEventReceiver, eventReceiver.ReceiverName, eventReceiver.ReceiverId), Properties.Resources.Confirm))
                 {
-                    WriteVerbose($"Removing Event Receiver with Id {eventReceiver.ReceiverId} named {eventReceiver.ReceiverName}");
+                    LogDebug($"Removing Event Receiver with Id {eventReceiver.ReceiverId} named {eventReceiver.ReceiverName}");
                     eventReceiver.DeleteObject();
                 }
             }

@@ -7,7 +7,12 @@ using System.Management.Automation;
 namespace PnP.PowerShell.Commands.Planner
 {
     [Cmdlet(VerbsCommon.Get, "PnPPlannerPlan")]
-    [RequiredMinimalApiPermissions("Group.Read.All")]
+    [RequiredApiApplicationPermissions("graph/Tasks.Read")]
+    [RequiredApiApplicationPermissions("graph/Group.Read.All")]    
+    [RequiredApiApplicationPermissions("graph/Tasks.Read.All")]
+    [RequiredApiApplicationPermissions("graph/Tasks.ReadWrite.All")]
+    [RequiredApiApplicationPermissions("graph/Tasks.ReadWrite.All")]
+    [RequiredApiApplicationPermissions("graph/Group.ReadWrite.All")]
     public class GetPlannerPlan : PnPGraphCmdlet
     {
         private const string ParameterName_BYGROUP = "By Group";
@@ -29,16 +34,16 @@ namespace PnP.PowerShell.Commands.Planner
         {
             if (ParameterSetName == ParameterName_BYGROUP)
             {
-                var groupId = Group.GetGroupId(Connection, AccessToken);
+                var groupId = Group.GetGroupId(GraphRequestHelper);
                 if (groupId != null)
                 {
                     if (ParameterSpecified(nameof(Identity)))
                     {
-                        WriteObject(Identity.GetPlanAsync(Connection, AccessToken, groupId, ResolveIdentities).GetAwaiter().GetResult());
+                        WriteObject(Identity.GetPlan(GraphRequestHelper, groupId, ResolveIdentities));
                     }
                     else
                     {
-                        WriteObject(PlannerUtility.GetPlansAsync(Connection, AccessToken, groupId, ResolveIdentities).GetAwaiter().GetResult(), true);
+                        WriteObject(PlannerUtility.GetPlans(GraphRequestHelper, groupId, ResolveIdentities), true);
                     }
                 }
                 else
@@ -48,7 +53,7 @@ namespace PnP.PowerShell.Commands.Planner
             }
             else
             {
-                WriteObject(PlannerUtility.GetPlanAsync(Connection, AccessToken, Id, ResolveIdentities).GetAwaiter().GetResult());
+                WriteObject(PlannerUtility.GetPlan(GraphRequestHelper, Id, ResolveIdentities));
             }
         }
     }

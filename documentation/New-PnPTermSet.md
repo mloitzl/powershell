@@ -19,10 +19,12 @@ New-PnPTermSet -Name <String> [-Id <Guid>] [-Lcid <Int32>] -TermGroup <TermGroup
  [-Description <String>] [-IsOpenForTermCreation] [-IsNotAvailableForTagging] [-Owner <String>]
  [-StakeHolders <String[]>] [-CustomProperties <Hashtable>]
  [-TermStore <PnP.PowerShell.Commands.Base.PipeBinds.GenericObjectNameIdPipeBind`1[Microsoft.SharePoint.Client.Taxonomy.TermStore]>]
- [-Connection <PnPConnection>] [<CommonParameters>]
+ [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
+
+Allows to create a taxonomy term set.
 
 ## EXAMPLES
 

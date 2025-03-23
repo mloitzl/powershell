@@ -1,6 +1,5 @@
 ﻿using System.Management.Automation;
 using Microsoft.SharePoint.Client;
-
 using PnP.PowerShell.Commands.Base;
 using Microsoft.Online.SharePoint.TenantAdministration;
 using PnP.PowerShell.Commands.Base.PipeBinds;
@@ -9,7 +8,7 @@ using System;
 namespace PnP.PowerShell.Commands
 {
     [Cmdlet(VerbsCommon.Set, "PnPDisableSpacesActivation")]
-    public class SetDisableSpacesActivation : PnPAdminCmdlet
+    public class SetDisableSpacesActivation : PnPSharePointOnlineAdminCmdlet
     {
         [Parameter(Mandatory = false, Position = 0, ValueFromPipeline = true)]
         public SPOSitePipeBind Identity;
@@ -34,7 +33,7 @@ namespace PnP.PowerShell.Commands
                 }
                 Tenant.DisableSpacesActivationOnSite(Identity.Url, Disable.ToBool());
             }
-            ClientContext.ExecuteQueryRetry();
+            AdminContext.ExecuteQueryRetry();
         }
     }
 }

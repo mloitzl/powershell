@@ -17,10 +17,12 @@ Adds folders to a list in a PnP Provisioning Template
 ```powershell
 Add-PnPListFoldersToSiteTemplate [-Path] <String> [-List] <ListPipeBind> [-Recursive]
  [-IncludeSecurity] [[-TemplateProviderExtensions] <ITemplateProviderExtension[]>] 
- [-Connection <PnPConnection>] [<CommonParameters>]
+ [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
+
+Allows to add folders to a list in a PnP Provisioning Template.
 
 ## EXAMPLES
 
@@ -109,6 +111,7 @@ A switch parameter to include all folders in the list, or just top level folders
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
+Aliases: Recurse
 
 Required: False
 Position: 4

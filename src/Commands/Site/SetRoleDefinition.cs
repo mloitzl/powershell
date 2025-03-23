@@ -6,6 +6,7 @@ using PnP.PowerShell.Commands.Base.PipeBinds;
 namespace PnP.PowerShell.Commands.Site
 {
     [Cmdlet(VerbsCommon.Set, "PnPRoleDefinition")]
+    [OutputType(typeof(RoleDefinition))]
     public class SetRoleDefinition : PnPSharePointCmdlet
     {
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 0)]
@@ -41,10 +42,10 @@ namespace PnP.PowerShell.Commands.Site
 
                 if (ParameterSpecified(nameof(SelectAll)) && ParameterSpecified(nameof(ClearAll)))
                 {
-                    WriteWarning("Cannot SelectAll and ClearAll permissions at the same time");
+                    LogWarning("Cannot SelectAll and ClearAll permissions at the same time");
                     return;
                 }
-                
+
                 if (ParameterSpecified(nameof(NewRoleName)))
                 {
                     roleDefinition.Name = NewRoleName;
@@ -99,7 +100,7 @@ namespace PnP.PowerShell.Commands.Site
             }
             catch (ServerException e)
             {
-                WriteWarning($@"Exception occurred while trying to set the Role Definition: ""{e.Message}"". Will be skipped.");
+                LogWarning($@"Exception occurred while trying to set the Role Definition: ""{e.Message}"". Will be skipped.");
             }
         }
     }

@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Management.Automation;
-using Microsoft.SharePoint.Client;
-
-using PnP.PowerShell.Commands.Base.PipeBinds;
 using PnP.PowerShell.Commands.Enums;
 
 namespace PnP.PowerShell.Commands.Features
@@ -22,13 +19,16 @@ namespace PnP.PowerShell.Commands.Features
 
         protected override void ExecuteCmdlet()
         {
+            var pnpContext = Connection.PnPContext;
             if (Scope == FeatureScope.Web)
             {
-                CurrentWeb.DeactivateFeature(Identity);
+                pnpContext.Web.LoadAsync(w => w.Features).GetAwaiter().GetResult();
+                pnpContext.Web.Features.Disable(Identity);
             }
             else
             {
-                ClientContext.Site.DeactivateFeature(Identity);
+                pnpContext.Site.LoadAsync(s => s.Features).GetAwaiter().GetResult();
+                pnpContext.Site.Features.Disable(Identity);
             }
         }
     }

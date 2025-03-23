@@ -15,7 +15,7 @@ using PnP.PowerShell.Commands.Base;
 namespace PnP.PowerShell.Commands.Provisioning.Site
 {
     [Cmdlet(VerbsCommon.Get, "PnPTenantTemplate")]
-    public class GetTenantTemplate : PnPAdminCmdlet
+    public class GetTenantTemplate : PnPSharePointOnlineAdminCmdlet
     {
         const string PARAMETERSET_ASFILE = "Extract a template to a file";
         const string PARAMETERSET_ASOBJECT = "Extract a template as an object";
@@ -53,14 +53,16 @@ namespace PnP.PowerShell.Commands.Provisioning.Site
                 extractConfiguration = new ExtractConfiguration();
             }
 
-            if (!string.IsNullOrEmpty(SiteUrl))
+            if (string.IsNullOrEmpty(SiteUrl))
             {
-                if (extractConfiguration.Tenant.Sequence == null)
-                {
-                    extractConfiguration.Tenant.Sequence = new Framework.Provisioning.Model.Configuration.Tenant.Sequence.ExtractSequenceConfiguration();
-                }
-                extractConfiguration.Tenant.Sequence.SiteUrls.Add(SiteUrl);
+                SiteUrl = Connection.Url;
             }
+
+            if (extractConfiguration.Tenant.Sequence == null)
+            {
+                extractConfiguration.Tenant.Sequence = new Framework.Provisioning.Model.Configuration.Tenant.Sequence.ExtractSequenceConfiguration();
+            }
+            extractConfiguration.Tenant.Sequence.SiteUrls.Add(SiteUrl);
 
             if (ParameterSetName == PARAMETERSET_ASFILE)
             {
@@ -72,7 +74,7 @@ namespace PnP.PowerShell.Commands.Provisioning.Site
                 }
                 if (Out.ToLower().EndsWith(".pnp"))
                 {
-                    WriteWarning("This cmdlet does not save a tenant template as a PnP file.");
+                    LogWarning("This cmdlet does not save a tenant template as a PnP file.");
                 }
                 var fileInfo = new FileInfo(Out);
                 var fileSystemConnector = new FileSystemConnector(fileInfo.DirectoryName, "");
@@ -121,7 +123,7 @@ namespace PnP.PowerShell.Commands.Provisioning.Site
                 {
                     case ProvisioningMessageType.Warning:
                         {
-                            WriteWarning(message);
+                            LogWarning(message);
                             break;
                         }
                     case ProvisioningMessageType.Progress:

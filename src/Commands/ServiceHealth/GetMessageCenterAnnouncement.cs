@@ -1,12 +1,12 @@
-﻿using System.Management.Automation;
-using PnP.PowerShell.Commands.Attributes;
+﻿using PnP.PowerShell.Commands.Attributes;
 using PnP.PowerShell.Commands.Base;
 using PnP.PowerShell.Commands.Utilities;
+using System.Management.Automation;
 
 namespace PnP.PowerShell.Commands.ServiceHealth
 {
     [Cmdlet(VerbsCommon.Get, "PnPMessageCenterAnnouncement")]
-    [RequiredMinimalApiPermissions("ServiceMessage.Read.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/ServiceMessage.Read.All")]
     public class GetMessageCenterAnnouncement : PnPGraphCmdlet
     {
         [Parameter(Mandatory = false)]
@@ -16,12 +16,12 @@ namespace PnP.PowerShell.Commands.ServiceHealth
         {
             if (ParameterSpecified(nameof(Identity)))
             {
-                WriteObject(ServiceHealthUtility.GetServiceUpdateMessageByIdAsync(Identity, Connection, AccessToken).GetAwaiter().GetResult(), false);
+                WriteObject(ServiceHealthUtility.GetServiceUpdateMessageById(GraphRequestHelper, Identity), false);
             }
             else
             {
-                WriteObject(ServiceHealthUtility.GetServiceUpdateMessagesAsync(Connection, AccessToken).GetAwaiter().GetResult(), true);
+                WriteObject(ServiceHealthUtility.GetServiceUpdateMessages(GraphRequestHelper), true);
             }
-        }        
+        }
     }
 }

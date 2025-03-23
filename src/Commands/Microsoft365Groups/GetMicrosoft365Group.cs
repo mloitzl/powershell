@@ -9,15 +9,15 @@ using System.Management.Automation;
 namespace PnP.PowerShell.Commands.Microsoft365Groups
 {
     [Cmdlet(VerbsCommon.Get, "PnPMicrosoft365Group")]
-    [RequiredMinimalApiPermissions("Group.Read.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/GroupMember.Read.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/Group.Read.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/Directory.Read.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/Group.ReadWrite.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/Directory.ReadWrite.All")]  
     public class GetMicrosoft365Group : PnPGraphCmdlet
     {
         [Parameter(Mandatory = false)]
         public Microsoft365GroupPipeBind Identity;
-
-        [Parameter(Mandatory = false)]
-        [Obsolete("The site url is now excluded by default. Use IncludeSiteUrl instead to include the site url of the underlying SharePoint site.")]
-        public SwitchParameter ExcludeSiteUrl;
 
         [Parameter(Mandatory = false)]
         public SwitchParameter IncludeSiteUrl;
@@ -26,29 +26,32 @@ namespace PnP.PowerShell.Commands.Microsoft365Groups
         public SwitchParameter IncludeOwners;
 
         [Parameter(Mandatory = false)]
-        [Obsolete("Classification is always included")]
-        public SwitchParameter IncludeClassification;
+        public SwitchParameter Detailed;
 
         [Parameter(Mandatory = false)]
-        [Obsolete("HasTeam is always included")]
-        public SwitchParameter IncludeHasTeam;
+        public string Filter;
+
+        [Parameter(Mandatory = false)]
+        public SwitchParameter IncludeSensitivityLabels;
 
         protected override void ExecuteCmdlet()
         {
-#pragma warning disable 0618
-            var includeSiteUrl = ParameterSpecified(nameof(ExcludeSiteUrl)) ? !ExcludeSiteUrl.ToBool() : IncludeSiteUrl.ToBool();
-#pragma warning restore 0618
+            var includeSiteUrl = IncludeSiteUrl.ToBool();
 
             if (Identity != null)
             {
-                var group = Identity.GetGroup(Connection, AccessToken, includeSiteUrl, IncludeOwners);
+                var group = Identity.GetGroup(GraphRequestHelper, includeSiteUrl, IncludeOwners, Detailed.ToBool(), IncludeSensitivityLabels);
                 WriteObject(group);
             }
             else
             {
-                var groups = Microsoft365GroupsUtility.GetGroupsAsync(Connection, AccessToken, includeSiteUrl, IncludeOwners).GetAwaiter().GetResult();
+                var groupsResult = Microsoft365GroupsUtility.GetGroups(GraphRequestHelper, includeSiteUrl, IncludeOwners, Filter, IncludeSensitivityLabels);
 
-                WriteObject(groups.OrderBy(p => p.DisplayName), true);
+                WriteObject(groupsResult.Groups.OrderBy(p => p.DisplayName), true);
+                if(groupsResult.Errors.Any())
+                {
+                    throw new AggregateException($"{groupsResult.Errors.Count} error(s) occurred in a Graph batch request", groupsResult.Errors);
+                }
             }
         }
     }

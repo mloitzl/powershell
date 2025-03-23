@@ -3,7 +3,6 @@ using PnP.Framework.Http;
 using PnP.PowerShell.Commands.Base;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 using PnP.PowerShell.Commands.Model;
-using PnP.PowerShell.Commands.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Management.Automation;
@@ -14,7 +13,7 @@ using System.Threading.Tasks;
 namespace PnP.PowerShell.Commands.Admin
 {
     [Cmdlet(VerbsCommon.Rename, "PnPTenantSite")]
-    public class RenameTenantSite : PnPAdminCmdlet
+    public class RenameTenantSite : PnPSharePointOnlineAdminCmdlet
     {
         [Parameter(Mandatory = true)]
         [ValidateNotNullOrEmpty]
@@ -42,7 +41,7 @@ namespace PnP.PowerShell.Commands.Admin
 
         protected override void ExecuteCmdlet()
         {
-            ClientContext.ExecuteQueryRetry(); // fixes issue where ServerLibraryVersion is not available.
+            AdminContext.ExecuteQueryRetry(); // fixes issue where ServerLibraryVersion is not available.
 
             int optionsBitMask = 0;
             if (SuppressMarketplaceAppCheck.IsPresent)
@@ -68,9 +67,7 @@ namespace PnP.PowerShell.Commands.Admin
                 OperationId = Guid.Empty
             };
 
-            var tenantUrl = UrlUtilities.GetTenantAdministrationUrl(ClientContext.Url);
-
-            var results = Utilities.REST.RestHelper.PostAsync<SPOSiteRenameJob>(HttpClient, $"{tenantUrl.TrimEnd('/')}/_api/SiteRenameJobs?api-version=1.4.7", ClientContext, body, false).GetAwaiter().GetResult();
+            var results = Utilities.REST.RestHelper.Post<SPOSiteRenameJob>(HttpClient, $"{AdminContext.Url.TrimEnd('/')}/_api/SiteRenameJobs?api-version=1.4.7", AdminContext, body, false);
             if (!Wait.IsPresent)
             {
                 if (results != null)
@@ -85,9 +82,9 @@ namespace PnP.PowerShell.Commands.Admin
 
                 var method = new HttpMethod("GET");
 
-                var httpClient = PnPHttpClient.Instance.GetHttpClient(ClientContext);
+                var httpClient = PnPHttpClient.Instance.GetHttpClient(AdminContext);
 
-                var requestUrl = $"{tenantUrl.TrimEnd('/')}/_api/SiteRenameJobs/GetJobsBySiteUrl(url='{Identity.Url}')?api-version=1.4.7";
+                var requestUrl = $"{AdminContext.Url.TrimEnd('/')}/_api/SiteRenameJobs/GetJobsBySiteUrl(url='{Identity.Url}')?api-version=1.4.7";
 
                 while (wait)
                 {
@@ -98,7 +95,7 @@ namespace PnP.PowerShell.Commands.Admin
                         {
                             request.Headers.Add("accept", "application/json;odata=nometadata");
                             request.Headers.Add("X-AttemptNumber", iterations.ToString());
-                            PnPHttpClient.AuthenticateRequestAsync(request, ClientContext).GetAwaiter().GetResult();
+                            PnPHttpClient.AuthenticateRequestAsync(request, AdminContext).GetAwaiter().GetResult();
 
                             HttpResponseMessage response = httpClient.SendAsync(request, new System.Threading.CancellationToken()).Result;
 

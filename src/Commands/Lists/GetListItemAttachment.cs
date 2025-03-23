@@ -1,5 +1,6 @@
 ﻿using PnP.Core.Model.SharePoint;
 using PnP.Core.QueryModel;
+using PnP.PowerShell.Commands.Base.Completers;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 using System.IO;
 using System.Linq;
@@ -11,6 +12,7 @@ namespace PnP.PowerShell.Commands.Lists
     public class GetListItemAttachment : PnPWebCmdlet
     {
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 0)]
+        [ArgumentCompleter(typeof(ListNameCompleter))]
         public ListPipeBind List;
 
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 1)]
@@ -25,7 +27,7 @@ namespace PnP.PowerShell.Commands.Lists
 
         protected override void ExecuteCmdlet()
         {
-            IList list = List.GetList(PnPContext);
+            IList list = List.GetList(Connection.PnPContext);
 
             if (list == null)
             {
@@ -57,7 +59,7 @@ namespace PnP.PowerShell.Commands.Lists
 
             if (attachmentFilesCollection.Length == 0)
             {
-                WriteWarning($"No attachments found for the list item provided through -{nameof(Identity)}");
+                LogWarning($"No attachments found for the list item provided through -{nameof(Identity)}");
             }
             else
             {
@@ -68,12 +70,12 @@ namespace PnP.PowerShell.Commands.Lists
 
                     if (System.IO.File.Exists(fileOut) && !Force)
                     {
-                        WriteWarning($"File '{attachment.FileName}' exists already in the specified path. This file will be skipped. Use the -Force parameter to overwrite the file in the specified path.");
+                        LogWarning($"File '{attachment.FileName}' exists already in the specified path. This file will be skipped. Use the -Force parameter to overwrite the file in the specified path.");
                     }
                     else
                     {
                         // Start the download
-                        using (Stream downloadedContentStream = attachment.GetContentAsync().GetAwaiter().GetResult())
+                        using (Stream downloadedContentStream = attachment.GetContent())
                         {
                             // Download the file bytes in 2MB chunks and immediately write them to a file on disk 
                             // This approach avoids the file being fully loaded in the process memory

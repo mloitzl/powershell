@@ -1,26 +1,25 @@
 ﻿using Microsoft.Online.SharePoint.TenantAdministration.Internal;
 using Microsoft.SharePoint.Client;
-
 using PnP.PowerShell.Commands.Base;
 using System.Management.Automation;
 
 namespace PnP.PowerShell.Commands.Apps
 {
     [Cmdlet(VerbsLifecycle.Enable, "PnPTenantServicePrincipal", ConfirmImpact = ConfirmImpact.High)]
-    public class EnableTenantServicePrincipal : PnPAdminCmdlet
+    public class EnableTenantServicePrincipal : PnPSharePointOnlineAdminCmdlet
     {
         [Parameter(Mandatory = false)]
         public SwitchParameter Force;
 
         protected override void ExecuteCmdlet()
         {
-            if (ShouldContinue("Do you want to enable the Tenant Service Principal?", "Continue?"))
+            if (Force || ShouldContinue("Do you want to enable the Tenant Service Principal?", Properties.Resources.Confirm))
             {
-                var servicePrincipal = new SPOWebAppServicePrincipal(ClientContext);
+                var servicePrincipal = new SPOWebAppServicePrincipal(AdminContext);
                 servicePrincipal.AccountEnabled = true;
                 servicePrincipal.Update();
-                ClientContext.Load(servicePrincipal);
-                ClientContext.ExecuteQueryRetry();
+                AdminContext.Load(servicePrincipal);
+                AdminContext.ExecuteQueryRetry();
                 WriteObject(servicePrincipal);
             }
         }

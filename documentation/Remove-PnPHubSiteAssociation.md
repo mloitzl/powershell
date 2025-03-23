@@ -20,10 +20,13 @@ Removes a hub site association from a site.
 ## SYNTAX
 
 ```powershell
-Remove-PnPHubSiteAssociation -Site <SitePipeBind> [-Connection <PnPConnection>] [<CommonParameters>]
+Remove-PnPHubSiteAssociation -Site <SitePipeBind> [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
+
+Allows to remove a hub site association from a site.
+
 ## EXAMPLES
 
 ### EXAMPLE 1

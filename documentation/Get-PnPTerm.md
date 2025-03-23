@@ -19,7 +19,7 @@ Returns a Term Store Term.
 Get-PnPTerm
     -Identity <Guid>
     [-TermStore <Guid>]
-    [-IncludeChildTerms] [-Connection <PnPConnection>] [-Includes <String[]>] [<CommonParameters>]
+    [-IncludeChildTerms] [-Connection <PnPConnection>] [-Includes <String[]>] 
 ```
 
 ### By Term Name
@@ -30,7 +30,7 @@ Get-PnPTerm
     -TermGroup <Guid|Name>
     [-TermStore <Guid>]
     [-Recursive] 
-    [-IncludeChildTerms][-IncludeDeprecated] [-Connection <PnPConnection>] [-Includes <String[]>] [<CommonParameters>]
+    [-IncludeChildTerms][-IncludeDeprecated] [-Connection <PnPConnection>] [-Includes <String[]>] 
 ```
 
 ## DESCRIPTION
@@ -187,6 +187,20 @@ Includes the deprecated terms if available.
 ```yaml
 Type: SwitchParameter
 Parameter Sets: By Term name
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Includes
+Optionally allows properties to be retrieved for the returned terms which are not included in the response by default
+
+```yaml
+Type: String[]
+Parameter Sets: (All)
 
 Required: False
 Position: Named

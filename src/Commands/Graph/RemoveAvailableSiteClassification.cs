@@ -8,9 +8,7 @@ using System.Management.Automation;
 namespace PnP.PowerShell.Commands.Graph
 {
     [Cmdlet(VerbsCommon.Remove, "PnPAvailableSiteClassification")]
-    [RequiredMinimalApiPermissions("Directory.ReadWrite.All")]
-    [Alias("Remove-PnPSiteClassitication")]
-    [WriteAliasWarning("Please use 'Remove-PnPAvailableSiteClassification'. The alias 'Remove-PnPSiteClassification' will be removed in a future release.")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/Directory.ReadWrite.All")]
     [OutputType(typeof(void))]
     public class RemoveSiteClassification : PnPGraphCmdlet
     {
@@ -18,7 +16,7 @@ namespace PnP.PowerShell.Commands.Graph
         public List<string> Classifications;
 
         [Parameter(Mandatory = false)]
-        public SwitchParameter Confirm;
+        public SwitchParameter Force;
 
         protected override void ExecuteCmdlet()
         {
@@ -32,7 +30,7 @@ namespace PnP.PowerShell.Commands.Graph
 
                         if (existingSettings.DefaultClassification == classification)
                         {
-                            if ((ParameterSpecified("Confirm") && !bool.Parse(MyInvocation.BoundParameters["Confirm"].ToString())) || ShouldContinue(string.Format(Properties.Resources.RemoveDefaultClassification0, classification), Properties.Resources.Confirm))
+                            if (Force || ShouldContinue(string.Format(Properties.Resources.RemoveDefaultClassification0, classification), Properties.Resources.Confirm))
                             {
                                 existingSettings.DefaultClassification = "";
                                 existingSettings.Classifications.Remove(classification);
@@ -50,14 +48,14 @@ namespace PnP.PowerShell.Commands.Graph
                 }
                 else
                 {
-                    WriteError(new ErrorRecord(new InvalidOperationException("At least one classification is required. If you want to disable classifications, use Disable-PnPSiteClassification."), "SITECLASSIFICATIONS_ARE_REQUIRED", ErrorCategory.InvalidOperation, null));
+                    LogError("At least one classification is required. If you want to disable classifications, use Disable-PnPSiteClassification.");
                 }
             }
             catch (ApplicationException ex)
             {
                 if (ex.Message == @"Missing DirectorySettingTemplate for ""Group.Unified""")
                 {
-                    WriteError(new ErrorRecord(new InvalidOperationException("Site Classification is not enabled for this tenant"), "SITECLASSIFICATION_NOT_ENABLED", ErrorCategory.ResourceUnavailable, null));
+                    LogError("Site Classification is not enabled for this tenant");
                 }
             }
         }

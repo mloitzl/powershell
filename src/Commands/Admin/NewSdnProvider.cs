@@ -4,8 +4,8 @@ using System.Management.Automation;
 
 namespace PnP.PowerShell.Commands.Admin
 {
-    [Cmdlet(VerbsCommon.New, "PnPSdnProvider", SupportsShouldProcess = true)]
-    public class NewSdnProvider : PnPAdminCmdlet
+    [Cmdlet(VerbsCommon.New, "PnPSdnProvider")]
+    public class NewSdnProvider : PnPSharePointOnlineAdminCmdlet
     {
         [Parameter(Mandatory = true)]
         public string Identity;
@@ -15,10 +15,10 @@ namespace PnP.PowerShell.Commands.Admin
 
         protected override void ExecuteCmdlet()
         {
-            if (ShouldProcess("Adds a new SDN Provider"))
+            if (ShouldContinue("Add a new SDN Provider", Properties.Resources.Confirm))
             {
-                this.Tenant.AddSdnProvider(Identity, License);
-                ClientContext.ExecuteQueryRetry();
+                Tenant.AddSdnProvider(Identity, License);
+                AdminContext.ExecuteQueryRetry();
             }
         }
     }

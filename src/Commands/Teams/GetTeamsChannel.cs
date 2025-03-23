@@ -7,7 +7,8 @@ using System.Management.Automation;
 namespace PnP.PowerShell.Commands.Teams
 {
     [Cmdlet(VerbsCommon.Get, "PnPTeamsChannel")]
-    [RequiredMinimalApiPermissions("Group.Read.All")]
+    [RequiredApiApplicationPermissions("graph/Group.Read.All")]
+    [RequiredApiApplicationPermissions("graph/Group.ReadWrite.All")]
 
     public class GetTeamsChannel : PnPGraphCmdlet
     {
@@ -17,22 +18,20 @@ namespace PnP.PowerShell.Commands.Teams
         [Parameter(Mandatory = false)]
         public TeamsChannelPipeBind Identity;
 
+        [Parameter(Mandatory = false)]
+        public SwitchParameter IncludeModerationSettings;
+
         protected override void ExecuteCmdlet()
         {
-            var groupId = Team.GetGroupId(Connection, AccessToken);
-            if (groupId != null)
+            var groupId = Team.GetGroupId(GraphRequestHelper) ?? throw new PSArgumentException("Team not found", nameof(Team));
+
+            if (ParameterSpecified(nameof(Identity)))
             {
-                if (ParameterSpecified(nameof(Identity)))
-                {
-                    WriteObject(Identity.GetChannel(Connection, AccessToken, groupId));
-                }
-                else
-                {
-                    WriteObject(TeamsUtility.GetChannelsAsync(AccessToken, Connection, groupId).GetAwaiter().GetResult(), true);
-                }
-            } else
+                WriteObject(Identity.GetChannel(GraphRequestHelper, groupId, useBeta: IncludeModerationSettings.ToBool()));
+            }
+            else
             {
-                throw new PSArgumentException("Team not found", nameof(Team));
+                WriteObject(TeamsUtility.GetChannels(GraphRequestHelper, groupId, useBeta: IncludeModerationSettings.ToBool()), true);
             }
         }
     }

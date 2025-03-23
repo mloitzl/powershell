@@ -20,10 +20,12 @@ Returns the publishing status of a content type present on content type hub site
 ## SYNTAX
 
 ```powershell
-Get-PnPContentTypePublishingStatus -ContentType <ContentTypePipeBind> [-Connection <PnPConnection>] [<CommonParameters>]
+Get-PnPContentTypePublishingStatus -ContentType <ContentTypePipeBind> [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
+
+Allows to retrieve the publishing status of a content type present on content type hub site.
 
 ## EXAMPLES
 

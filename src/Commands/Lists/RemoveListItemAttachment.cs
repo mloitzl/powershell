@@ -1,5 +1,6 @@
 ﻿using PnP.Core.Model.SharePoint;
 using PnP.Core.QueryModel;
+using PnP.PowerShell.Commands.Base.Completers;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 using PnP.PowerShell.Commands.Properties;
 using System;
@@ -16,6 +17,7 @@ namespace PnP.PowerShell.Commands.Lists
 
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 0, ParameterSetName = ParameterSet_SINGLE)]
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 0, ParameterSetName = ParameterSet_Multiple)]
+        [ArgumentCompleter(typeof(ListNameCompleter))]
         public ListPipeBind List;
 
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 1, ParameterSetName = ParameterSet_SINGLE)]
@@ -39,7 +41,7 @@ namespace PnP.PowerShell.Commands.Lists
 
         protected override void ExecuteCmdlet()
         {
-            IList list = List.GetList(PnPContext);
+            IList list = List.GetList(Connection.PnPContext);
 
             if (list == null)
             {
@@ -59,7 +61,7 @@ namespace PnP.PowerShell.Commands.Lists
 
             if(files.Length == 0)
             {
-                WriteWarning($"No attachments found on the list item that can be {removeText.ToLower()}d");
+                LogWarning($"No attachments found on the list item that can be {removeText.ToLower()}d");
                 return;
             }
             
@@ -87,7 +89,7 @@ namespace PnP.PowerShell.Commands.Lists
 
                 if(fileToDelete == null)
                 {
-                    WriteWarning($"No attachment found with the name '{FileName}'");
+                    LogWarning($"No attachment found with the name '{FileName}'");
                 }
                 else
                 {

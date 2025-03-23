@@ -16,10 +16,12 @@ Adds an existing site column to a content type
 
 ```powershell
 Add-PnPFieldToContentType -Field <FieldPipeBind> -ContentType <ContentTypePipeBind> [-Required] [-Hidden]
- [-Connection <PnPConnection>] [<CommonParameters>]
+ [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
+
+Allows to add a field from site columns to an existing content type.
 
 ## EXAMPLES
 

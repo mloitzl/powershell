@@ -15,10 +15,12 @@ Get the Auditing setting of a site
 ## SYNTAX
 
 ```powershell
-Get-PnPAuditing [-Connection <PnPConnection>] [<CommonParameters>]
+Get-PnPAuditing [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
+
+Allows to get the auditing setting of the site.
 
 ## EXAMPLES
 

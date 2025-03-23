@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using System.Management.Automation;
-
 using PnP.Framework.Provisioning.Providers.Xml;
 using Resources = PnP.PowerShell.Commands.Properties.Resources;
 using PnP.Framework.Provisioning.Providers;
@@ -56,11 +55,6 @@ namespace PnP.PowerShell.Commands.Provisioning
                     case XMLPnPSchemaVersion.LATEST:
                         {
                             formatter = XMLPnPSchemaFormatter.LatestFormatter;
-                            break;
-                        }
-                    case XMLPnPSchemaVersion.V201903:
-                        {
-                            formatter = XMLPnPSchemaFormatter.GetSpecificFormatter(XMLConstants.PROVISIONING_SCHEMA_NAMESPACE_2019_03);
                             break;
                         }
                     case XMLPnPSchemaVersion.V201909:

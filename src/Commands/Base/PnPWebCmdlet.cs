@@ -1,6 +1,4 @@
-﻿using System;
-using PnP.PowerShell.Commands.Base.PipeBinds;
-using System.Management.Automation;
+﻿using System.Management.Automation;
 using Microsoft.SharePoint.Client;
 
 namespace PnP.PowerShell.Commands
@@ -8,10 +6,6 @@ namespace PnP.PowerShell.Commands
     public abstract class PnPWebCmdlet : PnPSharePointCmdlet
     {
         private Web _currentWeb;
-
-        [Parameter(Mandatory = false)]
-        [Obsolete("The -Web parameter will be removed in a future release. Use Connect-PnPOnline -Url [subweburl] instead to connect to a subweb.")]
-        public WebPipeBind Web;
 
         internal void ThrowIfWebParameterUsed()
         {
@@ -39,24 +33,12 @@ namespace PnP.PowerShell.Commands
         private Web GetWeb()
         {
             Web web = ClientContext.Web;
-
-#pragma warning disable CS0618
-            if (ParameterSpecified(nameof(Web)))
+            
+            if (Connection.Context.Url != Connection.Url)
             {
-                var subWeb = Web.GetWeb(ClientContext);
-                subWeb.EnsureProperty(w => w.Url);
-                Connection.CloneContext(subWeb.Url);
-                web = Connection.Context.Web;
+                Connection.RestoreCachedContext(Connection.Url);
             }
-#pragma warning restore CS0618
-            else
-            {
-                if (Connection.Context.Url != Connection.Url)
-                {
-                    Connection.RestoreCachedContext(Connection.Url);
-                }
-                web = ClientContext.Web;
-            }
+            web = ClientContext.Web;            
 
             Connection.Context.ExecuteQueryRetry();
 

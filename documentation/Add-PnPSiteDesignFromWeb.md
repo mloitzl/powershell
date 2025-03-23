@@ -2,7 +2,7 @@
 Module Name: PnP.PowerShell
 schema: 2.0.0
 applicable: SharePoint Online
-online version: https://pnp.github.io/powershell/cmdlets/Add-PnPSiteDesignFromWebFromWeb.html
+online version: https://pnp.github.io/powershell/cmdlets/Add-PnPSiteDesignFromWeb.html
 external help file: PnP.PowerShell.dll-Help.xml
 title: Add-PnPSiteDesignFromWeb
 ---
@@ -62,21 +62,6 @@ Optional connection to be used by the cmdlet. Retrieve the value for this parame
 ```yaml
 Type: PnPConnection
 Parameter Sets: (All)
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -WhatIf
-Shows what would happen if the cmdlet runs. The cmdlet is not run.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: wi
 
 Required: False
 Position: Named

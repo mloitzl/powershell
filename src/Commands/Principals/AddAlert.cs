@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Management.Automation;
 using Microsoft.SharePoint.Client;
-
+using PnP.PowerShell.Commands.Base.Completers;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 using PnP.PowerShell.Commands.Enums;
 
@@ -13,6 +13,7 @@ namespace PnP.PowerShell.Commands.Principals
     public class AddAlert : PnPWebCmdlet
     {
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 0)]
+        [ArgumentCompleter(typeof(ListNameCompleter))]
         public ListPipeBind List;
 
         [Parameter(Mandatory = false)]
@@ -35,6 +36,9 @@ namespace PnP.PowerShell.Commands.Principals
 
         [Parameter(Mandatory = false)]
         public DateTime Time = DateTime.MinValue;
+
+        [Parameter(Mandatory = false)]
+        public string AlertTemplateName;
 
         protected override void ExecuteCmdlet()
         {
@@ -66,7 +70,7 @@ namespace PnP.PowerShell.Commands.Principals
                 alert.AlwaysNotify = false;
                 alert.DeliveryChannels = DeliveryMethod;
                 var filterValue = Convert.ChangeType(Filter, Filter.GetTypeCode()).ToString();
-                alert.Filter = filterValue;
+                alert.Filter = filterValue;                
 
                 // setting the value of Filter sometimes does not work (CSOM < Jan 2017, ...?), so we use a known workaround
                 // reference: http://toddbaginski.com/blog/how-to-create-office-365-sharepoint-alerts-with-the-client-side-object-model-csom/
@@ -89,6 +93,11 @@ namespace PnP.PowerShell.Commands.Principals
                 if (Time != DateTime.MinValue)
                 {
                     alert.AlertTime = Time;
+                }
+
+                if (!string.IsNullOrEmpty(AlertTemplateName))
+                {
+                    alert.AlertTemplateName = AlertTemplateName;
                 }
                 
                 user.Alerts.Add(alert);

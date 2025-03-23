@@ -8,7 +8,7 @@ using System.Management.Automation;
 namespace PnP.PowerShell.Commands
 {
     [Cmdlet(VerbsCommon.Get, "PnPSiteDesign")]
-    public class GetSiteDesign : PnPAdminCmdlet
+    public class GetSiteDesign : PnPSharePointOnlineAdminCmdlet
     {
         [Parameter(Mandatory = false, Position = 0, ValueFromPipeline = true)]
         public TenantSiteDesignPipeBind Identity;
@@ -21,7 +21,7 @@ namespace PnP.PowerShell.Commands
 
                 if(siteDesigns == null || siteDesigns.Length == 0)
                 {
-                    WriteVerbose("No site designs with the identity provided through Identity have been found");
+                    LogDebug("No site designs with the identity provided through Identity have been found");
                     return;
                 }
 
@@ -30,8 +30,8 @@ namespace PnP.PowerShell.Commands
             else
             {
                 var designs = Tenant.GetSiteDesigns();
-                ClientContext.Load(designs);
-                ClientContext.ExecuteQueryRetry();
+                AdminContext.Load(designs);
+                AdminContext.ExecuteQueryRetry();
 
                 WriteObject(designs.ToList(), true);
             }

@@ -8,7 +8,7 @@ using System.Management.Automation;
 namespace PnP.PowerShell.Commands.Apps
 {
     [Cmdlet(VerbsLifecycle.Approve, "PnPTenantServicePrincipalPermissionRequest")]
-    public class ApproveTenantServicePrincipalPermissionRequests : PnPAdminCmdlet
+    public class ApproveTenantServicePrincipalPermissionRequests : PnPSharePointOnlineAdminCmdlet
     {
         [Parameter(Mandatory = true)]
         public Guid RequestId;
@@ -18,13 +18,13 @@ namespace PnP.PowerShell.Commands.Apps
 
         protected override void ExecuteCmdlet()
         {
-            if (Force || ShouldContinue($"Approve request {RequestId}?", "Continue"))
+            if (Force || ShouldContinue($"Approve request {RequestId}?", Properties.Resources.Confirm))
             {
-                var servicePrincipal = new SPOWebAppServicePrincipal(ClientContext);
+                var servicePrincipal = new SPOWebAppServicePrincipal(AdminContext);
                 var request = servicePrincipal.PermissionRequests.GetById(RequestId);
                 var grant = request.Approve();
-                ClientContext.Load(grant);
-                ClientContext.ExecuteQueryRetry();
+                AdminContext.Load(grant);
+                AdminContext.ExecuteQueryRetry();
                 WriteObject(new TenantServicePrincipalPermissionGrant(grant));
             }
         }

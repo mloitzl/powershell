@@ -1,13 +1,8 @@
 ﻿using Microsoft.SharePoint.Client;
 using PnP.Framework;
-
+using PnP.PowerShell.Commands.Base.Completers;
 using PnP.PowerShell.Commands.Base.PipeBinds;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Management.Automation;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PnP.PowerShell.Commands.RecordsManagement
 {
@@ -15,6 +10,7 @@ namespace PnP.PowerShell.Commands.RecordsManagement
     public class SetListRecordDeclaration : PnPWebCmdlet
     {
         [Parameter(Mandatory = true)]
+        [ArgumentCompleter(typeof(ListNameCompleter))]
         public ListPipeBind List;
 
         [Parameter(Mandatory = false)]

@@ -16,10 +16,12 @@ Returns a web part property
 
 ```powershell
 Get-PnPWebPartProperty -ServerRelativePageUrl <String> -Identity <Guid> [-Key <String>]
- [-Connection <PnPConnection>] [<CommonParameters>]
+ [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
+
+Allows to retrieve web part property.
 
 ## EXAMPLES
 

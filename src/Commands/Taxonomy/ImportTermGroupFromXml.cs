@@ -22,10 +22,6 @@ namespace PnP.PowerShell.Commands.Taxonomy
         protected override void ExecuteCmdlet()
         {
             var template = new ProvisioningTemplate();
-            //template.Security = null;
-            //template.Features = null;
-            //template.CustomActions = null;
-            //template.ComposedLook = null;
 
             template.Id = "TAXONOMYPROVISIONING";
 
@@ -36,6 +32,14 @@ namespace PnP.PowerShell.Commands.Taxonomy
             var fullXml = reader.ReadToEnd();
 
             var document = XDocument.Parse(fullXml);
+
+
+            XElement preferencesElement = document.Root.Descendants(document.Root.GetNamespaceOfPrefix("pnp") + "Preferences").FirstOrDefault();
+            if (preferencesElement != null && preferencesElement.PreviousNode != null)
+            {
+                preferencesElement.PreviousNode.AddBeforeSelf(preferencesElement);
+                preferencesElement.Remove();
+            }
 
             XElement termGroupsElement;
             if (ParameterSpecified(nameof(Xml)))

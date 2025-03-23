@@ -3,14 +3,13 @@ using PnP.PowerShell.Commands.Base;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 using PnP.PowerShell.Commands.Model.Graph;
 using PnP.PowerShell.Commands.Utilities;
-using PnP.PowerShell.Commands.Utilities.REST;
 using System;
 using System.Management.Automation;
 
-namespace PnP.PowerShell.Commands.Graph
+namespace PnP.PowerShell.Commands.Teams
 {
     [Cmdlet(VerbsCommon.Remove, "PnPTeamsTeam")]
-    [RequiredMinimalApiPermissions("Group.ReadWrite.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/Group.ReadWrite.All")]
     public class RemoveTeamsTeam : PnPGraphCmdlet
     {
         [Parameter(Mandatory = true)]
@@ -21,15 +20,15 @@ namespace PnP.PowerShell.Commands.Graph
 
         protected override void ExecuteCmdlet()
         {
-            var groupId = Identity.GetGroupId(Connection, AccessToken);
+            var groupId = Identity.GetGroupId(GraphRequestHelper);
             if (groupId != null)
             {
                 if (Force || ShouldContinue("Removing the team will remove all messages in all channels in the team.", Properties.Resources.Confirm))
                 {
-                    var response = TeamsUtility.DeleteTeamAsync(AccessToken, Connection, groupId).GetAwaiter().GetResult();
+                    var response = TeamsUtility.DeleteTeam(GraphRequestHelper, groupId);
                     if (!response.IsSuccessStatusCode)
                     {
-                        if (GraphHelper.TryGetGraphException(response, out GraphException ex))
+                        if (GraphRequestHelper.TryGetGraphException(response, out GraphException ex))
                         {
                             if (ex.Error != null)
                             {
@@ -38,7 +37,7 @@ namespace PnP.PowerShell.Commands.Graph
                         }
                         else
                         {
-                            WriteError(new ErrorRecord(new Exception($"Team remove failed"), "REMOVEFAILED", ErrorCategory.InvalidResult, this));
+                            LogError($"Team remove failed");
                         }
                     }
                 }

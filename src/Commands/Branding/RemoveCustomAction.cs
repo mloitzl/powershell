@@ -2,7 +2,6 @@
 using PnP.PowerShell.Commands.Base.PipeBinds;
 using PnP.PowerShell.Commands.Enums;
 using Resources = PnP.PowerShell.Commands.Properties.Resources;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace PnP.PowerShell.Commands.Branding
@@ -21,7 +20,7 @@ namespace PnP.PowerShell.Commands.Branding
 
         protected override void ExecuteCmdlet()
         {
-            var customActions = Identity.GetCustomActions(PnPContext, Scope);
+            var customActions = Identity.GetCustomActions(Connection.PnPContext, Scope);
             if (customActions != null && customActions.Any())
             {
                 foreach (var customAction in customActions)

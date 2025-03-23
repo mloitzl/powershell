@@ -21,10 +21,12 @@ Removes a specified user of a specified Microsoft Teams private Channel.
 
 ```powershell
 Remove-PnPTeamsChannelUser -Team <TeamsTeamPipeBind> -Channel <TeamsChannelPipeBind> -Identity <TeamsChannelMemberPipeBind> [-Force]
-  [<CommonParameters>]
+  
 ```
 
 ## DESCRIPTION
+
+Allows to remove a user from specified private channel.
 
 ## EXAMPLES
 

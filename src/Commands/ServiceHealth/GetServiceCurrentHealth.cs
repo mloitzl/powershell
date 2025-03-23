@@ -1,12 +1,12 @@
-﻿using System.Management.Automation;
-using PnP.PowerShell.Commands.Attributes;
+﻿using PnP.PowerShell.Commands.Attributes;
 using PnP.PowerShell.Commands.Base;
 using PnP.PowerShell.Commands.Utilities;
+using System.Management.Automation;
 
 namespace PnP.PowerShell.Commands.ServiceHealth
 {
     [Cmdlet(VerbsCommon.Get, "PnPServiceCurrentHealth")]
-    [RequiredMinimalApiPermissions("ServiceHealth.Read.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/ServiceHealth.Read.All")]
     public class GetServiceCurrentHealth : PnPGraphCmdlet
     {
         [Parameter(Mandatory = false)]
@@ -16,11 +16,11 @@ namespace PnP.PowerShell.Commands.ServiceHealth
         {
             if (ParameterSpecified(nameof(Identity)))
             {
-                WriteObject(ServiceHealthUtility.GetServiceCurrentHealthByIdAsync(Identity, Connection, AccessToken).GetAwaiter().GetResult(), false);
+                WriteObject(ServiceHealthUtility.GetServiceCurrentHealthById(GraphRequestHelper, Identity), false);
             }
             else
             {
-                WriteObject(ServiceHealthUtility.GetServiceCurrentHealthAsync(Connection, AccessToken).GetAwaiter().GetResult(), true);
+                WriteObject(ServiceHealthUtility.GetServiceCurrentHealth(GraphRequestHelper), true);
             }
         }
     }

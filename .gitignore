@@ -133,7 +133,7 @@ publish/
 # Publish Web Output
 *.[Pp]ublish.xml
 *.azurePubxml
-## TODO: Comment the next line if you want to checkin your
+## TODO: Comment the next line if you want to check in your
 ## web deploy settings but do note that will include unencrypted
 ## passwords
 #*.pubxml
@@ -170,6 +170,7 @@ ClientBin/
 *.dbmdl
 *.dbproj.schemaview
 *.pfx
+*.cer
 *.publishsettings
 node_modules/
 orleans.codegen.cs
@@ -216,5 +217,8 @@ ModelManifest.xml
 
 # TabsStudio generated files
 *.tss
+
+# MacOS
+.DS_Store
 
 #.vscode/

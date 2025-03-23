@@ -1,10 +1,13 @@
-﻿using PnP.PowerShell.Commands.Base.PipeBinds;
+﻿using PnP.Core.Model.SharePoint;
+using PnP.PowerShell.Commands.Base.Completers;
+using PnP.PowerShell.Commands.Base.PipeBinds;
 using System;
 using System.Management.Automation;
 
 namespace PnP.PowerShell.Commands.Pages
 {
     [Cmdlet(VerbsCommon.Add, "PnPPageTextPart")]
+    [OutputType(typeof(PnP.Core.Model.SharePoint.IPageText))]
     public class AddTextPart : PnPWebCmdlet
     {
         private const string ParameterSet_DEFAULT = "Default";
@@ -12,6 +15,7 @@ namespace PnP.PowerShell.Commands.Pages
 
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 0, ParameterSetName = ParameterSet_DEFAULT)]
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 0, ParameterSetName = ParameterSet_POSITIONED)]
+        [ArgumentCompleter(typeof(PageCompleter))]
         public PagePipeBind Page;
 
         [Parameter(Mandatory = true, ParameterSetName = ParameterSet_DEFAULT)]
@@ -28,6 +32,30 @@ namespace PnP.PowerShell.Commands.Pages
         [Parameter(Mandatory = true, ParameterSetName = ParameterSet_POSITIONED)]
         public int Column;
 
+        [Parameter(Mandatory = false, ParameterSetName = ParameterSet_DEFAULT)]
+        [Parameter(Mandatory = false, ParameterSetName = ParameterSet_POSITIONED)]
+        public string TextBeforeImage = string.Empty;
+
+        [Parameter(Mandatory = false, ParameterSetName = ParameterSet_DEFAULT)]
+        [Parameter(Mandatory = false, ParameterSetName = ParameterSet_POSITIONED)]
+        public string ImageUrl;
+
+        [Parameter(Mandatory = false, ParameterSetName = ParameterSet_DEFAULT)]
+        [Parameter(Mandatory = false, ParameterSetName = ParameterSet_POSITIONED)]
+        public PageImageAlignment PageImageAlignment = PageImageAlignment.Center;
+
+        [Parameter(Mandatory = false, ParameterSetName = ParameterSet_DEFAULT)]
+        [Parameter(Mandatory = false, ParameterSetName = ParameterSet_POSITIONED)]
+        public int ImageWidth = 150;
+
+        [Parameter(Mandatory = false, ParameterSetName = ParameterSet_DEFAULT)]
+        [Parameter(Mandatory = false, ParameterSetName = ParameterSet_POSITIONED)]
+        public int ImageHeight = 150;
+
+        [Parameter(Mandatory = false, ParameterSetName = ParameterSet_DEFAULT)]
+        [Parameter(Mandatory = false, ParameterSetName = ParameterSet_POSITIONED)]
+        public string TextAfterImage = string.Empty;
+
         protected override void ExecuteCmdlet()
         {
             if (ParameterSpecified(nameof(Section)) && Section == 0)
@@ -43,10 +71,27 @@ namespace PnP.PowerShell.Commands.Pages
             var clientSidePage = Page.GetPage(Connection);
 
             if (clientSidePage == null)
+            {
                 // If the client side page object cannot be found
                 throw new Exception($"Page {Page} cannot be found.");
+            }
 
-            var textControl = clientSidePage.NewTextPart(Text);
+            var textControl = clientSidePage.NewTextPart();
+            var textPartText = Text;
+
+            if (ParameterSpecified(nameof(ImageUrl)) && !string.IsNullOrEmpty(ImageUrl))
+            {
+                var inlineImage = clientSidePage.GetInlineImage(textControl, ImageUrl, new PageImageOptions()
+                {
+                    Alignment = PageImageAlignment,
+                    Width = ImageWidth,
+                    Height = ImageHeight
+                });
+
+                textPartText = $"{Text}{TextBeforeImage}{inlineImage}{TextAfterImage}";
+            }
+
+            textControl.Text = textPartText;
 
             if (ParameterSpecified(nameof(Section)))
             {

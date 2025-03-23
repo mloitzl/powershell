@@ -16,10 +16,12 @@ Returns statistics on the web object
 
 ```powershell
 Measure-PnPWeb [[-Identity] <WebPipeBind>] [-Recursive] [-IncludeHiddenList] [-Connection <PnPConnection>]
- [<CommonParameters>]
+ 
 ```
 
 ## DESCRIPTION
+
+Allows to retrieve statistics on specified web. By specifying `Recursive` it is possible to retrieve statistics on all subwebs as well.
 
 ## EXAMPLES
 
@@ -86,6 +88,7 @@ Iterate all sub webs recursively
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
+Aliases: Recurse
 
 Required: False
 Position: Named

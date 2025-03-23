@@ -10,15 +10,17 @@ online version: https://pnp.github.io/powershell/cmdlets/Sync-PnPAppToTeams.html
 # Sync-PnPAppToTeams
 
 ## SYNOPSIS
-Synchronize an app from the tenant app catalog to the Microsoft Teams app catalog
+Synchronize an app from the tenant app catalog to the Microsoft Teams app catalog.
 
 ## SYNTAX
 
 ```powershell
-Sync-PnPAppToTeams [-Identity] <AppMetadataPipeBind> [-Connection <PnPConnection>] [<CommonParameters>]
+Sync-PnPAppToTeams [-Identity] <AppMetadataPipeBind> [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
+
+Allows to synchronize an app from the tenant app catalog to the Microsoft Teams app catalog.
 
 ## EXAMPLES
 
@@ -27,7 +29,7 @@ Sync-PnPAppToTeams [-Identity] <AppMetadataPipeBind> [-Connection <PnPConnection
 Sync-PnPAppToTeams -Identity 99a00f6e-fb81-4dc7-8eac-e09c6f9132fe
 ```
 
-This will synchronize the given app with the Microsoft Teams app catalog
+This will synchronize the given app with the Microsoft Teams app catalog.
 
 ## PARAMETERS
 
@@ -46,7 +48,7 @@ Accept wildcard characters: False
 ```
 
 ### -Identity
-Specifies the Id of the Addin Instance
+Specifies the Id of the Add-In Instance.
 
 ```yaml
 Type: AppMetadataPipeBind

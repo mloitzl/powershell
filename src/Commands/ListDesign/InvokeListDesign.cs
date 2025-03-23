@@ -19,7 +19,7 @@ namespace PnP.PowerShell.Commands
         protected override void ExecuteCmdlet()
         {
             var url = CurrentWeb.EnsureProperty(w => w.Url);
-            var tenantUrl = UrlUtilities.GetTenantAdministrationUrl(ClientContext.Url);
+            var tenantUrl = Connection.TenantAdminUrl ?? UrlUtilities.GetTenantAdministrationUrl(ClientContext.Url);
             using (var tenantContext = ClientContext.Clone(tenantUrl))
             {
                 var tenant = new Tenant(tenantContext);
@@ -47,7 +47,7 @@ namespace PnP.PowerShell.Commands
 
                 foreach (var design in designs)
                 {
-                    WriteVerbose($"Invoking list design '{design.Title}' ({design.Id})");
+                    LogDebug($"Invoking list design '{design.Title}' ({design.Id})");
 
                     var results = tenant.ApplyListDesign(webUrl, design.Id);
                     tenantContext.Load(results);

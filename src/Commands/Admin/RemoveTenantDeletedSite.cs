@@ -8,7 +8,7 @@ using System.Management.Automation;
 namespace PnP.PowerShell.Commands.Admin
 {
     [Cmdlet(VerbsCommon.Remove, "PnPTenantDeletedSite")]
-    public class RemoveTenantDeletedSite : PnPAdminCmdlet
+    public class RemoveTenantDeletedSite : PnPSharePointOnlineAdminCmdlet
     {
         [Parameter(Position = 0, ValueFromPipeline = true, Mandatory = true)]
         [Alias("Url")]
@@ -28,11 +28,11 @@ namespace PnP.PowerShell.Commands.Admin
             }
             else
             {
-                if (Force || ShouldContinue($"Remove site collection {Identity.Url}?", "Confirm"))
+                if (Force || ShouldContinue($"Remove site collection {Identity.Url}?", Properties.Resources.Confirm))
                 {
                     SpoOperation spoOperation = Tenant.RemoveDeletedSite(Identity.Url);
-                    ClientContext.Load(spoOperation);
-                    ClientContext.ExecuteQueryRetry();
+                    AdminContext.Load(spoOperation);
+                    AdminContext.ExecuteQueryRetry();
                     if (!NoWait.ToBool())
                     {
                         PollOperation(spoOperation);

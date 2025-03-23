@@ -16,10 +16,12 @@ Deletes a view from a list
 
 ```powershell
 Remove-PnPView [-Identity] <ViewPipeBind> [-List] <ListPipeBind> [-Force] 
- [-Connection <PnPConnection>]   [<CommonParameters>]
+ [-Connection <PnPConnection>]   
 ```
 
 ## DESCRIPTION
+
+Allows to remove view from a list.
 
 ## EXAMPLES
 
@@ -100,23 +102,6 @@ Required: True
 Position: 1
 Default value: None
 Accept pipeline input: True (ByValue)
-Accept wildcard characters: False
-```
-
-
-
-### -WhatIf
-Shows what would happen if the cmdlet runs. The cmdlet is not run.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: wi
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
 Accept wildcard characters: False
 ```
 

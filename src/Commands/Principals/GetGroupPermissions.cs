@@ -1,6 +1,4 @@
 ﻿using System.Management.Automation;
-using Microsoft.SharePoint.Client;
-
 using PnP.Core.Model.Security;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 
@@ -15,7 +13,7 @@ namespace PnP.PowerShell.Commands.Principals
 
         protected override void ExecuteCmdlet()
         {
-            var group = Identity.GetGroup(PnPContext);
+            var group = Identity.GetGroup(Connection.PnPContext);
 
             if (group == null)
                 throw new PSArgumentException("Site group not found", nameof(Identity));

@@ -1,13 +1,12 @@
 ﻿using Microsoft.Online.SharePoint.TenantAdministration;
 using Microsoft.SharePoint.Client;
-
 using PnP.PowerShell.Commands.Base;
 using System.Management.Automation;
 
 namespace PnP.PowerShell.Commands.Admin
 {
     [Cmdlet(VerbsCommon.Remove, "PnPOrgAssetsLibrary")]
-    public class RemoveOrgAssetsLibrary : PnPAdminCmdlet
+    public class RemoveOrgAssetsLibrary : PnPSharePointOnlineAdminCmdlet
     {
         [Parameter(Mandatory = true)]
         public string LibraryUrl;
@@ -21,7 +20,7 @@ namespace PnP.PowerShell.Commands.Admin
         protected override void ExecuteCmdlet()
         {
             Tenant.RemoveFromOrgAssetsAndCdn(ShouldRemoveFromCdn, CdnType, LibraryUrl);
-            ClientContext.ExecuteQueryRetry();
+            AdminContext.ExecuteQueryRetry();
         }
     }
 }

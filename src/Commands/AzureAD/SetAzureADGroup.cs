@@ -1,17 +1,16 @@
-﻿using PnP.Framework.Entities;
-using PnP.Framework.Graph;
-using PnP.PowerShell.Commands.Attributes;
+﻿using PnP.PowerShell.Commands.Attributes;
 using PnP.PowerShell.Commands.Base;
 using PnP.PowerShell.Commands.Base.PipeBinds;
-using PnP.PowerShell.Commands.Model.AzureAD;
+using PnP.PowerShell.Commands.Utilities;
 using System;
-using System.IO;
 using System.Management.Automation;
+using Group = PnP.PowerShell.Commands.Model.Graph.Group;
 
 namespace PnP.PowerShell.Commands.Graph
 {
     [Cmdlet(VerbsCommon.Set, "PnPAzureADGroup")]
-    [RequiredMinimalApiPermissions("Group.ReadWrite.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/Group.ReadWrite.All")]
+    [Alias("Set-PnPEntraIDGroup")]
     public class SetAzureADGroup : PnPGraphCmdlet
     {
         [Parameter(Mandatory = true, ValueFromPipeline = true)]
@@ -24,10 +23,10 @@ namespace PnP.PowerShell.Commands.Graph
         public string Description;
 
         [Parameter(Mandatory = false)]
-        public String[] Owners;
+        public string[] Owners;
 
         [Parameter(Mandatory = false)]
-        public String[] Members;
+        public string[] Members;
 
         [Parameter(Mandatory = false)]
         public bool? SecurityEnabled;
@@ -43,43 +42,68 @@ namespace PnP.PowerShell.Commands.Graph
 
         protected override void ExecuteCmdlet()
         {
-            AzureADGroup group = null;
+            Group group = null;
 
             if (Identity != null)
             {
-                group = Identity.GetGroup(AccessToken);
+                group = Identity.GetGroup(GraphRequestHelper);
             }
 
             if (group != null)
             {
                 try
                 {
-                    GroupsUtility.UpdateGroup(
-                        groupId: group.Id,
-                        accessToken: AccessToken,
-                        displayName: DisplayName,
-                        description: Description,
-                        owners: Owners,
-                        members: Members,
-                        mailEnabled: group.MailEnabled,
-                        securityEnabled: group.SecurityEnabled
-                        );
+                    bool changed = false;
+                    if (ParameterSpecified(nameof(DisplayName)))
+                    {
+                        group.DisplayName = DisplayName;
+                        changed = true;
+                    }
+                    if (ParameterSpecified(nameof(Description)))
+                    {
+                        group.Description = Description;
+                        changed = true;
+                    }
+                    if (ParameterSpecified(nameof(SecurityEnabled)) && SecurityEnabled.HasValue)
+                    {
+                        group.SecurityEnabled = SecurityEnabled.Value;
+                        changed = true;
+                    }
+                    if (ParameterSpecified(nameof(MailEnabled)) && MailEnabled.HasValue)
+                    {
+                        group.MailEnabled = MailEnabled.Value;
+                        changed = true;
+                    }
+
+                    if (changed)
+                    {
+                        AzureADGroupsUtility.Update(GraphRequestHelper, group);
+                    }
+
+                    if (ParameterSpecified(nameof(Owners)))
+                    {
+                        Microsoft365GroupsUtility.UpdateOwners(GraphRequestHelper, new Guid(group.Id), Owners);
+                    }
+                    if (ParameterSpecified(nameof(Members)))
+                    {
+                        Microsoft365GroupsUtility.UpdateMembersAsync(GraphRequestHelper, new Guid(group.Id), Members);
+                    }
 
                     if (ParameterSpecified(nameof(HideFromAddressLists)) || ParameterSpecified(nameof(HideFromOutlookClients)))
                     {
                         // For this scenario a separate call needs to be made
-                        Utilities.Microsoft365GroupsUtility.SetVisibilityAsync(Connection, AccessToken, new Guid(group.Id), HideFromAddressLists, HideFromOutlookClients).GetAwaiter().GetResult();
+                        Utilities.Microsoft365GroupsUtility.SetVisibility(GraphRequestHelper, new Guid(group.Id), HideFromAddressLists, HideFromOutlookClients);
                     }
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     while (e.InnerException != null) e = e.InnerException;
-                    WriteError(new ErrorRecord(e, "GROUPUPDATEFAILED", ErrorCategory.InvalidOperation, this));
+                    LogError(e);
                 }
             }
             else
             {
-                WriteError(new ErrorRecord(new Exception("Group not found"), "GROUPNOTFOUND", ErrorCategory.ObjectNotFound, this));
+                LogError("Group not found");
             }
         }
     }

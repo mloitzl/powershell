@@ -15,10 +15,12 @@ Add an Adaptive card extension in the Viva connections dashboard page. This requ
 ## SYNTAX
 
 ```powershell
-Add-PnPVivaConnectionsDashboardACE [-Identity <DefaultACE>] [-Title <string>] [-PropertiesJSON <string>] [-Description <string>] [-IconProperty <string>] [-Order <Int>][-CardSize <CardSize>] [-Connection <PnPConnection>] [<CommonParameters>]
+Add-PnPVivaConnectionsDashboardACE [-Identity <DefaultACE>] [-Title <string>] [-PropertiesJSON <string>] [-Description <string>] [-IconProperty <string>] [-Order <Int>][-CardSize <CardSize>] [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
+
+Allows to add a new an Adaptive card extension in the Viva Home dashboard page. Before running the command it is required you are connect to a SharePoint Home site and have configured the Viva connections page. 
 
 ## EXAMPLES
 
@@ -68,7 +70,7 @@ Accept wildcard characters: False
 ```
 
 ### -Title
-The Tite of the Adaptive Card extension.
+The Title of the Adaptive Card extension.
 
 ```yaml
 Type: string
@@ -116,7 +118,7 @@ The properties of the Adaptive Card extension. You can get the properties by exe
 Type: string
 Parameter Sets: (All)
 
-Required: True
+Required: False
 Position: Named
 Default value: None
 Accept pipeline input: False

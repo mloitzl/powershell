@@ -1,7 +1,5 @@
 ﻿using PnP.Framework.Provisioning.Model;
-using PnP.Framework.Provisioning.Providers;
 using PnP.Framework.Provisioning.Providers.Xml;
-
 using PnP.PowerShell.Commands.Base.PipeBinds;
 using System.Collections;
 using System.Collections.Generic;
@@ -148,7 +146,7 @@ namespace PnP.PowerShell.Commands.Provisioning
                     Folder = folder,
                     Content = System.IO.File.ReadAllBytes(currentFile.FullName)
                 };
-                WriteVerbose("Adding file:" + currentFile.Name + " - " + folder);
+                LogDebug("Adding file:" + currentFile.Name + " - " + folder);
                 info.Files.Add(fileInfo);
             }
             byte[] pack = info.PackTemplate().ToArray();
@@ -171,11 +169,9 @@ namespace PnP.PowerShell.Commands.Provisioning
             // Get the Files Element
 
             XNamespace pnp;
+
             switch (Schema)
             {
-                case XMLPnPSchemaVersion.V201903:
-                    pnp = XMLConstants.PROVISIONING_SCHEMA_NAMESPACE_2019_03;
-                    break;
                 case XMLPnPSchemaVersion.V201909:
                     pnp = XMLConstants.PROVISIONING_SCHEMA_NAMESPACE_2019_09;
                     break;
@@ -231,7 +227,7 @@ namespace PnP.PowerShell.Commands.Provisioning
             var fileInfo = dirInfo.GetFiles(Match);
             foreach (var file in fileInfo.Where(f => (f.Attributes & FileAttributes.Hidden) == 0))
             {
-                var unrootedPath = file.FullName.Substring(Folder.Length + 1);
+                var unrootedPath = file.FullName.Substring(Folder.Length);
                 var targetFolder = Path.Combine(TargetFolder, unrootedPath.LastIndexOf("\\") > -1 ? unrootedPath.Substring(0, unrootedPath.LastIndexOf("\\")) : "");
                 targetFolder = targetFolder.Replace('\\', '/');
                 var modelFile = new PnP.Framework.Provisioning.Model.File()

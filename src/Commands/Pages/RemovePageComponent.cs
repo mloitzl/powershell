@@ -3,16 +3,16 @@ using PnP.PowerShell.Commands.Base.PipeBinds;
 using System;
 using System.Linq;
 using System.Management.Automation;
-using PnP.PowerShell.Commands.Attributes;
+using PnP.PowerShell.Commands.Base.Completers;
 
 namespace PnP.PowerShell.Commands.Pages
 {
     [Cmdlet(VerbsCommon.Remove, "PnPPageComponent")]
-    [Alias("Remove-PnPClientSideComponent")]
-    [WriteAliasWarning("Please use 'Remove-PnPPageComponent'. The alias 'Remove-PnPClientSidecComponent' will be removed in the 1.5.0 release")]
+    [OutputType(typeof(void))]
     public class RemovePageComponent : PnPWebCmdlet
     {
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 0)]
+        [ArgumentCompleter(typeof(PageCompleter))]
         public PagePipeBind Page;
 
         [Parameter(Mandatory = true, ValueFromPipeline = true)]

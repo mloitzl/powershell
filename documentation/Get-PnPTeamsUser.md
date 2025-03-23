@@ -22,10 +22,12 @@ Returns owners, members or guests from a team.
 
 ```powershell
 Get-PnPTeamsUser -Team <TeamsTeamPipeBind> [-Channel <TeamsChannelPipeBind>] [-Role <String>]
-  [<CommonParameters>]
+  
 ```
 
 ## DESCRIPTION
+
+Allows to retrieve list of owners, members or guests from a team.
 
 ## EXAMPLES
 

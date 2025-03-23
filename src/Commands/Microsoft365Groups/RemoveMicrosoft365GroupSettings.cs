@@ -1,6 +1,4 @@
-﻿using PnP.Framework.Entities;
-using PnP.Framework.Graph;
-using PnP.PowerShell.Commands.Attributes;
+﻿using PnP.PowerShell.Commands.Attributes;
 using PnP.PowerShell.Commands.Base;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 using PnP.PowerShell.Commands.Utilities;
@@ -9,7 +7,7 @@ using System.Management.Automation;
 namespace PnP.PowerShell.Commands.Microsoft365Groups
 {
     [Cmdlet(VerbsCommon.Remove, "PnPMicrosoft365GroupSettings")]
-    [RequiredMinimalApiPermissions("Directory.ReadWrite.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/Directory.ReadWrite.All")]
     public class RemoveMicrosoft365GroupSettings : PnPGraphCmdlet
     {
         [Parameter(Mandatory = true)]
@@ -22,12 +20,12 @@ namespace PnP.PowerShell.Commands.Microsoft365Groups
         {
             if (Group != null)
             {
-                var groupId = Group.GetGroupId(Connection, AccessToken);
-                Microsoft365GroupsUtility.RemoveGroupSetting(Connection, AccessToken, Identity, groupId.ToString()).GetAwaiter().GetResult();
+                var groupId = Group.GetGroupId(GraphRequestHelper);
+                Microsoft365GroupsUtility.RemoveGroupSetting(GraphRequestHelper, Identity, groupId.ToString());
             }
             else
             {
-                Microsoft365GroupsUtility.RemoveGroupSetting(Connection, AccessToken, Identity).GetAwaiter().GetResult();
+                Microsoft365GroupsUtility.RemoveGroupSetting(GraphRequestHelper, Identity);
             }
         }
     }

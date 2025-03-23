@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
-using System.Web;
 using Microsoft.SharePoint.Client;
 using Microsoft.SharePoint.Client.Search.Administration;
-
-using PnP.PowerShell.Commands.Base;
+using PnP.PowerShell.Commands.Attributes;
 
 namespace PnP.PowerShell.Commands.Search
 {
@@ -36,6 +34,7 @@ namespace PnP.PowerShell.Commands.Search
     }
 
     [Cmdlet(VerbsCommon.Get, "PnPSearchCrawlLog", DefaultParameterSetName = "Xml")]
+    [ApiNotAvailableUnderApplicationPermissions]
     public class GetSearchCrawlLog : PnPWebCmdlet
     {
         [Parameter(Mandatory = false)]
@@ -140,7 +139,7 @@ namespace PnP.PowerShell.Commands.Search
             }
             catch (Exception e)
             {
-                WriteError(new ErrorRecord(new Exception("Make sure you are granted access to the crawl log via the SharePoint search admin center at https://<tenant>-admin.sharepoint.com/_layouts/15/searchadmin/crawllogreadpermission.aspx"), e.Message, ErrorCategory.AuthenticationError, null));
+                LogError($"Error: {e.Message}. Make sure you are granted access to the crawl log via the SharePoint search admin center at https://<tenant>-admin.sharepoint.com/_layouts/15/searchadmin/crawllogreadpermission.aspx");
             }
         }
 

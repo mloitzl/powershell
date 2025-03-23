@@ -24,18 +24,30 @@ $localPnPFrameworkPathValue = $env:PnPFrameworkPath
 $env:PnPCoreSdkPath = ""
 $env:PnPFrameworkPath = ""
 
-$versionFileContents = Get-Content "$PSScriptRoot/../version.txt" -Raw
-if ($versionFileContents.Contains("%")) {
-	$versionString = $versionFileContents.Replace("%", "0");
+$versionFileContents = Get-Content "$PSScriptRoot/../version.json" -Raw | ConvertFrom-Json
+
+if ($versionFileContents.Version.Contains("%")) {
+	$versionString = $versionFileContents.Version.Replace("%", "0");
 	$versionObject = [System.Management.Automation.SemanticVersion]::Parse($versionString)
 	$buildVersion = $versionObject.Patch;
 }
 else {	
-	$versionObject = [System.Management.Automation.SemanticVersion]::Parse($versionFileContents)
+	$versionObject = [System.Management.Automation.SemanticVersion]::Parse($versionFileContents.Version)
 	$buildVersion = $versionObject.Patch + 1;
 }
 
-$configuration = "netcoreapp3.1"
+# $versionFileContents = Get-Content "$PSScriptRoot/../version.txt" -Raw
+# if ($versionFileContents.Contains("%")) {
+# 	$versionString = $versionFileContents.Replace("%", "0");
+# 	$versionObject = [System.Management.Automation.SemanticVersion]::Parse($versionString)
+# 	$buildVersion = $versionObject.Patch;
+# }
+# else {	
+# 	$versionObject = [System.Management.Automation.SemanticVersion]::Parse($versionFileContents)
+# 	$buildVersion = $versionObject.Patch + 1;
+# }
+
+$configuration = "net8.0"
 
 $version = "$($versionObject.Major).$($versionObject.Minor).$buildVersion"
 
@@ -83,7 +95,7 @@ if ($LASTEXITCODE -eq 0) {
 	$documentsFolder = [environment]::getfolderpath("mydocuments");
 
 	if ($IsLinux -or $isMacOS) {
-		$destinationFolder = "$documentsFolder/.local/share/powershell/Modules/PnP.PowerShell"
+		$destinationFolder = "$HOME/.local/share/powershell/Modules/PnP.PowerShell"
 	}
 	else {
 		$destinationFolder = "$documentsFolder/PowerShell/Modules/PnP.PowerShell"
@@ -91,7 +103,6 @@ if ($LASTEXITCODE -eq 0) {
 
 	$corePath = "$destinationFolder/Core"
 	$commonPath = "$destinationFolder/Common"
-	$frameworkPath = "$destinationFolder/Framework"
 
 	$assemblyExceptions = @("System.Memory.dll");
 	
@@ -109,19 +120,13 @@ if ($LASTEXITCODE -eq 0) {
 		New-Item -Path $destinationFolder -ItemType Directory -Force | Out-Null
 		New-Item -Path "$destinationFolder\Core" -ItemType Directory -Force | Out-Null
 		New-Item -Path "$destinationFolder\Common" -ItemType Directory -Force | Out-Null
-		if (!$IsLinux -and !$IsMacOs) {
-			New-Item -Path "$destinationFolder\Framework" -ItemType Directory -Force | Out-Null
-		}
 
 		Write-Host "Copying files to $destinationFolder" -ForegroundColor Yellow
 
 		$commonFiles = [System.Collections.Generic.Hashset[string]]::new()
 		Copy-Item -Path "$PSScriptRoot/../resources/*.ps1xml" -Destination "$destinationFolder"
-		Get-ChildItem -Path "$PSScriptRoot/../src/ALC/bin/Debug/netstandard2.0" | Where-Object { $_.Extension -in '.dll', '.pdb' } | Foreach-Object { if (!$assemblyExceptions.Contains($_.Name)) { [void]$commonFiles.Add($_.Name) }; Copy-Item -LiteralPath $_.FullName -Destination $commonPath }
+		Get-ChildItem -Path "$PSScriptRoot/../src/ALC/bin/Debug/net8.0" | Where-Object { $_.Extension -in '.dll', '.pdb' } | Foreach-Object { if (!$assemblyExceptions.Contains($_.Name)) { [void]$commonFiles.Add($_.Name) }; Copy-Item -LiteralPath $_.FullName -Destination $commonPath }
 		Get-ChildItem -Path "$PSScriptRoot/../src/Commands/bin/Debug/$configuration" | Where-Object { $_.Extension -in '.dll', '.pdb' -and -not $commonFiles.Contains($_.Name) } | Foreach-Object { Copy-Item -LiteralPath $_.FullName -Destination $corePath }
-		if (!$IsLinux -and !$IsMacOs) {
-			Get-ChildItem -Path "$PSScriptRoot/../src/Commands/bin/Debug/net462" | Where-Object { $_.Extension -in '.dll', '.pdb' -and -not $commonFiles.Contains($_.Name) } | Foreach-Object { Copy-Item -LiteralPath $_.FullName -Destination $frameworkPath }
-		}
 	}
 	Catch {
 		Write-Error "Cannot copy files to $destinationFolder. Maybe a PowerShell session is still using the module or PS modules are hosted in a OneDrive synced location. In the latter case, manually delete $destinationFolder and try again."
@@ -133,43 +138,32 @@ if ($LASTEXITCODE -eq 0) {
 		# Load the Module in a new PowerShell session
 		$scriptBlock = {
 			$documentsFolder = [environment]::getfolderpath("mydocuments");
-
-			if ($IsLinux -or $isMacOS) {
+			
+			if ($IsLinux) {
 				$destinationFolder = "$documentsFolder/.local/share/powershell/Modules/PnP.PowerShell"
+			}
+			elseif ($IsMacOS) {
+				$destinationFolder = "~/.local/share/powershell/Modules/PnP.PowerShell"
 			}
 			else {
 				$destinationFolder = "$documentsFolder/PowerShell/Modules/PnP.PowerShell"
 			}
-			if ($PSVersionTable.PSVersion.Major -eq 5) {
-				Write-Host "Importing Framework version of assembly"
-				Import-Module -Name "$destinationFolder/Framework/PnP.PowerShell.dll" -DisableNameChecking
-			}
-			else {
-				Write-Host "Importing dotnet core version of assembly"
-				Import-Module -Name "$destinationFolder/Core/PnP.PowerShell.dll" -DisableNameChecking
-			}
+			Write-Host "Importing dotnet core version of assembly"
+			Import-Module -Name "$destinationFolder/Core/PnP.PowerShell.dll" -DisableNameChecking
 			$cmdlets = get-command -Module PnP.PowerShell | ForEach-Object { "`"$_`"" }
 			$cmdlets -Join ","
 		}
 		$cmdletsString = Start-ThreadJob -ScriptBlock $scriptBlock | Receive-Job -Wait
 
 		$manifest = "@{
-	NestedModules =  if (`$PSEdition -eq 'Core')
-	{
-		'Core/PnP.PowerShell.dll'
-	}
-	else
-	{
-		'Framework/PnP.PowerShell.dll'
-	}
+	NestedModules =  'Core/PnP.PowerShell.dll'
 	ModuleVersion = '$version'
 	Description = 'Microsoft 365 Patterns and Practices PowerShell Cmdlets'
 	GUID = '0b0430ce-d799-4f3b-a565-f0dca1f31e17'
 	Author = 'Microsoft 365 Patterns and Practices'
 	CompanyName = 'Microsoft 365 Patterns and Practices'
-	CompatiblePSEditions = @(`"Core`",`"Desktop`")
-	PowerShellVersion = '5.1'
-	DotNetFrameworkVersion = '4.6.2'
+	CompatiblePSEditions = @('Core')
+	PowerShellVersion = '7.4.4'
 	ProcessorArchitecture = 'None'
 	FunctionsToExport = '*'  
 	CmdletsToExport = @($cmdletsString)

@@ -15,15 +15,17 @@ online version: https://pnp.github.io/powershell/cmdlets/Set-PnPKnowledgeHubSite
 
 * SharePoint: Access to the SharePoint Tenant Administration site
 
-Sets the Knowledge Hub Site for your tenant
+Sets the Knowledge Hub Site for your tenant.
 
 ## SYNTAX
 
 ```powershell
-Set-PnPKnowledgeHubSite -KnowledgeHubSiteUrl <String> [-Connection <PnPConnection>] [<CommonParameters>]
+Set-PnPKnowledgeHubSite -KnowledgeHubSiteUrl <String> [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
+
+Allows to set Knowledge Hub Site of the current tenant.
 
 ## EXAMPLES
 
@@ -32,7 +34,7 @@ Set-PnPKnowledgeHubSite -KnowledgeHubSiteUrl <String> [-Connection <PnPConnectio
 Set-PnPKnowledgeHubSite -KnowledgeHubSiteUrl "https://yoursite.sharepoint.com/sites/knowledge"
 ```
 
-Sets the Knowledge Hub Site for your tenant
+Sets the Knowledge Hub Site for your tenant.
 
 ## PARAMETERS
 
@@ -51,6 +53,7 @@ Accept wildcard characters: False
 ```
 
 ### -KnowledgeHubSiteUrl
+Specifies the URL of the site to be set as the Knowledge Hub Site.
 
 ```yaml
 Type: String

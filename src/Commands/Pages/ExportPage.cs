@@ -8,16 +8,15 @@ using System;
 using System.IO;
 using System.Management.Automation;
 using PnP.PowerShell.Commands.Attributes;
+using PnP.PowerShell.Commands.Base.Completers;
 
 namespace PnP.PowerShell.Commands.Provisioning.Tenant
 {
-    [Cmdlet(VerbsData.Export, "PnPPage")]
-    [Alias("Export-PnPClientSidePage")]
-    [WriteAliasWarning("Please use 'Export-PnPPage'. The alias 'Export-PnPClientSidePage' will be removed in the 1.5.0 release")]
-
+    [Cmdlet(VerbsData.Export, "PnPPage")]    
     public class ExportPage : PnPWebCmdlet
     {
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 0)]
+        [ArgumentCompleter(typeof(PageCompleter))]
         public PagePipeBind Identity;
 
         [Parameter(Mandatory = false)]
@@ -32,8 +31,13 @@ namespace PnP.PowerShell.Commands.Provisioning.Tenant
         [Parameter(Mandatory = false)]
         public ExtractConfigurationPipeBind Configuration;
 
+        [Parameter(Mandatory = false)]
+        public SwitchParameter OutputInstance;
+
         protected override void ProcessRecord()
         {
+            _ = Identity.GetPage(Connection) ?? throw new Exception($"Page '{Identity?.Name}' does not exist");
+
             ExtractConfiguration extractConfiguration = null;
             if (ParameterSpecified(nameof(Configuration)))
             {
@@ -96,9 +100,15 @@ namespace PnP.PowerShell.Commands.Provisioning.Tenant
             }
             else
             {
-                WriteObject(outputTemplate.ToXML());
+                if (OutputInstance)
+                {
+                    WriteObject(outputTemplate);
+                }
+                else
+                {
+                    WriteObject(outputTemplate.ToXML());
+                }                
             }
         }
     }
-
 }

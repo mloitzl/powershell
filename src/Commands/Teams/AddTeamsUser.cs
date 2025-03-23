@@ -5,10 +5,10 @@ using PnP.PowerShell.Commands.Model.Graph;
 using PnP.PowerShell.Commands.Utilities;
 using System.Management.Automation;
 
-namespace PnP.PowerShell.Commands.Graph
+namespace PnP.PowerShell.Commands.Teams
 {
     [Cmdlet(VerbsCommon.Add, "PnPTeamsUser")]
-    [RequiredMinimalApiPermissions("Group.ReadWrite.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/Group.ReadWrite.All")]
     public class AddTeamsUser : PnPGraphCmdlet
     {
         const string ParamSet_ByUser = "By User";
@@ -33,29 +33,29 @@ namespace PnP.PowerShell.Commands.Graph
         public string Role;
         protected override void ExecuteCmdlet()
         {
-            var groupId = Team.GetGroupId(Connection, AccessToken);
+            var groupId = Team.GetGroupId(GraphRequestHelper);
             if (groupId != null)
             {
                 try
                 {
                     if (ParameterSpecified(nameof(Channel)))
                     {
-                        var channelId = Channel.GetId(Connection, AccessToken, groupId);
+                        var channelId = Channel.GetId(GraphRequestHelper, groupId);
                         if (channelId == null)
                         {
                             throw new PSArgumentException("Channel not found");
                         }
-                        TeamsUtility.AddChannelMemberAsync(Connection, AccessToken, groupId, channelId, User, Role).GetAwaiter().GetResult();
+                        TeamsUtility.AddChannelMember(GraphRequestHelper, groupId, channelId, User, Role);
                     }
                     else
                     {
                         if (ParameterSetName == ParamSet_ByUser)
                         {
-                            TeamsUtility.AddUserAsync(Connection, AccessToken, groupId, User, Role).GetAwaiter().GetResult();
+                            TeamsUtility.AddUser(GraphRequestHelper, groupId, User, Role);
                         }
                         else
                         {
-                            TeamsUtility.AddUsersAsync(Connection, AccessToken, groupId, Users, Role).GetAwaiter().GetResult();
+                            TeamsUtility.AddUsers(GraphRequestHelper, groupId, Users, Role);
                         }
                     }
                 }

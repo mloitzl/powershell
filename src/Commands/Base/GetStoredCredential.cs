@@ -1,15 +1,10 @@
 ﻿using System.Management.Automation;
-using System.Net;
-using Microsoft.SharePoint.Client;
-using PnP.Framework.Utilities;
-
-using PnP.PowerShell.Commands.Enums;
 
 namespace PnP.PowerShell.Commands.Base
 {
     [Cmdlet(VerbsCommon.Get, "PnPStoredCredential")]
     [OutputType(typeof(PSCredential))]
-    public class GetStoredCredential : PSCmdlet
+    public class GetStoredCredential : BasePSCmdlet
     {
         [Parameter(Mandatory = true)]
         public string Name;
@@ -23,7 +18,7 @@ namespace PnP.PowerShell.Commands.Base
             }
             else
             {
-                WriteError(new ErrorRecord(new System.Exception("Credentials not found"), "CREDSNOTFOUND", ErrorCategory.AuthenticationError, this));
+                LogError(new System.Exception("Credentials not found"));
             }
         }
     }

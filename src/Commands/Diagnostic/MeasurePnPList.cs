@@ -3,10 +3,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Management.Automation;
 using Microsoft.SharePoint.Client;
-using PnP.PowerShell.Commands.Extensions;
-
 using PnP.PowerShell.Commands.Base.PipeBinds;
 using System.Collections.Generic;
+using PnP.PowerShell.Commands.Base.Completers;
 
 namespace PnP.PowerShell.Commands.Diagnostic
 {
@@ -14,6 +13,7 @@ namespace PnP.PowerShell.Commands.Diagnostic
     public class MeasurePnPList : PnPWebRetrievalsCmdlet<List>
     {
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 0)]
+        [ArgumentCompleter(typeof(ListNameCompleter))]
         public ListPipeBind Identity;
 
         [Parameter(Mandatory = false)]
@@ -118,7 +118,7 @@ namespace PnP.PowerShell.Commands.Diagnostic
                 if (folder.ListItemAllFields.HasUniqueRoleAssignments)
                 {
                     stat.BrokenPermissionCount++;
-                    WriteVerbose($"Folder ${folder.ServerRelativeUrl} has unique permissions");
+                    LogDebug($"Folder ${folder.ServerRelativeUrl} has unique permissions");
                 }
             }
 

@@ -1,10 +1,7 @@
-﻿using Microsoft.Graph;
-using Microsoft.SharePoint.Client;
+﻿using Microsoft.SharePoint.Client;
 using PnP.Core.Services;
-using PnP.PowerShell.Commands.Model;
+using PnP.PowerShell.Commands.Utilities.REST;
 using System.Management.Automation;
-using System.Net.Http.Headers;
-using System.Threading.Tasks;
 
 namespace PnP.PowerShell.Commands.Base
 {
@@ -14,13 +11,29 @@ namespace PnP.PowerShell.Commands.Base
     public abstract class PnPGraphCmdlet : PnPConnectedCmdlet
     {
         /// <summary>
+        /// The default audience to target Microsoft Graph APIs
+        /// </summary>
+        public string MicrosoftGraphDefaultAudience => $"https://{Connection.GraphEndPoint}/.default";
+
+        /// <summary>
         /// Reference the the SharePoint context on the current connection. If NULL it means there is no SharePoint context available on the current connection.
         /// </summary>
         public ClientContext ClientContext => Connection?.Context;
 
+        /// <summary>
+        /// Reference the the SharePoint context on the current connection encapsulated as a PnPContext. If NULL it means there is no SharePoint context available on the current connection.
+        /// </summary>
         public PnPContext PnPContext => Connection?.PnPContext;
 
-        private GraphServiceClient serviceClient;
+        /// <summary>
+        /// An instance of the <see cref="ApiRequestHelper"/> class to help with making requests to the Microsoft Graph services
+        /// </summary>
+        public ApiRequestHelper GraphRequestHelper { get; private set; }
+
+        /// <summary>
+        /// Returns an Access Token for the Microsoft Graph API, if available, otherwise NULL
+        /// </summary>
+        public string AccessToken => TokenHandler.GetAccessToken(MicrosoftGraphDefaultAudience, Connection);        
 
         protected override void BeginProcessing()
         {
@@ -35,53 +48,7 @@ namespace PnP.PowerShell.Commands.Base
                     throw new PSInvalidOperationException($"This cmdlet does not work with a {typeString} based connection towards SharePoint.");
                 }
             }
-        }
-
-        /// <summary>
-        /// Returns an Access Token for the Microsoft Graph API, if available, otherwise NULL
-        /// </summary>
-        public string AccessToken
-        {
-            get
-            {
-                if (Connection?.ConnectionMethod == ConnectionMethod.ManagedIdentity)
-                {
-                    return TokenHandler.GetManagedIdentityTokenAsync(this, Connection.HttpClient, $"https://{Connection.GraphEndPoint}/").GetAwaiter().GetResult();
-                }
-                else
-                {
-                    if (Connection?.Context != null)
-                    {
-                        return TokenHandler.GetAccessToken(GetType(), $"https://{Connection.GraphEndPoint}/.default", Connection);
-                    }
-                }
-
-                return null;
-            }
-        }
-
-        internal GraphServiceClient ServiceClient
-        {
-            get
-            {
-                if (serviceClient == null)
-                {
-                    var baseUrl = $"https://{Connection.GraphEndPoint}/v1.0";
-                    serviceClient = new GraphServiceClient(baseUrl, new DelegateAuthenticationProvider(
-                            async (requestMessage) =>
-                            {
-                                await Task.Run(() =>
-                                {
-                                    if (!string.IsNullOrEmpty(AccessToken))
-                                    {
-                                        // Configure the HTTP bearer Authorization Header
-                                        requestMessage.Headers.Authorization = new AuthenticationHeaderValue("bearer", AccessToken);
-                                    }
-                                });
-                            }), new HttpProvider());
-                }
-                return serviceClient;
-            }
+            GraphRequestHelper = new ApiRequestHelper(GetType(), Connection, MicrosoftGraphDefaultAudience);
         }
     }
 }

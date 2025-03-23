@@ -1,5 +1,4 @@
 ﻿using Microsoft.SharePoint.Client;
-
 using PnP.PowerShell.Commands.Base.PipeBinds;
 using System;
 using System.Management.Automation;
@@ -7,6 +6,7 @@ using System.Management.Automation;
 namespace PnP.PowerShell.Commands.Principals
 {
     [Cmdlet(VerbsCommon.Remove, "PnPAlert")]
+    [OutputType(typeof(void))]
     public class RemoveAlert : PnPWebCmdlet
     {
         [Parameter(Mandatory = false)]
@@ -37,7 +37,7 @@ namespace PnP.PowerShell.Commands.Principals
             {
                 user.EnsureProperty(u => u.LoginName);
             }
-            if (Force || ShouldContinue($"Remove alert {Identity.Id} for {user.LoginName}?", "Remove alert"))
+            if (Force || ShouldContinue($"Remove alert {Identity.Id} for {user.LoginName}?", Properties.Resources.Confirm))
             {
                 user.Alerts.DeleteAlert(Identity.Id);
                 ClientContext.ExecuteQueryRetry();

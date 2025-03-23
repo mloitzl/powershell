@@ -7,7 +7,9 @@ using PnP.PowerShell.Commands.Utilities;
 namespace PnP.PowerShell.Commands.Planner
 {
     [Cmdlet(VerbsCommon.Get, "PnPPlannerRosterPlan", DefaultParameterSetName = ParameterSet_BYROSTER)]
-    [RequiredMinimalApiPermissions("Tasks.Read")]
+    [RequiredApiApplicationPermissions("graph/Tasks.Read")]
+    [RequiredApiApplicationPermissions("graph/Tasks.ReadWrite")]
+
     public class GetPlannerRosterPlan : PnPGraphCmdlet
     {
         private const string ParameterSet_BYUSER = "Get by user";
@@ -24,16 +26,16 @@ namespace PnP.PowerShell.Commands.Planner
             switch (ParameterSetName)
             {
                 case ParameterSet_BYUSER:
-                    WriteObject(PlannerUtility.GetRosterPlansByUserAsync(Connection, AccessToken, User).GetAwaiter().GetResult(), true);
+                    WriteObject(PlannerUtility.GetRosterPlansByUser(GraphRequestHelper, User), true);
                     break;
-                    
+
                 case ParameterSet_BYROSTER:
-                    var plannerRoster = Identity.GetPlannerRosterAsync(Connection, AccessToken).GetAwaiter().GetResult();
+                    var plannerRoster = Identity.GetPlannerRoster(GraphRequestHelper);
                     if (plannerRoster == null)
                     {
                         throw new PSArgumentException($"Planner Roster provided through {nameof(Identity)} could not be found", nameof(Identity));
                     }
-                    WriteObject(PlannerUtility.GetRosterPlansByRosterAsync(Connection, AccessToken, plannerRoster.Id).GetAwaiter().GetResult(), true);
+                    WriteObject(PlannerUtility.GetRosterPlansByRoster(GraphRequestHelper, plannerRoster.Id), true);
                     break;
             }
         }

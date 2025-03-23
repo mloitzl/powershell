@@ -9,7 +9,8 @@ using PnP.PowerShell.Commands.Enums;
 namespace PnP.PowerShell.Commands
 {
     [Cmdlet(VerbsCommon.Add, "PnPSiteDesignFromWeb", DefaultParameterSetName = ParameterSet_BASICCOMPONENTS)]
-    public class AddSiteDesignFromWeb : PnPAdminCmdlet
+    [OutputType(typeof(TenantSiteDesign))]
+    public class AddSiteDesignFromWeb : PnPSharePointOnlineAdminCmdlet
     {
         private const string ParameterSet_BASICCOMPONENTS = "Basic components";
         private const string ParameterSet_ALLCOMPONENTS = "All components";

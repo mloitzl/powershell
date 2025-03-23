@@ -1,8 +1,8 @@
 ﻿
+using PnP.PowerShell.Commands.Base.Completers;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 using PnP.PowerShell.Commands.Model.SharePoint;
 using PnP.PowerShell.Commands.Properties;
-
 using System;
 using System.Management.Automation;
 
@@ -18,6 +18,7 @@ namespace PnP.PowerShell.Commands.Pages
         public const string ParameterSet_Recycle = "Recycle";
 
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 0)]
+        [ArgumentCompleter(typeof(PageCompleter))]
         public PagePipeBind Identity;
 
         [Parameter(Mandatory = false)]

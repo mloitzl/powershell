@@ -6,7 +6,7 @@ using Microsoft.SharePoint.Client;
 namespace PnP.PowerShell.Commands.Apps
 {
     [Cmdlet(VerbsCommon.Get, "PnPAppErrors")]
-    public class GetAppErrors : PnPAdminCmdlet
+    public class GetAppErrors : PnPSharePointOnlineAdminCmdlet
     {
         [Parameter(Mandatory = true)]
         public Guid ProductId;
@@ -31,8 +31,8 @@ namespace PnP.PowerShell.Commands.Apps
             {
                 throw new PSArgumentException("Invalid Date Range");
             }
-            var errorEntries = ClientContext.LoadQuery(this.Tenant.GetAppErrors(ProductId, StartTimeInUtc, EndTimeInUtc));
-            ClientContext.ExecuteQueryRetry();
+            var errorEntries = AdminContext.LoadQuery(this.Tenant.GetAppErrors(ProductId, StartTimeInUtc, EndTimeInUtc));
+            AdminContext.ExecuteQueryRetry();
             WriteObject(errorEntries);
         }
 

@@ -1,9 +1,5 @@
 ﻿using PnP.Core.Model.SharePoint;
-using System;
-using System.Collections.Generic;
 using System.Management.Automation;
-using System.Text;
-using PnP.Core.Services;
 using System.Text.Json;
 
 namespace PnP.PowerShell.Commands.Viva
@@ -21,7 +17,7 @@ namespace PnP.PowerShell.Commands.Viva
         [Parameter(Mandatory = false)]
         public string Title = "";
 
-        [Parameter(Mandatory = true)]
+        [Parameter(Mandatory = false)]
         public string PropertiesJSON;
 
         [Parameter(Mandatory = false)]
@@ -35,13 +31,17 @@ namespace PnP.PowerShell.Commands.Viva
 
         protected override void ExecuteCmdlet()
         {
-            if (PnPContext.Site.IsHomeSite())
+            var pnpContext = Connection.PnPContext;
+            if (pnpContext.Site.IsHomeSite())
             {
-                IVivaDashboard dashboard = PnPContext.Web.GetVivaDashboardAsync().GetAwaiter().GetResult();
+                IVivaDashboard dashboard = pnpContext.Web.GetVivaDashboard();
 
                 var cardDesignerACE = dashboard.NewACE(Identity, CardSize);
                 cardDesignerACE.Title = Title;
-                cardDesignerACE.Properties = JsonSerializer.Deserialize<JsonElement>(PropertiesJSON);
+                if (ParameterSpecified(nameof(PropertiesJSON)))
+                {
+                    cardDesignerACE.Properties = JsonSerializer.Deserialize<JsonElement>(PropertiesJSON);
+                }
 
                 if (ParameterSpecified(nameof(Description)))
                 {
@@ -60,17 +60,17 @@ namespace PnP.PowerShell.Commands.Viva
                 else
                 {
                     dashboard.AddACE(cardDesignerACE);
-                }                
+                }
 
                 dashboard.Save();
 
                 // load the dashboard again
-                dashboard = PnPContext.Web.GetVivaDashboardAsync().GetAwaiter().GetResult();
+                dashboard = pnpContext.Web.GetVivaDashboard();
                 WriteObject(dashboard, true);
             }
             else
             {
-                WriteWarning("Connected site is not a home site");
+                LogWarning("Connected site is not a home site");
             }
         }
     }

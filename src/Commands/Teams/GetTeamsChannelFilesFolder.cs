@@ -6,7 +6,9 @@ using System.Management.Automation;
 namespace PnP.PowerShell.Commands.Teams
 {
     [Cmdlet(VerbsCommon.Get, "PnPTeamsChannelFilesFolder")]
-    [RequiredMinimalApiPermissions("Group.Read.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/Group.Read.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/Group.ReadWrite.All")]
+
     public class GetTeamsChannelFilesFolder : PnPGraphCmdlet
     {
         [Parameter(Mandatory = true, ValueFromPipeline = true)]
@@ -17,18 +19,17 @@ namespace PnP.PowerShell.Commands.Teams
 
         protected override void ExecuteCmdlet()
         {
-            var groupId = Team.GetGroupId(Connection, AccessToken);
+            var groupId = Team.GetGroupId(GraphRequestHelper);
             if (groupId != null)
             {
 
-                var channelId = Channel.GetId(Connection, AccessToken, groupId);
+                var channelId = Channel.GetId(GraphRequestHelper, groupId);
                 if (channelId == null)
                 {
                     throw new PSArgumentException("Channel not found");
                 }
-                              
-                WriteObject(Utilities.TeamsUtility.GetChannelsFilesFolderAsync(Connection, AccessToken, groupId, channelId).GetAwaiter().GetResult());
-                                
+
+                WriteObject(Utilities.TeamsUtility.GetChannelsFilesFolder(GraphRequestHelper, groupId, channelId));
             }
             else
             {

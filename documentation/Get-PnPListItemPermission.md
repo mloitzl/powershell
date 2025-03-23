@@ -17,11 +17,13 @@ Gets list item permissions.
 ```powershell
 
 Get-PnPListItemPermission [-List] <ListPipeBind> -Identity <ListItemPipeBind>
- [-Connection <PnPConnection>] [<CommonParameters>]
+ [-Connection <PnPConnection>] 
 
 ```
 
 ## DESCRIPTION
+
+Allows to retrieve list item permissions.
 
 ## EXAMPLES
 

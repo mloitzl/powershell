@@ -17,16 +17,18 @@ Adds a web part to a web part page in a specified zone
 ### XML
 ```powershell
 Add-PnPWebPartToWebPartPage -ServerRelativePageUrl <String> -Xml <String> -ZoneId <String> -ZoneIndex <Int32>
- [-Connection <PnPConnection>] [<CommonParameters>]
+ [-Connection <PnPConnection>] 
 ```
 
 ### FILE
 ```powershell
 Add-PnPWebPartToWebPartPage -ServerRelativePageUrl <String> -Path <String> -ZoneId <String> -ZoneIndex <Int32>
- [-Connection <PnPConnection>] [<CommonParameters>]
+ [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
+
+Allows to add a web part to a web part page. Use the `ZoneIndex` option to specify the zone.
 
 ## EXAMPLES
 

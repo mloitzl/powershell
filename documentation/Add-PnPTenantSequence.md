@@ -16,10 +16,12 @@ Adds a tenant sequence object to a tenant template
 
 ```powershell
 Add-PnPTenantSequence -Template <ProvisioningHierarchy> -Sequence <ProvisioningSequence>  
- [<CommonParameters>]
+ 
 ```
 
 ## DESCRIPTION
+
+Allows to add a tenant sequence object to a tenant template.
 
 ## EXAMPLES
 
@@ -76,21 +78,6 @@ Type: ProvisioningHierarchy
 Parameter Sets: (All)
 
 Required: True
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -WhatIf
-Shows what would happen if the cmdlet runs. The cmdlet is not run.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: wi
-
-Required: False
 Position: Named
 Default value: None
 Accept pipeline input: False

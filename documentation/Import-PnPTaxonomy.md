@@ -17,16 +17,18 @@ Imports a taxonomy from either a string array or a file
 ### Direct
 ```powershell
 Import-PnPTaxonomy [-Terms <String[]>] [-Lcid <Int32>] [-TermStoreName <String>] [-Delimiter <String>]
- [-SynchronizeDeletions] [-Connection <PnPConnection>]   [<CommonParameters>]
+ [-SynchronizeDeletions] [-Connection <PnPConnection>]   
 ```
 
 ### File
 ```powershell
 Import-PnPTaxonomy -Path <String> [-Lcid <Int32>] [-TermStoreName <String>] [-Delimiter <String>]
- [-SynchronizeDeletions] [-Connection <PnPConnection>]   [<CommonParameters>]
+ [-SynchronizeDeletions] [-Connection <PnPConnection>]   
 ```
 
 ## DESCRIPTION
+
+Allows to import taxonomy terms from array or file.
 
 ## EXAMPLES
 
@@ -39,12 +41,19 @@ Creates a new termgroup, 'Company', a termset 'Locations' and a term 'Stockholm'
 
 ### EXAMPLE 2
 ```powershell
+Import-PnPTaxonomy -Terms 'Company|Locations|"Stockholm,Central"'
+```
+
+Creates a new termgroup, 'Company', a termset 'Locations', a term 'Stockholm,Central'
+
+### EXAMPLE 3
+```powershell
 Import-PnPTaxonomy -Terms 'Company|Locations|Stockholm|Central','Company|Locations|Stockholm|North'
 ```
 
 Creates a new termgroup, 'Company', a termset 'Locations', a term 'Stockholm' and two subterms: 'Central', and 'North'
 
-### EXAMPLE 3
+### EXAMPLE 4
 ```powershell
 Import-PnPTaxonomy -Path ./mytaxonomyterms.txt
 ```
@@ -147,21 +156,6 @@ Required: False
 Position: Named
 Default value: None
 Accept pipeline input: True (ByValue)
-Accept wildcard characters: False
-```
-
-### -WhatIf
-Shows what would happen if the cmdlet runs. The cmdlet is not run.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: wi
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
 Accept wildcard characters: False
 ```
 

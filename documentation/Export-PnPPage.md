@@ -16,17 +16,26 @@ Exports a Client Side Page to a PnP Provisioning Template
 
 ```powershell
 Export-PnPPage [-Identity] <PagePipeBind> [-PersistBrandingFiles] [-Out <String>] [-Force]
- [-Configuration <ExtractConfigurationPipeBind>] [-Connection <PnPConnection>] 
-  [<CommonParameters>]
+ [-Configuration <ExtractConfigurationPipeBind>] [-OutputInstance]  [-Connection <PnPConnection>] 
+  
 ```
 
 ## DESCRIPTION
+
+Allows to export a Client Side Page to a PnP Provisioning Template.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```powershell
 Export-PnPPage -Identity Home.aspx
+```
+
+Exports the page 'Home.aspx' to a new PnP Provisioning Template
+
+### EXAMPLE 2
+```powershell
+Export-PnPPage -Identity HR/Home.aspx -Out template.pnp
 ```
 
 Exports the page 'Home.aspx' to a new PnP Provisioning Template
@@ -91,7 +100,7 @@ Accept wildcard characters: False
 ```
 
 ### -Identity
-The name of the page
+The name/identity of the page. This can be a page instance or the filename of the page. I.e. if the page is called MyPage.aspx and is located in the root of the Site Pages library, provide "MyPage" or "MyPage.aspx". If the page is called MyOtherPage.aspx and is located inside a subfolder called HR located in the root of the Site Pages library, provide "HR/MyOtherPage" or "HR/MyOtherPage.aspx
 
 ```yaml
 Type: ClientSidePagePipeBind
@@ -132,15 +141,12 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-
-
-### -WhatIf
-Shows what would happen if the cmdlet runs. The cmdlet is not run.
+### -OutputInstance
+Returns the template as an in-memory object, which is an instance of the SiteTemplate type of the PnP Core Component. It cannot be used together with the -Out parameter.
 
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: wi
 
 Required: False
 Position: Named

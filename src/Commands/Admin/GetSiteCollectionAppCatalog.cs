@@ -1,5 +1,4 @@
 ﻿using Microsoft.SharePoint.Client;
-using PnP.PowerShell.Commands.Attributes;
 using PnP.PowerShell.Commands.Base;
 using PnP.PowerShell.Commands.Model.SharePoint;
 using System;
@@ -10,10 +9,8 @@ using System.Management.Automation;
 namespace PnP.PowerShell.Commands
 {
     [Cmdlet(VerbsCommon.Get, "PnPSiteCollectionAppCatalog")]
-    [Alias("Get-PnPSiteCollectionAppCatalogs")]
-    [WriteAliasWarning("Please use 'Get-PnPSiteCollectionAppCatalog' (singular). The alias 'Get-PnPSiteCollectionAppCatalogs' (plural) will be removed in a future release.")]
     [OutputType(typeof(IEnumerable<SiteCollectionAppCatalog>))]
-    public class GetSiteCollectionAppCatalog : PnPAdminCmdlet
+    public class GetSiteCollectionAppCatalog : PnPSharePointOnlineAdminCmdlet
     {
         [Parameter(Mandatory = false)]
         public SwitchParameter ExcludeDeletedSites;
@@ -21,13 +18,16 @@ namespace PnP.PowerShell.Commands
         [Parameter(Mandatory = false)]
         public SwitchParameter CurrentSite;
 
+        [Parameter(Mandatory = false)]
+        public SwitchParameter SkipUrlValidation;
+
         protected override void ExecuteCmdlet()
         {
-            WriteVerbose("Retrieving all site collection App Catalogs from SharePoint Online");
+            LogDebug("Retrieving all site collection App Catalogs from SharePoint Online");
 
-            var appCatalogsCsom = ClientContext.Web.TenantAppCatalog.SiteCollectionAppCatalogsSites;
-            ClientContext.Load(appCatalogsCsom);
-            ClientContext.ExecuteQueryRetry();
+            var appCatalogsCsom = AdminContext.Web.TenantAppCatalog.SiteCollectionAppCatalogsSites;
+            AdminContext.Load(appCatalogsCsom);
+            AdminContext.ExecuteQueryRetry();
 
             var appCatalogsLocalModel = appCatalogsCsom.Select(ac =>
                 new SiteCollectionAppCatalog
@@ -38,26 +38,33 @@ namespace PnP.PowerShell.Commands
                 }
             ).ToList();
 
-            WriteVerbose($"{appCatalogsLocalModel.Count} site collection App Catalog{(appCatalogsLocalModel.Count != 1 ? "s have" : " has")} been retrieved");
+            LogDebug($"{appCatalogsLocalModel.Count} site collection App Catalog{(appCatalogsLocalModel.Count != 1 ? "s have" : " has")} been retrieved");
 
             if (CurrentSite.ToBool())
             {
-                SiteContext.Site.EnsureProperties(s => s.Id);
+                ClientContext.Site.EnsureProperties(s => s.Id);
 
-                WriteVerbose($"Filtering down to only the current site at {Connection.Url} with ID {SiteContext.Site.Id}");
-                var currentSite = appCatalogsLocalModel.FirstOrDefault(a => a.SiteID.HasValue && a.SiteID.Value == SiteContext.Site.Id);
+                LogDebug($"Filtering down to only the current site at {Connection.Url} with ID {ClientContext.Site.Id}");
+                var currentSite = appCatalogsLocalModel.FirstOrDefault(a => a.SiteID.HasValue && a.SiteID.Value == ClientContext.Site.Id);
 
                 appCatalogsLocalModel.Clear();
 
                 if (currentSite == null)
                 {
-                    WriteVerbose($"Current site at {Connection.Url} with ID {SiteContext.Site.Id} does not have a site collection App Catalog on it");
+                    LogDebug($"Current site at {Connection.Url} with ID {ClientContext.Site.Id} does not have a site collection App Catalog on it");
                     return;
                 }
 
                 appCatalogsLocalModel.Add(currentSite);
             }
 
+            if(SkipUrlValidation.ToBool())
+            {
+                LogDebug($"Skipping URL validation since the {nameof(SkipUrlValidation)} flag has been provided");
+                WriteObject(appCatalogsLocalModel, true);
+                return;
+            }
+            
             var results = new List<SiteCollectionAppCatalog>(appCatalogsLocalModel.Count);
             foreach (var appCatalogLocalModel in appCatalogsLocalModel)
             {
@@ -65,10 +72,10 @@ namespace PnP.PowerShell.Commands
                 {
                     try
                     {
-                        WriteVerbose($"Validating site collection App Catalog at {appCatalogLocalModel.AbsoluteUrl}");
+                        LogDebug($"Validating site collection App Catalog at {appCatalogLocalModel.AbsoluteUrl}");
 
                         // Deleted sites throw either an exception or return null
-                        appCatalogLocalModel.AbsoluteUrl = Tenant.GetSitePropertiesById(appCatalogLocalModel.SiteID.Value, false).Url;
+                        appCatalogLocalModel.AbsoluteUrl = Tenant.GetSitePropertiesById(appCatalogLocalModel.SiteID.Value, false, Connection.TenantAdminUrl).Url;
                         results.Add(appCatalogLocalModel);
                     }
                     catch (Exception e)
@@ -77,12 +84,12 @@ namespace PnP.PowerShell.Commands
                         {
                             if (!ExcludeDeletedSites.ToBool())
                             {
-                                WriteVerbose($"Site collection App Catalog at {appCatalogLocalModel.AbsoluteUrl} regards a site that has been deleted");
+                                LogDebug($"Site collection App Catalog at {appCatalogLocalModel.AbsoluteUrl} regards a site that has been deleted");
                                 results.Add(appCatalogLocalModel);
                             }
                             else
                             {
-                                WriteVerbose($"Site collection App Catalog at {appCatalogLocalModel.AbsoluteUrl} regards a site that has been deleted. Since the {nameof(ExcludeDeletedSites)} flag has been provided, it will not be included in the results.");
+                                LogDebug($"Site collection App Catalog at {appCatalogLocalModel.AbsoluteUrl} regards a site that has been deleted. Since the {nameof(ExcludeDeletedSites)} flag has been provided, it will not be included in the results.");
                             }
 
                             continue;

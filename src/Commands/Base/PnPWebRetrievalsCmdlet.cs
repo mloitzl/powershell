@@ -1,7 +1,4 @@
-﻿using System;
-using PnP.PowerShell.Commands.Base.PipeBinds;
-using System.Management.Automation;
-using Microsoft.SharePoint.Client;
+﻿using Microsoft.SharePoint.Client;
 
 namespace PnP.PowerShell.Commands
 {
@@ -12,10 +9,6 @@ namespace PnP.PowerShell.Commands
     public abstract class PnPWebRetrievalsCmdlet<TType> : PnPRetrievalsCmdlet<TType> where TType : ClientObject
     {
         private Web _currentWeb;
-
-        [Parameter(Mandatory = false)]
-        [Obsolete("The -Web parameter will be removed in a future release. Use Connect-PnPOnline -Url [subweburl] instead to connect to a subweb.")]
-        public WebPipeBind Web = new WebPipeBind();
 
         protected Web CurrentWeb
         {
@@ -32,26 +25,15 @@ namespace PnP.PowerShell.Commands
         private Web GetWeb()
         {
             Web web = ClientContext.Web;
-
-#pragma warning disable CS0618
-            if (ParameterSpecified(nameof(Web)))
+            
+            // Validate that our ClientContext and PnPConnection are both for the same site
+            if (Connection.Context.Url != Connection.Url)
             {
-                var subWeb = Web.GetWeb(ClientContext);
-                subWeb.EnsureProperty(w => w.Url);
-                Connection.CloneContext(subWeb.Url);
-                web = Connection.Context.Web;
+                // ClientContext is for a different site than our PnPConnection, try to make the connection match the ClientContext URL
+                Connection.RestoreCachedContext(Connection.Context.Url);
             }
-#pragma warning restore CS0618
-            else
-            {
-                // Validate that our ClientContext and PnPConnection are both for the same site
-                if (Connection.Context.Url != Connection.Url)
-                {
-                    // ClientContext is for a different site than our PnPConnection, try to make the connection match the ClientContext URL
-                    Connection.RestoreCachedContext(Connection.Context.Url);
-                }
-                web = ClientContext.Web;
-            }
+            web = ClientContext.Web;
+            
 
             Connection.Context.ExecuteQueryRetry();
 

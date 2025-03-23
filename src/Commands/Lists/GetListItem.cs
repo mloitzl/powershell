@@ -4,20 +4,32 @@ using System.Management.Automation;
 using System.Text;
 using System.Xml.Linq;
 using Microsoft.SharePoint.Client;
-
+using PnP.PowerShell.Commands.Attributes;
+using PnP.PowerShell.Commands.Base.Completers;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 
 namespace PnP.PowerShell.Commands.Lists
 {
     [Cmdlet(VerbsCommon.Get, "PnPListItem", DefaultParameterSetName = ParameterSet_ALLITEMS)]
     [OutputType(typeof(ListItem))]
-    public class GetListItem : PnPWebCmdlet
+    [RequiredApiApplicationPermissions("sharepoint/Sites.Selected")]
+    [RequiredApiApplicationPermissions("sharepoint/Sites.Read.All")]
+    [RequiredApiApplicationPermissions("sharepoint/Sites.ReadWrite.All")]
+    [RequiredApiApplicationPermissions("sharepoint/Sites.Manage.All")]
+    [RequiredApiApplicationPermissions("sharepoint/Sites.FullControl.All")]
+    [RequiredApiDelegatedPermissions("sharepoint/AllSites.Read")]
+    [RequiredApiDelegatedPermissions("sharepoint/AllSites.Write")]
+    [RequiredApiDelegatedPermissions("sharepoint/AllSites.Manage")]
+    [RequiredApiDelegatedPermissions("sharepoint/AllSites.FullControl")]
+
+    public class GetListItem : PnPWebRetrievalsCmdlet<ListItem>
     {
         private const string ParameterSet_BYID = "By Id";
         private const string ParameterSet_BYUNIQUEID = "By Unique Id";
         private const string ParameterSet_BYQUERY = "By Query";
         private const string ParameterSet_ALLITEMS = "All Items";
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 0, ParameterSetName = ParameterAttribute.AllParameterSets)]
+        [ArgumentCompleter(typeof(ListNameCompleter))]
         public ListPipeBind List;
 
         [Parameter(Mandatory = false, ParameterSetName = ParameterSet_BYID)]
@@ -76,10 +88,12 @@ namespace PnP.PowerShell.Commands.Lists
                 {
                     ClientContext.Load(listItem, l => l.ContentType, l => l.ContentType.Name, l => l.ContentType.Id, l => l.ContentType.StringId, l => l.ContentType.Description);
                 }
+                if (RetrievalExpressions.Length > 0)
+                    ClientContext.Load(listItem, RetrievalExpressions);
                 ClientContext.ExecuteQueryRetry();
                 WriteObject(listItem);
             }
-            else if (HasUniqueId())
+            else if (UniqueId != Guid.Empty)
             {
                 CamlQuery query = new CamlQuery();
                 var viewFieldsStringBuilder = new StringBuilder();
@@ -95,7 +109,9 @@ namespace PnP.PowerShell.Commands.Lists
                 query.ViewXml = $"<View Scope='RecursiveAll'><Query><Where><Or><Eq><FieldRef Name='GUID'/><Value Type='Guid'>{UniqueId}</Value></Eq><Eq><FieldRef Name='UniqueId' /><Value Type='Guid'>{UniqueId}</Value></Eq></Or></Where></Query>{viewFieldsStringBuilder}</View>";
 
                 var listItem = list.GetItems(query);
+                // Call ClientContext.Load() with and without retrievalExpressions to load FieldValues, otherwise no fields will be loaded (CSOM behavior)
                 ClientContext.Load(listItem);
+                ClientContext.Load(listItem, l => l.Include(RetrievalExpressions));
                 if (IncludeContentType)
                 {
                     ClientContext.Load(listItem, l => l.Include(a => a.ContentType, a => a.ContentType.Id, a => a.ContentType.Name, a => a.ContentType.Description, a => a.ContentType.StringId));
@@ -156,7 +172,9 @@ namespace PnP.PowerShell.Commands.Lists
                 do
                 {
                     var listItems = list.GetItems(query);
+                    // Call ClientContext.Load() with and without retrievalExpressions to load FieldValues, otherwise no fields will be loaded (CSOM behavior)
                     ClientContext.Load(listItems);
+                    ClientContext.Load(listItems, l => l.Include(RetrievalExpressions));
                     if (IncludeContentType)
                     {
                         ClientContext.Load(listItems, l => l.Include(a => a.ContentType, a => a.ContentType.Id, a => a.ContentType.Name, a => a.ContentType.Description, a => a.ContentType.StringId));
@@ -170,7 +188,10 @@ namespace PnP.PowerShell.Commands.Lists
                         ScriptBlock.Invoke(listItems);
                     }
 
-                    query.ListItemCollectionPosition = listItems.ListItemCollectionPosition;
+                    if (HasPageSize())
+                    {
+                        query.ListItemCollectionPosition = listItems.ListItemCollectionPosition;
+                    }
                 } while (query.ListItemCollectionPosition != null);
             }
         }
@@ -178,11 +199,6 @@ namespace PnP.PowerShell.Commands.Lists
         private bool HasId()
         {
             return Id != -1;
-        }
-
-        private bool HasUniqueId()
-        {
-            return UniqueId != null && UniqueId != Guid.Empty;
         }
 
         private bool HasCamlQuery()

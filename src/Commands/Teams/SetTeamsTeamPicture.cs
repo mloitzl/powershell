@@ -4,12 +4,11 @@ using PnP.PowerShell.Commands.Base.PipeBinds;
 using PnP.PowerShell.Commands.Utilities;
 using System.IO;
 using System.Management.Automation;
-using System.Threading.Tasks;
 
-namespace PnP.PowerShell.Commands.Graph
+namespace PnP.PowerShell.Commands.Teams
 {
     [Cmdlet(VerbsCommon.Set, "PnPTeamsTeamPicture")]
-    [RequiredMinimalApiPermissions("Group.ReadWrite.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/Group.ReadWrite.All")]
 
     public class SetTeamsTeamPicture : PnPGraphCmdlet
     {
@@ -21,7 +20,7 @@ namespace PnP.PowerShell.Commands.Graph
 
         protected override void ExecuteCmdlet()
         {
-            var groupId = Team.GetGroupId(Connection, AccessToken);
+            var groupId = Team.GetGroupId(GraphRequestHelper);
             if (groupId != null)
             {
                 if (!System.IO.Path.IsPathRooted(Path))
@@ -52,7 +51,7 @@ namespace PnP.PowerShell.Commands.Graph
                         throw new PSArgumentException("File is not of a supported content type (jpg/png)");
                     }
                     var byteArray = File.ReadAllBytes(Path);
-                    TeamsUtility.SetTeamPictureAsync(Connection, AccessToken, groupId, byteArray, contentType).GetAwaiter().GetResult();
+                    TeamsUtility.SetTeamPictureAsync(GraphRequestHelper, groupId, byteArray, contentType);
                 }
                 else
                 {

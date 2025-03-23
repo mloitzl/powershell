@@ -2,6 +2,7 @@
 using System.Management.Automation;
 using Microsoft.SharePoint.Client;
 using System.Linq;
+using PnP.PowerShell.Commands.Utilities.REST;
 
 namespace PnP.PowerShell.Commands.Base
 {
@@ -13,18 +14,8 @@ namespace PnP.PowerShell.Commands.Base
         /// <summary>
         /// Returns an Access Token for the Microsoft Office Management API, if available, otherwise NULL
         /// </summary>
-        public string AccessToken
-        {
-            get
-            {
-                if (Connection?.Context != null)
-                {
-                    return TokenHandler.GetAccessToken(GetType(), "https://manage.office.com/.default", Connection);
-                }
-                return null;
-            }
-        }
-
+        public string AccessToken => TokenHandler.GetAccessToken("https://manage.office.com/.default", Connection);
+        public ApiRequestHelper RequestHelper { get; set; }
         protected override void BeginProcessing()
         {
             base.BeginProcessing();
@@ -35,13 +26,14 @@ namespace PnP.PowerShell.Commands.Base
                     throw new PSInvalidOperationException("This cmdlet not work with a WebLogin/Cookie based connection towards SharePoint.");
                 }
             }
+            RequestHelper = new ApiRequestHelper(GetType(), Connection, "https://manage.office.com/.default");
         }
 
         protected Guid? TenantId
         {
             get
             {
-                var parsedToken = new System.IdentityModel.Tokens.Jwt.JwtSecurityToken(AccessToken);
+                var parsedToken = new Microsoft.IdentityModel.JsonWebTokens.JsonWebToken(AccessToken);
                 return Guid.TryParse(parsedToken.Claims.FirstOrDefault(c => c.Type == "tid").Value, out Guid tenandIdGuid) ? (Guid?)tenandIdGuid : null;
             }
         }
@@ -49,6 +41,5 @@ namespace PnP.PowerShell.Commands.Base
         /// Root URL to the Office 365 Management API
         /// </summary>
         protected string ApiRootUrl => $"https://manage.office.com/api/v1.0/{TenantId}/";
-        
     }
 }

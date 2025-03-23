@@ -2,16 +2,13 @@
 using PnP.PowerShell.Commands.Base;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 using PnP.PowerShell.Commands.Model.Graph;
-using PnP.PowerShell.Commands.Model.Teams;
 using PnP.PowerShell.Commands.Utilities;
-using PnP.PowerShell.Commands.Utilities.REST;
 using System.Management.Automation;
-using System.Threading.Tasks;
 
-namespace PnP.PowerShell.Commands.Graph
+namespace PnP.PowerShell.Commands.Teams
 {
     [Cmdlet(VerbsData.Update, "PnPTeamsApp")]
-    [RequiredMinimalApiPermissions("Group.ReadWrite.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/Group.ReadWrite.All")]
     public class UpdateTeamsApp : PnPGraphCmdlet
     {
         [Parameter(Mandatory = true)]
@@ -29,15 +26,15 @@ namespace PnP.PowerShell.Commands.Graph
 
             if (System.IO.File.Exists(Path))
             {
-                var app = Identity.GetApp(Connection, AccessToken);
+                var app = Identity.GetApp(GraphRequestHelper);
                 if (app != null)
                 {
 
                     var bytes = System.IO.File.ReadAllBytes(Path);
-                    var response = TeamsUtility.UpdateAppAsync(Connection, AccessToken, bytes, app.Id).GetAwaiter().GetResult();
+                    var response = TeamsUtility.UpdateApp(GraphRequestHelper, bytes, app.Id);
                     if (!response.IsSuccessStatusCode)
                     {
-                        if (GraphHelper.TryGetGraphException(response, out GraphException ex))
+                        if (GraphRequestHelper.TryGetGraphException(response, out GraphException ex))
                         {
                             throw new PSInvalidOperationException(ex.Error.Message);
                         }

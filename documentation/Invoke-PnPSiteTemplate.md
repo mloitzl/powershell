@@ -21,7 +21,7 @@ Invoke-PnPSiteTemplate [-Path] <String> [-TemplateId <String>] [-ResourceFolder 
  [-ProvisionFieldsToSubWebs] [-ClearNavigation] [-Parameters <Hashtable>] [-Handlers <Handlers>]
  [-ExcludeHandlers <Handlers>] [-ExtensibilityHandlers <ExtensibilityHandler[]>]
  [-TemplateProviderExtensions <ITemplateProviderExtension[]>] 
- [-Connection <PnPConnection>] [<CommonParameters>]
+ [-Connection <PnPConnection>] 
 ```
 
 ### Instance
@@ -31,10 +31,12 @@ Invoke-PnPSiteTemplate [-TemplateId <String>] [-ResourceFolder <String>]
  [-ProvisionFieldsToSubWebs] [-ClearNavigation] [-Parameters <Hashtable>] [-Handlers <Handlers>]
  [-ExcludeHandlers <Handlers>] [-ExtensibilityHandlers <ExtensibilityHandler[]>]
  [-TemplateProviderExtensions <ITemplateProviderExtension[]>] [-InputInstance <SiteTemplate>]
- [-Connection <PnPConnection>] [<CommonParameters>]
+ [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
+
+Allows to apply a site template on a web.
 
 ## EXAMPLES
 
@@ -151,7 +153,7 @@ Accept wildcard characters: False
 ```
 
 ### -ExtensibilityHandlers
-Allows you to specify ExtensbilityHandlers to execute while applying a template
+Allows you to specify ExtensibilityHandlers to execute while applying a template
 
 ```yaml
 Type: ExtensibilityHandler[]
@@ -165,7 +167,7 @@ Accept wildcard characters: False
 ```
 
 ### -Handlers
-Allows you to only process a specific part of the template. Notice that this might fail, as some of the handlers require other artifacts in place if they are not part of what your applying. Visit https://docs.microsoft.com/dotnet/api/officedevpnp.core.framework.provisioning.model.handlers for possible values.
+Allows you to only process a specific part of the template. Notice that this might fail, as some of the handlers require other artifacts in place if they are not part of what your applying. Visit https://learn.microsoft.com/dotnet/api/officedevpnp.core.framework.provisioning.model.handlers for possible values.
 
 ```yaml
 Type: Handlers

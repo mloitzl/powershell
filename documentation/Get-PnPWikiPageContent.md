@@ -16,10 +16,12 @@ Gets the contents/source of a wiki page
 
 ```powershell
 Get-PnPWikiPageContent [-ServerRelativePageUrl] <String> [-Connection <PnPConnection>]
- [<CommonParameters>]
+ 
 ```
 
 ## DESCRIPTION
+
+Allows to retrieve contents/source of a wiki page.
 
 ## EXAMPLES
 

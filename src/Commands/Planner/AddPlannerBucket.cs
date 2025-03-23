@@ -4,10 +4,12 @@ using PnP.PowerShell.Commands.Base;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 using PnP.PowerShell.Commands.Utilities;
 
-namespace SharePointPnP.PowerShell.Commands.Graph
+namespace PnP.PowerShell.Commands.Planner
 {
     [Cmdlet(VerbsCommon.Add, "PnPPlannerBucket")]
-    [RequiredMinimalApiPermissions("Group.ReadWrite.All")]
+    [RequiredApiApplicationPermissions("graph/Tasks.ReadWrite")]
+    [RequiredApiApplicationPermissions("graph/Tasks.ReadWrite.All")]
+    [RequiredApiApplicationPermissions("graph/Group.ReadWrite.All")]
     public class AddPlannerBucket : PnPGraphCmdlet
     {
         private const string ParameterName_BYGROUP = "By Group";
@@ -28,14 +30,14 @@ namespace SharePointPnP.PowerShell.Commands.Graph
         {
             if (ParameterSetName == ParameterName_BYGROUP)
             {
-                var groupId = Group.GetGroupId(Connection, AccessToken);
+                var groupId = Group.GetGroupId(GraphRequestHelper);
                 if (groupId != null)
                 {
-                    var planId = Plan.GetIdAsync(Connection, AccessToken, groupId).GetAwaiter().GetResult();
+                    var planId = Plan.GetId(GraphRequestHelper, groupId);
 
                     if (planId != null)
                     {
-                        WriteObject(PlannerUtility.CreateBucketAsync(Connection, AccessToken, Name, planId).GetAwaiter().GetResult(), true);
+                        WriteObject(PlannerUtility.CreateBucket(GraphRequestHelper, Name, planId), true);
                     }
                     else
                     {
@@ -49,7 +51,7 @@ namespace SharePointPnP.PowerShell.Commands.Graph
             }
             else if (ParameterSetName == ParameterName_BYPLANID)
             {
-                WriteObject(PlannerUtility.CreateBucketAsync(Connection, AccessToken, Name, PlanId).GetAwaiter().GetResult(), true);
+                WriteObject(PlannerUtility.CreateBucket(GraphRequestHelper, Name, PlanId), true);
             }
         }
     }

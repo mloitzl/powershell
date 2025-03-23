@@ -8,7 +8,7 @@ namespace PnP.PowerShell.Commands
 {
     [Cmdlet(VerbsCommon.Get, "PnPListDesign")]
     [OutputType(typeof(TenantListDesign))]
-    public class GetListDesign : PnPAdminCmdlet
+    public class GetListDesign : PnPSharePointOnlineAdminCmdlet
     {
         [Parameter(Mandatory = false, Position = 0, ValueFromPipeline = true)]
         public TenantListDesignPipeBind Identity;
@@ -21,7 +21,7 @@ namespace PnP.PowerShell.Commands
 
                 if(listDesigns.Length == 0)
                 {
-                    WriteVerbose($"No list designs with the identity provided through {nameof(Identity)} have been found");
+                    LogDebug($"No list designs with the identity provided through {nameof(Identity)} have been found");
                 }
 
                 WriteObject(listDesigns, true);
@@ -29,8 +29,8 @@ namespace PnP.PowerShell.Commands
             else
             {
                 var designs = Tenant.GetListDesigns();
-                ClientContext.Load(designs);
-                ClientContext.ExecuteQueryRetry();
+                AdminContext.Load(designs);
+                AdminContext.ExecuteQueryRetry();
 
                 WriteObject(designs, true);
             }

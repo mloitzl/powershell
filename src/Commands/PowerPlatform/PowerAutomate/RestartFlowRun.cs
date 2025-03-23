@@ -1,8 +1,8 @@
-﻿using PnP.PowerShell.Commands.Attributes;
-using PnP.PowerShell.Commands.Base;
+﻿using PnP.PowerShell.Commands.Base;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 using PnP.PowerShell.Commands.Model.PowerPlatform.PowerAutomate;
 using PnP.PowerShell.Commands.Properties;
+using PnP.PowerShell.Commands.Utilities;
 using PnP.PowerShell.Commands.Utilities.REST;
 using System.Linq;
 using System.Management.Automation;
@@ -10,10 +10,9 @@ using System.Management.Automation;
 namespace PnP.PowerShell.Commands.PowerPlatform.PowerAutomate
 {
     [Cmdlet(VerbsLifecycle.Restart, "PnPFlowRun")]
-    [RequiredMinimalApiPermissions("https://management.azure.com/.default")]
-    public class RestartFlowRun : PnPGraphCmdlet
+    public class RestartFlowRun : PnPAzureManagementApiCmdlet
     {
-        [Parameter(Mandatory = true)]
+        [Parameter(Mandatory = false)]
         public PowerPlatformEnvironmentPipeBind Environment;
 
         [Parameter(Mandatory = true)]
@@ -27,7 +26,8 @@ namespace PnP.PowerShell.Commands.PowerPlatform.PowerAutomate
 
         protected override void ExecuteCmdlet()
         {
-            var environmentName = Environment.GetName();
+            string baseUrl = PowerPlatformUtility.GetPowerAutomateEndpoint(Connection.AzureEnvironment);
+            var environmentName = ParameterSpecified(nameof(Environment)) ? Environment.GetName() : PowerPlatformUtility.GetDefaultEnvironment(ArmRequestHelper, Connection.AzureEnvironment)?.Name;
             if (string.IsNullOrEmpty(environmentName))
             {
                 throw new PSArgumentException("Environment not found.");
@@ -48,8 +48,8 @@ namespace PnP.PowerShell.Commands.PowerPlatform.PowerAutomate
             if (!Force && !ShouldContinue($"Restart flow run with name '{flowRunName}'?", Resources.Confirm))
                 return;
 
-            var triggers = GraphHelper.GetResultCollectionAsync<FlowRunTrigger>(Connection, $"https://management.azure.com/providers/Microsoft.ProcessSimple/environments/{environmentName}/flows/{flowName}/triggers?api-version=2016-11-01", AccessToken).GetAwaiter().GetResult();
-            RestHelper.PostAsync(Connection.HttpClient, $"https://management.azure.com/providers/Microsoft.ProcessSimple/environments/{environmentName}/flows/{flowName}/triggers/{triggers.First().Name}/histories/{flowRunName}/resubmit?api-version=2016-11-01", AccessToken).GetAwaiter().GetResult();
+            var triggers = ArmRequestHelper.GetResultCollection<FlowRunTrigger>($"{baseUrl}/providers/Microsoft.ProcessSimple/environments/{environmentName}/flows/{flowName}/triggers?api-version=2016-11-01");
+            RestHelper.Post(Connection.HttpClient,$"{baseUrl}/providers/Microsoft.ProcessSimple/environments/{environmentName}/flows/{flowName}/triggers/{triggers.First().Name}/histories/{flowRunName}/resubmit?api-version=2016-11-01", AccessToken);
         }
     }
 }

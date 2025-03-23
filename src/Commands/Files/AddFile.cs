@@ -32,7 +32,7 @@ namespace PnP.PowerShell.Commands.Files
         [ValidateNotNullOrEmpty]
         public string NewFileName = string.Empty;
 
-        [Parameter(Mandatory = true, ParameterSetName = ParameterSet_ASSTREAM)]
+        [Parameter(Mandatory = true, ParameterSetName = ParameterSet_ASSTREAM, ValueFromPipeline = true, Position = 0)]
         [ValidateNotNullOrEmpty]
         public Stream Stream;
 
@@ -44,6 +44,9 @@ namespace PnP.PowerShell.Commands.Files
 
         [Parameter(Mandatory = false)]
         public string CheckInComment = string.Empty;
+
+        [Parameter(Mandatory = false)]
+        public CheckinType CheckinType = CheckinType.MinorCheckIn;
 
         [Parameter(Mandatory = false)]
         public SwitchParameter Approve;
@@ -101,7 +104,7 @@ namespace PnP.PowerShell.Commands.Files
             }
 
             // Check if the file exists
-            if (Checkout)
+            if (Checkout || ParameterSpecified(nameof(CheckinType)))
             {
                 try
                 {
@@ -117,7 +120,7 @@ namespace PnP.PowerShell.Commands.Files
                 { // Swallow exception, file does not exist 
                 }
             }
-            
+
             Microsoft.SharePoint.Client.File file;
             switch (ParameterSetName)
             {
@@ -161,9 +164,10 @@ namespace PnP.PowerShell.Commands.Files
             {
                 item.UpdateOverwriteVersion();
             }
-            if (Checkout)
+
+            if (Checkout || ParameterSpecified(nameof(CheckinType)))
             {
-                CurrentWeb.CheckInFile(fileUrl, CheckinType.MajorCheckIn, CheckInComment);
+                CurrentWeb.CheckInFile(fileUrl, CheckinType, CheckInComment);
             }
 
             if (Publish)
@@ -197,7 +201,7 @@ namespace PnP.PowerShell.Commands.Files
         private Folder EnsureFolder()
         {
             // First try to get the folder if it exists already. This avoids an Access Denied exception if the current user doesn't have Full Control access at Web level
-            CurrentWeb.EnsureProperty(w => w.ServerRelativeUrl);            
+            CurrentWeb.EnsureProperty(w => w.ServerRelativeUrl);
 
             Folder folder = null;
             try

@@ -20,10 +20,12 @@ Removes an app from the Teams AppCatalog.
 ## SYNTAX
 
 ```powershell
-Remove-PnPTeamsApp -Identity <TeamsAppPipeBind> [-Force]  [<CommonParameters>]
+Remove-PnPTeamsApp -Identity <TeamsAppPipeBind> [-Force]  
 ```
 
 ## DESCRIPTION
+
+Allows to remove an app from the Teams AppCatalog.
 
 ## EXAMPLES
 
@@ -59,7 +61,7 @@ Accept wildcard characters: False
 ```
 
 ### -Identity
-The id, externalid or display name of the app.
+The id, external id or display name of the app.
 
 ```yaml
 Type: TeamsAppPipeBind

@@ -1,15 +1,13 @@
 using Microsoft.Online.SharePoint.TenantAdministration;
 using Microsoft.SharePoint.Client;
-
 using PnP.PowerShell.Commands.Base;
 using System.Management.Automation;
-using PnP.PowerShell.Commands.Base.PipeBinds;
 using System;
 
 namespace PnP.PowerShell.Commands.Admin
 {
     [Cmdlet(VerbsCommon.Remove, "PnPHubToHubAssociation")]
-    public class RemoveHubToHubAssociation : PnPAdminCmdlet
+    public class RemoveHubToHubAssociation : PnPSharePointOnlineAdminCmdlet
     {
         const string ParamSet_ById = "By Id";
         const string ParamSet_ByUrl = "By Url";
@@ -27,18 +25,18 @@ namespace PnP.PowerShell.Commands.Admin
             if (ParameterSetName == ParamSet_ById)
             {
                 HubSiteProperties sourceProperties = this.Tenant.GetHubSitePropertiesById(HubSiteId);
-                ClientContext.Load(sourceProperties);
+                AdminContext.Load(sourceProperties);
                 sourceProperties.ParentHubSiteId = Guid.Empty;
                 sourceProperties.Update();
-                ClientContext.ExecuteQueryRetry();
+                AdminContext.ExecuteQueryRetry();
             }
             else
             {
                 HubSiteProperties sourceProperties = this.Tenant.GetHubSitePropertiesByUrl(HubSiteUrl);
-                ClientContext.Load(sourceProperties);
+                AdminContext.Load(sourceProperties);
                 sourceProperties.ParentHubSiteId = Guid.Empty;
                 sourceProperties.Update();
-                ClientContext.ExecuteQueryRetry();
+                AdminContext.ExecuteQueryRetry();
             }
         }
     }

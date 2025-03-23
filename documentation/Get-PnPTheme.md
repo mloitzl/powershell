@@ -16,10 +16,12 @@ Returns the current theme/composed look of the current web.
 
 ```powershell
 Get-PnPTheme [-DetectCurrentComposedLook] [-Connection <PnPConnection>]
- [<CommonParameters>]
+ 
 ```
 
 ## DESCRIPTION
+
+Allows to retrieve current theme/composed look of the current web.
 
 ## EXAMPLES
 

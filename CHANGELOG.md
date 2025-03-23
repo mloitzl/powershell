@@ -6,22 +6,881 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
-## [Current Nightly]
+## [Current nightly]
 
 ### Added
-- Added `-DisableGridEditing` option to `Set-PnPList` which allows gridview editing to be enabled or disabled on a list [#2188](https://github.com/pnp/powershell/pull/2188)
+
+- Added `-PersistLogin` on `Connect-PnPOnline` which will utilize a persist cache containing your access token. The cache is encrypted and stored in a subfolder in your $HOME folder on Windows. On MacOS the cache is stored in the encrypted KeyChain. You only have to specify `-PersistLogin` once when doing a Connect-PnPOnline, after that the cache entry will be used. The cache is persisted between PowerShell sesions and system reboots. To clear an entry from the cache use `Disconnect-PnPOnline -ClearPersistedLogin`. 
+- Added tab completers for all cmdlets using a ListPipeBind parameter (e.g. `Get-PnPList -Identity`), all cmdlets using a FieldPipeBind parameter (e.g. `Get-PnPField -Identity`), `Get-PnPPropertyBag`, ContentType related cmdlets (`Get-PnPContentType` etc.) and Page related (`Get-PnPPage` etc.) cmdlets. The argument lookup will timeout after 2 seconds. This value can controlled by setting an environment variables called "PNPPSCOMPLETERTIMEOUT" and set the value to a number specifying milliseconds (e.g. 2000 is 2 seconds). If you want to disable the completer functionality on tabs, set the timeout value to 0 (zero).
+- Added `Reset-PnPDocumentID` cmdlet to request resetting the document ID for a document [#4238](https://github.com/pnp/powershell/pull/4238)
+- Added `Reset-PnPDocumentID` cmdlet to request resetting the document IDs for all documents in a library using a specific content type [#4755](https://github.com/pnp/powershell/pull/4755)
+- Added `Get-PnPPriviledgedIdentityManagementEligibleAssignment`, `Get-PnPPriviledgedIdentityManagementRole` and `Enable-PnPPriviledgedIdentityManagement` cmdlets to allow scripting of enabling Privileged Identity Management roles for a user [#4039](https://github.com/pnp/powershell/pull/4039)
+- Added `Add-PnPTenantRestrictedSearchAllowedList` which allows setting up a list of allowed URLs for Restricted SharePoint Search [#3993](https://github.com/pnp/powershell/pull/3993)
+- Added optional `-IsCopilotSearchable` to `Add-PnPOrgAssetsLibrary` which allows for an organizational assets library to be accessible to Microsoft 365 CoPilot for searching corporate images [#4254](https://github.com/pnp/powershell/pull/4254)
+- Added `Set-PnPOrgAssetsLibrary` cmdlet which allows for updating the settings of an existing organizational assets library [#4254](https://github.com/pnp/powershell/pull/4254)
+- Added additional Graph permissions to the GraphPermissions parameter set. [#4283](https://github.com/pnp/powershell/pull/4283)
+- Added `-SignInAudience` parameter to `Register-PnPEntraIDApp` and `Register-PnPEntraIDAppForInteractiveLogin` which allows you to make the EntraID app support creation of multi-tenant apps. [#4289](https://github.com/pnp/powershell/pull/4289)
+- Added `-OutputInstance` parameter to `Export-PnPPage` cmdlet to allow export of the page as in-memory template. [#4323](https://github.com/pnp/powershell/pull/4323)
+- Added `-X509KeyStorageFlags` parameter to `Connect-PnPOnline` cmdlet which allows setting of how private keys are to be imported. [#4324](https://github.com/pnp/powershell/pull/4324)
+- Added `-RestrictContentOrgWideSearch` parameter to `Set-PnPSite` which allows for applying the Restricted Content Discoverability (RCD) setting to a site [#4335](https://github.com/pnp/powershell/pull/4335)
+- Added `-LaunchBrowser` parameter to `Register-PnPEntraIDAppForInteractiveLogin` and `Register-PnPEntraIDApp` cmdlets to open browser and continue app registration in the browser. [#4347](https://github.com/pnp/powershell/pull/4347) & [#4348](https://github.com/pnp/powershell/pull/4348)
+- Added `Get-PnPSearchExternalItem` which allows retrieving the current external items for a specific external connection [#4375](https://github.com/pnp/powershell/pull/4375)
+- Added `Remove-PnPSearchExternalItem` which allows for removal of an external item from the Microsoft Search index [#4378](https://github.com/pnp/powershell/pull/4378)
+- Added `-Scopes` parameter to `Get-PnPAccessToken` cmdlet to retrieve access token with specific scopes. [#4398](https://github.com/pnp/powershell/pull/4398)
+- Added `-Icon` and `-Color` parameters to `Set-PnPList` cmdlet. [#4409](https://github.com/pnp/powershell/pull/4409)
+- Added `Remove-PnPTenantRestrictedSearchAllowedList` cmdlet to removes site URLs from the allowed list when Restricted SharePoint Search is enabled. [#4399](https://github.com/pnp/powershell/pull/4399)
+- Added `Get-PnPDeletedFlow` cmdlet to retrieve a list of flows which are soft deleted. [#4396](https://github.com/pnp/powershell/pull/4396)
+- Added `Restore-PnPFlow` cmdlet which allows for undeleting a flow within 21 days of deletion. [#4415](https://github.com/pnp/powershell/pull/4415)
+- Added `-ExcludeDeprecated` to `Export-PnpTaxonomy` which allows for deprecated terms to be excluded from the export [#4053](https://github.com/pnp/powershell/pull/4053)
+- Added `-HidePeoplePreviewingFiles` to `Set-PnPSite` which allows for hiding the people previewing files feature on a site [#4416](https://github.com/pnp/powershell/pull/4416)
+- Added `-AllowWebPropertyBagUpdateWhenDenyAddAndCustomizePagesIsEnabled` to `Set-PnPTenant` which allows for updating of web property bag when DenyAddAndCustomizePages is enabled [#4508](https://github.com/pnp/powershell/pull/4508)
+- Added `SiteId` to the output of `Get-PnPTenantSite` [#4527](https://github.com/pnp/powershell/pull/4527)
+- Added `Add-PnPFileSensitivityLabel` which allows for assigning sensitivity labels to SharePoint files [#4538](https://github.com/pnp/powershell/pull/4538)
+- `Add-PnPApp` , `Publish-PnPApp` , `Remove-PnPApp` and `Unpublish-PnPApp` now have `-Force` parameter to change the site to allow scripts to be temporarily enabled. [#4554](https://github.com/pnp/powershell/pull/4554)
+- Added `-CanSyncHubSitePermissions` parameter to `Set-PnPSite` cmdlet to set value of allowing syncing hub site permissions to this associated site. [#4555](https://github.com/pnp/powershell/pull/4555)
+- Added `Get-PnPProfileCardProperty`, `New-PnPProfileCardProperty` and `Remove-PnPProfileCardProperty` cmdlets to manage showing additional properties on the Microsoft 365 user profile [#4548](https://github.com/pnp/powershell/pull/4548)
+- Added `Get-PnPCopilotAdminLimitedMode` and `Set-PnPCopilotAdminLimitedMode` which allows for managing the setting that controls whether Microsoft 365 Copilot in Teams Meetings users can receive responses to sentiment-related prompts [#4562](https://github.com/pnp/powershell/pull/4562)
+- Added `-Contributors` and `-Managers` parameters to `New-PnPTermGroup` and `Set-PnPTermGroup` cmdlets.
+- Added `-Files` parameter for `Send-PnPMail` cmdlet to allow files to be downloaded from SharePoint and then sent as attachments.
+- Added `-Force` parameter to `Set-PnPPropertyBagValue` cmdlet to toggle NoScript status of the site.
+- Added `-Batch` parameter to `Invoke-PnPGraphMethod` cmdlet to allow adding request in a batch.
+- Added `-List` parameter to `Get-PnPFolderItem`, `Get-PnPFileInFolder` and `Get-PnPFolderInFolder` which allows them to work with a document library containing more than 5,000 items [#4611](https://github.com/pnp/powershell/pull/4611)
+- Added `Start-PnPTraceLog`, `Stop-PnPTraceLog` and `Get-PnPTraceLog` cmdlets to handle tracelogging. Removed `Set-PnPTraceLog` cmdlet.
+- Added `-ListPermissionScopes` parameter on `Get-PnPAccessToken` cmdlet to list the current permission scopes on the current access token.
+- Added `Get-PnPCopilotAgent` cmdlet that returns the Microsoft Copilot Agents in a site collection.
+- Added `Get-PnPFileRetentionLabel` cmdlet to fetch the file retention labels. [#4603](https://github.com/pnp/powershell/pull/4603)
+- Added `Get/Set/Remove-PnPUserProfilePhoto` cmdlets to download, upload or remove the profile photo of the specified user.
+- Added `New/Get/Remove/Update-PnPTodoList` cmdlets to manage Todo lists.
+- Added `Set-PnPFileRetentionLabel` which allows setting a retention label on a file in SharePoint or locking/unlocking it. [#4457](https://github.com/pnp/powershell/pull/4457)
+- Added `Get-PnPFileCheckedOut` cmdlet to retrieve all files that are currently checked out in a library [#4682](https://github.com/pnp/powershell/pull/4682)
+- Added `Get-PnPTenantPronounsSetting` and `Set-PnPTenantPronounsSetting` cmdlets to manage the availability of using pronouns in the organization [#4660](https://github.com/pnp/powershell/pull/4660)
+- Added `HidePeopleWhoHaveListsOpen` parameter to `Set-PnPSite` cmdlet to hide people who simultaneously have lists open [#4699](https://github.com/pnp/powershell/pull/4699)
+- Added `-WhoCanShareAllowListInTenant`, `-LegacyBrowserAuthProtocolsEnabled`, `-EnableDiscoverableByOrganizationForVideos`, `-RestrictedAccessControlforSitesErrorHelpLink`, `-Workflow2010Disabled`, `-AllowSharingOutsideRestrictedAccessControlGroups`, `-HideSyncButtonOnDocLib`, `-HideSyncButtonOnODB`, `-StreamLaunchConfig`, `-EnableMediaReactions`, `-ContentSecurityPolicyEnforcement` and `-DisableSpacesActivation` to `Set-PnPTenant` [#4681](https://github.com/pnp/powershell/pull/4681)
+- Added `Start-PnPEnterpriseAppInsightsReport` and `Get-PnPEnterpriseAppInsightsReport` which allow working with App Insights repors [#4713](https://github.com/pnp/powershell/pull/4713)
+- Added `Set-PnPSiteDocumentIdPrefix` which allows changing of the document id prefix on a site collection [#4765](https://github.com/pnp/powershell/pull/4765)
+- Added `Get-PnPMicrosoft365Roadmap` which allows retrieval of the Microsoft 365 Roadmap items [#4764](https://github.com/pnp/powershell/pull/4764)
+- Added `-Name` parameter to `Add-PnPApplicationCustomizer` cmdlet to allow for specifying the name of the application customizer [#4767](https://github.com/pnp/powershell/pull/4767)
+- Added `Get-PnPTraceLog` cmdlet which allows reading from the detailed in memory logs of the PnP PowerShell cmdlet execution [#4794](https://github.com/pnp/powershell/pull/4794)
+- Added `-Transitive` parameter to `Get-PnPAzureADGroupMember` cmdlet to allow members of groups inside groups to be retrieved [#4799](https://github.com/pnp/powershell/pull/4799)
+- Added the ability to `Get-PnPPage` to return all site pages in the site by omitting the `-Identity` parameter [#4805](https://github.com/pnp/powershell/pull/4805)
+- Added `Copy-PnPPage`, `Move-PnPPage` and `Get-PnPPageCopyProgress` cmdlets to allow for copying and moving site pages between sites [#4806](https://github.com/pnp/powershell/pull/4806)
 
 ### Changed
 
-### Removed
+- **PnP PowerShell is now .NET 8.0 based, and requires PowerShell 7.4.4 or newer**
+- **`-Interactive` login is now the default.**
+- The Popup based authentication for Interactive Login has been removed and replaced by a browser flow
+- `-LaunchBrowser` has been removed for interactive login
+- `-LaunchBrowser` for Device Login authentication flows has been renamed to `OpenBrowser`
+- **Rate limiting is now enabled by default for all cmdlets which are being executed under application permissions.**
+- Changed the UI experience when logging in with Interactive login and specifying `-LaunchBrowser` on `Connect-PnPOnline`. This experience is the default on MacOS.
+- In case of errors when Graph batch method is used, it will now throw a clearer error message about what was the issue. [#4327](https://github.com/pnp/powershell/pull/4327/)
+- `Get-PnPAccessToken`, `Request-PnPAccessToken` and `Get-PnPGraphAccessToken` output type is changed to `Microsoft.IdentityModel.JsonWebTokens.JsonWebToken`. Earlier they returned `System.IdentityModel.Tokens.Jwt`.
+- `New-PnPContainerType` will temporarily disable standard containers to be created due to changed being applied at Microsoft to allow this to be possible in the future [#4125](https://github.com/pnp/powershell/pull/4125)
+- Renamed `Get-PnPLabel` cmdlet to `Get-PnPRetentionLabel`. [#4387](https://github.com/pnp/powershell/pull/4387)
+- `Add-PnPNavigationNode` cmdlet updated to now support `-OpenInNewTab` parameter for different types of navigation. [#3969](https://github.com/pnp/powershell/pull/3969)
+- `Remove-PnPFile` , `Rename-PnPFile`, `Set-PnPFileCheckedIn`, `Set-PnPFileCheckedOut` & `Undo-PnPFileCheckedOut` cmdlets now use PnP Core SDK behind the scenes. [#4389](https://github.com/pnp/powershell/pull/4389)
+- `Set-PnPFileCheckedIn` cmdlet now expects `CheckInType` to be of type `PnP.Core.Model.SharePoint.CheckinType` instead of the earlier one based on CSOM. [#4389](https://github.com/pnp/powershell/pull/4389)
+- `Disable-PnPFeature` and `Enable-PnPFeature` now use PnP Core SDK for processing requests. [#4390](https://github.com/pnp/powershell/pull/4390)
+- `Remove-PnPContentType` and `Remove-PnPContentTypeFromList` now use PnP Core SDK for processing requests. [#4390](https://github.com/pnp/powershell/pull/4390)
+- `Clear-PnPRecycleBinItem` , `Move-PnPRecycleBinItem` and `Restore-PnPRecycleBinItem` cmdlets now use PnP Core SDK for processing requests. [#4393](https://github.com/pnp/powershell/pull/4393/)
+- `Get-PnPSearchCrawlLog` cmdlet now shows a warning in case application permissions are used. [#4391](https://github.com/pnp/powershell/pull/4391)
+- All Power Platform cmdlets no longer require an environment to be specified. If omitted, the default environment will be retrieved and used. [#4415](https://github.com/pnp/powershell/pull/4415)
+- When passing in an existing connection using `-Connection` on `Connect-PnPOnline`, the clientid from the passed in connection will be used for the new connection [#4425](https://github.com/pnp/powershell/pull/4425)
+- Removed `-Confirm` parameter from `Remove-PnPUser` and `Remove-PnPAvailableSiteClassification` cmdlets. Use `-Force` instead. [#4455](https://github.com/pnp/powershell/pull/4455)
+- `Get-PnPFile` now also supports passing in a full SharePoint Online URL [#4480](https://github.com/pnp/powershell/pull/4480)
+- `Add-PnPApp` , `Publish-PnPApp` , `Remove-PnPApp` and `Unpublish-PnPApp` now support disabling script settings if tenant app catalog is a no-script site.
+- `Send-PnPMail` now throws a warning about the retirement of the SharePoint SendEmail API.
+- `Get-PnPCustomAction` now supports a completer for `-Identity` and uses the PnP Core SDK to return custom actions.
+- `Set-PnPPropertyBagValue` and `Remove-PnPPropertyBagValue` now toggle the NoScript status of the site to allow setting/removing property bag values, but only if the tenant wide `AllowWebPropertyBagUpdateWhenDenyAddAndCustomizePagesIsEnabled` is not enabled [#4680](https://github.com/pnp/powershell/pull/4680)
+- `Get-PnPTenant` now uses nullable types for the properties that can return null if the property is not set or could not be retrieved. Beware that the property `PublicCdnOrigins` has been renamed to `PublicCdnOriginParsed `. All other property names will remain the same. [#4722](https://github.com/pnp/powershell/pull/4722)
+- Removed `New-PnPMicrosoft365Group` setting the group visibility options twice when providing `-HideFromAddressLists` and/or `-HideFromOutlookClients` and adding logging around trying to set the group visibility [#4791](https://github.com/pnp/powershell/pull/4791)
+- Visual Studio Code launch profiles have been cleaned up and restructured [#4808](https://github.com/pnp/powershell/pull/4804)
 
 ### Fixed
+
+- Fixed issue with `Set-PnPSearchExternalSchema` cmdlet when used with the `-Wait` parameter throwing a warning [#4253](https://github.com/pnp/powershell/pull/4253)
+- Fix `Get-PnPSearchExternalSchema` not returning the label properly for a property linked to 'iconUrl' [#4245](https://github.com/pnp/powershell/pull/4245)
+- Fix `Restore-PnPListItemVersion` cmdlet to also restore fields with TaxonomyFieldType. [#4262](https://github.com/pnp/powershell/pull/4262)
+- Fix `Set-PnPMicrosoft365GroupSetting` cmdlet to not throw runtime error. [#4274](https://github.com/pnp/powershell/pull/4274)
+- Fix `New-PnPMicrosoft365GroupSetting` cmdlet to not throw runtime error. [#4277](https://github.com/pnp/powershell/pull/4277)
+- Fix `Get-PnPSiteTemplate -PersistMultiLanguageResources` not working correctly for xml file types. [#4326](https://github.com/pnp/powershell/pull/4326)
+- Fix `Add-PnPDataRowsToSiteTemplate` setting keyColumn to null when not passed. [#4325](https://github.com/pnp/powershell/pull/4325)
+- Fix `Connect-PnPOnline` not working correctly when `-DeviceLogin` and `-LaunchBrowser` both are specified. It used to open it in a popup. Now it correctly launches the browser. [#4325](https://github.com/pnp/powershell/pull/4345)
+- `Export-PnPUserInfo`, `Export-PnPUserProfile` and `Remove-PnPUserProfile` cmdlets now work properly with proper `-Connection` parameter if specified. [#4389](https://github.com/pnp/powershell/pull/4389)
+- Fixed `Get-PnPAzureADAppSitePermission`, `Grant-PnPAzureADAppSitePermission` and `Revoke-PnPAzureADAppSitePermission` cmdlets throwing an error when the site URL is not specified and the app registration used only having Graph permissions [#4421](https://github.com/pnp/powershell/pull/4421)
+- Fixed `Get-PnPTerm` cmdlet not working correctly when `-ParentTerm` parameter is specified. [#4454](https://github.com/pnp/powershell/pull/4454)
+- Fixed the PnP PowerShell version check to only check nightly version in nightly builds and major version in release builds. [#4453](https://github.com/pnp/powershell/pull/4453)
+- Fixed `-ConsistencyLevelEventual` flag on `Invoke-PnPGraphMethod` to work correctly. [#4523](https://github.com/pnp/powershell/pull/4523)
+- Fixed `Get-PnPServiceHealthIssue` returning an error when certain service states were active [#4530](https://github.com/pnp/powershell/pull/4530)
+- Fixed `Add-PnPFileSensitivityLabel` cmdlet to allow empty string value to reset file sensitivity label.
+- Fix `Connect-PnPOnline` cmdlet not working with On Prem related cmdlets. [#4622](https://github.com/pnp/powershell/pull/4622)
+- Fix `Get\Invoke-PnPSiteTemplate` cmdlet not working in vanity domains. [#4630](https://github.com/pnp/powershell/pull/4630)
+- Fixed passing a `Get-PnPRecycleBinItem` result or a GUID to `Restore-PnPRecycleBinItem` not working correctly. [#4667](https://github.com/pnp/powershell/pull/4667)
+- Fixed `Get-PnPChangeLog` not returning the changelog [#4707](https://github.com/pnp/powershell/pull/4707)
+- Fixed `-Description` and `-Sequence` not being applied when providing these through `Add-PnPApplicationCustomizer` [#4767](https://github.com/pnp/powershell/pull/4767)
+- Fixed `-RetryCount` parameter being ignored with `Submit-PnPSearchQuery` [#4784](https://github.com/pnp/powershell/pull/4784)
+- Fixed `Get-PnPSiteScriptFromWeb` throwing a file not found error when providing a web URL through `-Url` that differed from the connected to URL [#4785](https://github.com/pnp/powershell/pull/4785)
+
+### Removed
+
+- Removed `-LaunchBrowser`, `-NoPopup` and credential based auth on `Register-PnPEntraIDApp` and `Register-PnPEntraIDAppForInteractiveLogin` cmdlets. The default auth method is now Interactive.
+- Removed `-LaunchBrowser` option on `Connect-PnPOnline` for interactive logins and device logins as it is default now and the popup based authentication window has been removed.
+- Removed `-UseWebLogin` option on `Connect-PnPOnline`. It used a very old, questionable approach to authentication. Use `-Interactive` or if you require an ACS connection `-ClientId` and `-ClientSecret`
+- Removed `Invoke-PnPTransformation` cmdlet as it was never supported.
+- Removed `Publish-PnPCompanyApp` cmdlet as it was not supported anymore. [#4387](https://github.com/pnp/powershell/pull/4387)
+- Removed `-UserVoiceForFeedbackEnabled` parameter from `Set-PnPTenant` cmdlet as it was obsolete. [#4387](https://github.com/pnp/powershell/pull/4387)
+- Removed `Set-PnPLabel` and `Reset-PnPLabel` aliases. You need to use `Set-PnPRetentionLabel` and `Reset-PnPRetentionLabel` respectively. [#4387](https://github.com/pnp/powershell/pull/4387)
+- Removed `Get-PnPPowerPlatformConnector` alias. You need to use `Get-PnPPowerPlatformCustomConnector`. [#4387](https://github.com/pnp/powershell/pull/4387)
+- Removed `-IsFavoriteByDefault` parameter from `Add-PnPTeamsChannel` cmdlet. It was obsolete and not supported by Graph API. [#4387](https://github.com/pnp/powershell/pull/4387)
+- Removed `Get-PnPAppAuthAccessToken` , `Remove-PnPGraphAccessToken` and `Request-PnPAccessToken` cmdlets. Use `Get-PnPAccessToken` instead. [#4398](https://github.com/pnp/powershell/pull/4398)
+- Removed support for sending mail via SMTP in `Send-PnPMail`. It's usage is not recommended by .NET due to its lack of support for modern protocols.
+- Removed `-Title` and `-Header` parameters from `Remove-PnPNavigationNode`. They were marked obsolete.
+- Removed `-FileUrl` parameter from `Get-PnPSharingLink`. It was marked obsolete.
+- Removed `-WebLogin` parameter from `Connect-PnPOnline` cmdlet. It was marked obsolete and was a security risk.
+- Removed `Set-PnPMinimalDownloadStrategy` as it's not applicable anymore to SharePoint Online. If you need the functionality you can always turn on the feature with `Enable-PnPFeature -Id 87294c72-f260-42f3-a41b-981a2ffce37a` or turn it off with `Disable-PnPFeature -Id 87294c72-f260-42f3-a41b-981a2ffce37a`
+- Removed `-SPOManagementShell` parameter from `Connect-PnPOnline` cmdlet. It reduces the risk of changes coming from Microsoft. Use your own Entra ID app instead.
+- Removed `Set-PnPTraceLog` cmdlet and introduced `Start-PnPTraceLog` and `Stop-PnPTraceLog` with similar parameters.
+- Removed `-DelayDenyAddAndCustomizePagesEnforcement` parameter from `Set-PnPTenant` cmdlet as it is no longer valid , removed from underlying SDK and its value can't be changed.
+- Removed `-EnableVersionExpirationSetting` parameter from `Set-PnPTenant` cmdlet as it is now enabled by default.
+ 
+### Contributors
+
+- [PitSysAdmin]
+- Abhijeet Jadhav [TekExpo]
+- [abwlodar]
+- [jgfgoncalves]
+- Stephen Cox [stephen-cox-nzx]
+- Marijn Somers [Marijnsomers]
+- Janne Holm [jhholm]
+- Paul Bullock [pkbullock]
+- Arjan Cornelissen [arjancornelissen]
+- Konrad K. [wilecoyotegenius]
+- Antti K. Koskela [koskila]
+- Steve Beaugé [stevebeauge]
+- [reusto]
+- Fredrik Thorild [fthorild]
+- San [sankarkumar23]
+- Christian Veenhuis [ChVeen]
+- Nishkalank Bezawada [NishkalankBezawada]
+- Dan Toft [Tanddant]
+- Jürgen Rosenthal-Buroh [JuergenRB]
+- [PeterRevsbech]
+- Peter Paul Kirschner [petkir]
+- Giacomo Pozzoni [jackpoz]
+- wuxiaojun514
+- Reshmee Auckloo [reshmee011]
+- Koen Zomers [koenzomers]
+- Erwin van Hunen [erwinvanhunen]
+- Gautam Sheth [gautamdsheth]
+
+## [2.12.0]
+
+### Added
+
+- Added support for `WAM` login for Windows OS to support Windows Hello, FIDO keys, Conditional Access policies and other secure authentication modes. 
+- Added `-SkipCertCreation` parameter in `Register-PnPAzureADApp` cmdlet to prevent creation and uploading of certificates in the Entra ID app.
+- Added support to `-ValidateConnection` in managed identity authentication.
+- Added `New-PnPSearchExternalConnection`, `Get-PnPSearchExternalConnection`, `Set-PnPSearchExternalConnection` and `Remove-PnPSearchExternalConnection` cmdlets to manage external connections for Microsoft Search [#4231](https://github.com/pnp/powershell/pull/4231)
+- Added `Get-PnPSearchExternalSchema` and `Set-PnPSearchExternalSchema` cmdlets to manage the schema for external connections for Microsoft Search [#4231](https://github.com/pnp/powershell/pull/4231)
+- Added `OverrideSharingCapability`, `RequestFilesLinkExpirationInDays` & `RequestFilesLinkEnabled` parameters to `Set-PnPTenantSite` cmdlet.
+
+### Changed
+
+- *Release due to deprecation/shutdown of support for the PnP Management Shell* Refer to https://pnp.github.io/powershell/articles/registerapplication.html on how to registration your own application
+- Added output for clientid/Entra App Id when using `-Verbose` with `Connect-PnPOnline`
+- Added `-OutputTask` switch to `Add-PnPPlannerTask` cmdlet which will return the just created task so inspect its ID, ETag, etc. values.
+- Improved `Invoke-PnPGraphMethod` cmdlet now to also support a hashtable value for the AdditionalHeaders parameter besides the current Dictionary<string,string>. See documentation.
+- Improved managed identity authentication for connecting to different M365 services.
+- Improved error message for `Export-PnPPage` cmdlet when the page doesn't exist.
+- Improved `Register-PnPEntraIDApp` & `Register-PnPEntraIDAppForInteractiveLogin` cmdlets to better work in non-commercial cloud environments.
+- Improved `Get-PnPDiagnostics` cmdlet to properly handle a scenrio where there's no correlationId.
+
+### Fixed
+
+- Removed version check dependency on version.txt located in Github repo. Use metadata from powershellgallery.com instead.
+- Fix issue with `Get-PnPDiagnostics` cmdlet not working correctly if `CorrelationId` is null.
+- Fix issue with App-only authentication not properly fetching tokens.
+- Fix issue with Power Platform cmdlets not working correctly in non-commercial cloud environments.
+- Fix issue with `Get-PnPFlow` not working correctly when `-AsAdmin` parameter is specified due to API changes. [#4244](https://github.com/pnp/powershell/pull/4244)
+- Fix `Connect-PnPOnline` not returning correct `ClientId` in the connection object.
+
+### Removed
+
+### Contributors
+
+- Erwin van Hunen [erwinvanhunen]
+- Giacomo Pozzoni [jackpoz]
+- Nishkalank Bezawada [NishkalankBezawada]
+- Reshmee Auckloo [reshmee011]
+- Koen Zomers [koenzomers]
+
+## [2.10.0]
+
+### Added
+
+- Added Register-PnPEntraIdAppForInteractiveLogin cmdlet
+
+### Fixed
+
+### Removed
+
+### Contributors
+
+- Erwin van Hunen [erwinvanhunen]
+
+## [2.9.0]
+
+### Fixed
+Fixed app registration on Windows
+
+### Contributors
+
+- Erwin van Hunen [erwinvanhunen]
+
+## [2.8.0]
+
+### Added
+
+- Added in depth verbose logging to all cmdlets which is revealed by adding `-Verbose` to the cmdlet execution [#4023](https://github.com/pnp/powershell/pull/4023)
+- Added `-CoreDefaultShareLinkScope` and `-CoreDefaultShareLinkRole` parameters to `Set-PnPTenant` cmdlet. [#4067](https://github.com/pnp/powershell/pull/4067)
+- Added `-Identity` parameter to the `Get-PnPFileSharingLink` cmdlet allowing for the retrieval of sharing links based on the file's unique identifier, file instance, listitem instance, or server relative path and supporting retrieval of sharing links for multiple files, such as all in a document library [#4093](https://github.com/pnp/powershell/pull/4093)
+- Added `Remove-PnPAzureADUser` which allows removal of a user from Azure Active Directory / Entra ID [#4123](https://github.com/pnp/powershell/pull/4123)
+- Added support for `GuestSharingGroupAllowListInTenantByPrincipalIdentity` and `OneDriveSharingCapability` parameters in `Set-PnPTenant` cmdlet. [#4122](https://github.com/pnp/powershell/pull/4122)
+- Added `-AsListItem` paramter to `Get-PnPFolder` cmdlet to return as folder as a list item object. [#4151](https://github.com/pnp/powershell/pull/4151)
+- Added support for handling `$ErrorActionPreference` global variable to make it work with PnP PowerShell cmdlets. [#4079](https://github.com/pnp/powershell/pull/4079)
+- Added `-Folder` parameter to `Add-PnPDocumentSet` cmdlet to allow creation of document sets in a specific folder instead of the list root folder. [#4029](https://github.com/pnp/powershell/pull/4029)
+  
+### Fixed
+
+- `Get-PnPTeamsChannel` and `Get-PnPTeamsPrimaryChannel` returning `unknownFutureValue` as MembershipType instead of `shared` [#4054](https://github.com/pnp/powershell/pull/4054)
+- Fixed using a AzureADUserPipeBind with `New-PnPAzureADUserTemporaryAccessPass`, `Get-PnPAvailableSensitivityLabel` and `Set-PnPSearchExternalItem` to not work when passing in the User ID GUID [#4123](https://github.com/pnp/powershell/pull/4123)
+- Fixed issue with `Get-PnPWebHeader` cmdlet not working properly in Group connected SharePoint sites. [#4147](https://github.com/pnp/powershell/pull/4147)
+- Fixed issue with `Get-PnPTeamsChannelFilesFolder` cmdlet to work properly for channels having data more than 2 GB. [#4127](https://github.com/pnp/powershell/pull/4127)
+
+### Changed
+
+- Fixed `Update-PnPTeamsUser` cmdlet to throw a better error message when after a user is removed from a Team but is still in the connected M365 group, for the few seconds that the 2 are out of sync. [#4068](https://github.com/pnp/powershell/pull/4068)
+- Changed `-FileUrl` on `Get-PnPFileSharingLink` to become obsolete. Please switch to using `-Identity` instead, passing in the same value [#4093](https://github.com/pnp/powershell/pull/4093)
+
+### Removed
+
+### Contributors
+
+- Dan Cecil [danielcecil]
+- Reshmee Auckloo [reshmee011]
+- Giacomo Pozzoni [jackpoz] 
+- Koen Zomers [koenzomers]
+  
+## [2.5.0]
+
+### Added
+
+- Added `New-PnPLibraryFileVersionBatchDeleteJob` and `New-PnPSiteFileVersionBatchDeleteJob` cmdlets to queue a job for deleting the file versions based on age. [#3799](https://github.com/pnp/powershell/pull/3799)
+- Added `New-PnPLibraryFileVersionExpirationReportJob` and `New-PnPSiteFileVersionExpirationReportJob` cmdlets to queue a job for generating a file version expiration report for all files in a document library or site. [#3799](https://github.com/pnp/powershell/pull/3799)
+- Added `Remove-PnPLibraryFileVersionBatchDeleteJob` and `Remove-PnPSiteFileVersionBatchDeleteJob` cmdlets to cancel the job for deleting file versions based on age. [#3799](https://github.com/pnp/powershell/pull/3799)
+- Added `Get-PnPLibraryFileVersionExpirationReportJobProgress` and `Get-PnPSiteFileVersionExpirationReportJobProgress` cmdlets to getting the progress for the job for file versions based on age. [#3799](https://github.com/pnp/powershell/pull/3799)
+- Added `-UseVersionExpirationReport` parameter to `Get-PnPFileVersion` cmdlet to get the version expiration report for a single file. [#3799](https://github.com/pnp/powershell/pull/3799)
+- Added `-DelayDenyAddAndCustomizePagesEnforcement` parameter to `Set-PnPTenant` cmdlet which allows delay of the change to custom script set on the Tenant until mid-November 2024. [#3815](https://github.com/pnp/powershell/pull/3815)
+- Added additional permissions for Graph application permission validate sets. [#3835](https://github.com/pnp/powershell/issues/3835)
+- Added the ability to upload entire local folders with files and optionally subfolders to SharePoint Online into 'Copy-PnPFolder' [#3850](https://github.com/pnp/powershell/pull/3850)
+- Added `LoopDefaultSharingLinkRole`, `DefaultShareLinkScope`, `DefaultShareLinkRole`, `LoopDefaultSharingLinkScope` and `DefaultLinkToExistingAccessReset` parameters to `Set-PnPTenant` cmdlet. [#3874](https://github.com/pnp/powershell/pull/3874)
+- Added `Unlock-PnPSensitivityLabelEncryptedFile` which allows the encryption to be removed from a file [#3864](https://github.com/pnp/powershell/pull/3864)
+- Added `Get-PnPLibraryFileVersionBatchDeleteJobStatus` and `Get-PnPSiteFileVersionBatchDeleteJobStatus` to check on the status of applying file based version expiration based on age on a library and site level [#3828](https://github.com/pnp/powershell/pull/3828)
+- Added support for `Get-PnPSiteCollectionAppCatalog` and `Get-PnPTenantSite` to be used with vanity domain tenants [#3895](https://github.com/pnp/powershell/pull/3895)
+- Added support for using vanity domain tenants with `Grant-PnPTenantServicePrincipalPermission`, `Revoke-PnPTenantServicePrincipalPermission`, `Set-PnPWebTheme`, `Invoke-PnPListDesign`, `Set-PnPSite`, `Add-PnPSiteDesignTask`, `Get-PnPSiteDesignRun`, `Get-PnPSiteDesignTask` and `Invoke-PnPSiteDesign` cmdlets [#3898](https://github.com/pnp/powershell/pull/3898)
+- Added `-Detailed` to `Get-PnPMicrosoft365Group` which allows retrieval of the AllowExternalSenders, IsSubscribedByMail and AutoSubscribeNewMembers properties of the group [#3958](https://github.com/pnp/powershell/pull/3958)
+- Added `-RequireSenderAuthenticationEnabled` and `-AutoSubscribeNewMembers` to `Set-PnPMicrosoft365Group` which allows setting these properties on a group [#3958](https://github.com/pnp/powershell/pull/3958)
+- Added `Get-PnPContainerType` cmdlet to retrieve the list of Container Types created for a SharePoint Embedded Application in the tenant. [#3946](https://github.com/pnp/powershell/pull/3946)
+- Added `-RecycleBinRetentionPeriod`,`-OneDriveBlockGuestsAsSiteAdmin`,`-OneDriveDefaultShareLinkRole`,`-OneDriveDefaultShareLinkScope` and `-OneDriveDefaultLinkToExistingAccess` parameters to the `Set-PnPTenant` cmdlet. [#3977](https://github.com/pnp/powershell/pull/3977)
+- Added `Get-PnPTenantRestrictedSearchMode` and `Set-PnPTenantRestrictedSearchMode` cmdlets to enable and set up Restricted SharePoint Search. [#3976](https://github.com/pnp/powershell/pull/3976)
+- Added `Get-PnPTenantInternalSetting` cmdlet to retrieve internal tenant settings not exposed via CSOM SDK. [#3902](https://github.com/pnp/powershell/pull/3902)
+- Added `Add-PnPHomeSite` cmdlet to add a home site to your tenant. [#3989](https://github.com/pnp/powershell/pull/3989)
+- Added `Get-PnPPageSchedulingEnabled` cmdlet to get the state of the modern page schedule feature in the library. [PR](https://github.com/pnp/powershell/commit/4ac757fc2072233529b38b2b39c36ea6b941e003)
+- Added `-IncludeSensitivityLabels` parameter to `Get-PnPMicrosoft365Group` cmdlet to retrieve sensitivity labels assigned to M365 Groups. [#3991](https://github.com/pnp/powershell/pull/3991)
+- Added `Get-PnPFileSensitivityLabelInfo` cmdlet to retrieve sensitivity label information about a file in a SharePoint site. [#3994](https://github.com/pnp/powershell/pull/3994)
+- Added `Get-PnPTenantRestrictedSearchAllowedList` cmdlet to retrieve existing list of URLs in the allowed list. [#3997](https://github.com/pnp/powershell/pull/3997)
+- Added `-IsSharePointAddInsDisabled` to the `Set-PnPTenant` cmdlet which allows disabling SharePoint Add-ins [#4032](https://github.com/pnp/powershell/pull/4032)
+- Added `-RestrictContentOrgWideSearch`, `-ReadOnlyForUnmanagedDevices` and `-InheritVersionPolicyFromTenant` parameters to `Set-PnPTenantSite` cmdlet. [#4024](https://github.com/pnp/powershell/pull/4024)
+
+### Fixed
+
+- Fixed `Get-PnPChangeLog -Version 2.3.0` not returning the changelog for that version [#3804](https://github.com/pnp/powershell/pull/3804)
+- Fixed `Get-PnPFlow` cmdlet throwing time out error due to incorrect URL used in HTTP request. [#3820](https://github.com/pnp/powershell/pull/3820)
+- Fixed `Copy-PnPList` cmdlet to better handle lookup columns. [#3870](https://github.com/pnp/powershell/pull/3870)
+- Fixed NullDereferenceException happening when an exception is logged in PnPConnectedCmdlet but the connection passed through -Connection parameter is not the last one. [#3885](https://github.com/pnp/powershell/pull/3885)
+- Fixed NullDereferenceException in `Get-PnPUserProfileProperty` cmdlet when the user profile doesn't exist, showing a better error message. [#3891](https://github.com/pnp/powershell/pull/3891)
+- Fixed the dev build process on Mac OS devices. [#3907](https://github.com/pnp/powershell/pull/3907)
+- Fixed `Get-PnPContainer` cmdlet to also handle pagination in case of large no. of containers in a tenant. [#3990](https://github.com/pnp/powershell/pull/3990)
+- Fixed `New-PnPTeamsTeam` cmdlet to better handle error specifically such as `Conflict (409): Team already exists`. [#3992](https://github.com/pnp/powershell/pull/3992)
+- Fixed `Remove-PnPTeamsChannel` issue where it was throwing incorrect exception. [#4036](https://github.com/pnp/powershell/pull/4036)
+
+### Changed
+- Renamed `Get-PnPSiteFileVersionExpirationReportJobProgress` to `Get-PnPSiteFileVersionExpirationReportJobStatus` [#3828](https://github.com/pnp/powershell/pull/3828)
+- Renamed `Get-PnPSiteVersionPolicyProgress` to `Get-PnPSiteVersionPolicyStatus` [#3828](https://github.com/pnp/powershell/pull/3828)
+- `Remove-PnPGroupMember` cmdlet now supports removing members from pipeline. [#3955](https://github.com/pnp/powershell/pull/3955)
+- Changed `Set-PnPTenantCdnPolicy` cmdlet to allow PolicyValue parameter to be an empty string or $null, while still being mandatory. [#3937](https://github.com/pnp/powershell/pull/3937)
+- Marked `UserVoiceForFeedbackEnabled` as obsolete in `Set-PnPTenant` cmdlet as Microsoft doesn't support this. [#3985](https://github.com/pnp/powershell/pull/3985)
+- `Get-PnPTenantSite` cmdlet now returns additional properties like `ArchiveStatus`, `EnableAutoExpirationVersionTrim` and many more. [#3987](https://github.com/pnp/powershell/pull/3987)
+- `Add-PnPListFoldersToSiteTemplate` cmdlet now wont export RoleBindings which are `Limited Access`. It caused issues while applying the template. [#3918](https://github.com/pnp/powershell/pull/3918)
+
+### Removed
+
+- Removed `UserVoiceForFeedbackEnabled` property from `Get-PnPTenant` as it is deprecated. [PR](https://github.com/pnp/powershell/commit/190ef864d2e20249658eff93feadf0effb24882d)
+
+### Contributors
+
+- Maxime Hazebroucq [mhazebroucq]
+- Paolo Pialorsi [PaoloPia]
+- Marc Studer [Studermarc]
+- Mark Gort [markgort86]
+- Christian Veenhuis [ChVeen]
+- Tobias Maestrini [tmaestrini]
+- WCONFR [WCONFR]
+- Jenny Wu [msjennywu]
+- Reshmee Auckloo [reshme011]
+- Aimery Thomas [a1mery]
+- Arleta Wanat [PowershellScripts]
+- Giacomo Pozzoni [jackpoz]
+- [blarrywangmsft]
+- Koen Zomers [koenzomers]
+- Erwin van Hunen [erwinvanhunen]
+
+## [2.4.0]
+
+### Added
+
+- Added `-IsDataAccessInCardDesignerEnabled` to `Set-PnPTenant` which allows for configuring Viva Connections Adaptive Cards to connect to backend services for their data [#3635](https://github.com/pnp/powershell/pull/3635)
+- Added `Remove-PnPContainer` cmdlet to remove the SharePoint embed container. [#3629](https://github.com/pnp/powershell/pull/3629)
+- Added `Convert-PnPFile` cmdlet which allows for a file to be converted to from one format to another. [#3435](https://github.com/pnp/powershell/pull/3435) & [#3643](https://github.com/pnp/powershell/pull/3643)
+- Added `Merge-PnPTerm` cmdlet which allows merging of one term into another. [#3638](https://github.com/pnp/powershell/pull/3638)
+- Added `Get-PnPDeletedContainer` cmdlet which returns a list of all deleted Containers in the recycle bin. [#3648](https://github.com/pnp/powershell/pull/3648)
+- Added `-Batch` parameter to `Add-PnPGroupMember` cmdlet which allows adding members to a SharePoint group in a batch. [#3651](https://github.com/pnp/powershell/pull/3651)
+- Added `Get-PnPContainerTypeConfiguration` cmdlet which fetches the container type configuration values. [#3660](https://github.com/pnp/powershell/pull/3660)
+- Added `-AppBypassInformationBarriers` and `-DefaultOneDriveInformationBarrierMode` parameters to `Set-PnPTenant` cmdlet. [#3679](https://github.com/pnp/powershell/pull/3679)
+- Added `Add-PnPFileAnalyticsData` cmdlet to allow retrieval of file analytics data. [#3644](https://github.com/pnp/powershell/pull/3644)
+- Added `Add-PnPSiteAnalyticsData` cmdlet to allow retrieval of site analytics data. [#3645](https://github.com/pnp/powershell/pull/3645)
+- Added `Get-PnPPowerPlatformSolution` cmdlet to Power Platform solutions. [#3675](https://github.com/pnp/powershell/pull/3675)
+- Added `New-PnPContainerType` cmdlet to create a new SharePoint container type. [#3669](https://github.com/pnp/powershell/pull/3669)
+- Added `Remove-PnPContainerType` cmdlet which removes a specific container type. [#3689](https://github.com/pnp/powershell/pull/3689/)
+- Added `Restore-PnPDeletedContainer` cmdlet which recovers a deleted Container from the Recycle Bin. [#3661](https://github.com/pnp/powershell/pull/3661)
+- Added the ModerationSettings to be returned with `Get-PnPTeamsChannel` when passing in `-IncludeModerationSettings` and using `-Identity <channelId>` [#3580](https://github.com/pnp/powershell/pull/3580)
+- Added `AllowNewMessageFromBots`, `AllowNewMessageFromConnectors`, `ReplyRestriction` and `UserNewMessageRestriction` to `Set-PnPTeamsChannel` which allows setting the moderation settings on a Teams channel [#3580](https://github.com/pnp/powershell/pull/3580)
+- Added `Get-PnPWebPermission` cmdlet which retrieves permission given by user for specific web. [#3685](https://github.com/pnp/powershell/pull/3685)
+- Added `-HorizontalQuickLaunch` parameter to `Set-PnPWeb` cmdlet to allow navigation orientation to be horizontal. [#3722](https://github.com/pnp/powershell/pull/3722)
+- Added support for different sovereign cloud environment for Power Platform related cmdlets [#3725](https://github.com/pnp/powershell/pull/3725)
+- Added `Set-PnPRetentionLabel` and `Reset-PnPRetentionLabel` cmdlets to support setting a retention label on one or more items [#3599](https://github.com/pnp/powershell/pull/3599)
+- Added `-SiteThumbnailUrl` parameter to `Set-PnPWebHeader` cmmdlet to support setting thumbnail of the site. [#3746](https://github.com/pnp/powershell/pull/3746)
+- Added `-Like` parameter to `Set-PnPPage` cmdlet to support liking/unliking a modern page. [#3788](https://github.com/pnp/powershell/pull/3788)
+- Added `Get-PnPPageLikedByInformation` cmdlet to retrieve list of users who liked a modern page. [#3781](https://github.com/pnp/powershell/pull/3781)
+
+### Fixed
+
+- Fixed `Grant-PnPAzureADAppSitePermission` cmdlet which allows it to work in multi-geo environment. [#3658](https://github.com/pnp/powershell/pull/3658)
+- Fixed `Get-PnPTeamsChannelMessageReply` cmdlet which didn't work correctly when `-IncludeDeleted` parameter was not specified. [#3676](https://github.com/pnp/powershell/pull/3676)
+- Fixed `Add-PnPNavigationNode` cmdlet to also search for nodes in child navigation items. [#3625](https://github.com/pnp/powershell/pull/3625)
+- Fixed `Get-PnPFlow` cmdlet to use the newer Flow URLs instead of the old ARM URLs. [#3677](https://github.com/pnp/powershell/pull/3677)
+- Fixed `Get-PnPPowerPlatformConnector`, `Get-PnPPowerPlatformEnvironment`, `Get-PnPPowerApp`, `Add-PnPFlowOwner`, `Disable-PnPFlow`, `Enable-PnPFlow`, `Export-PnPFlow`, `Get-PnPFlowOwner`, `Get-PnPFlowRun`, `Remove-PnPFlow`, `Remove-PnPFlowOwner` , `Restart-PnPFlow` and `Stop-PnPFlowRun` cmdlets to use the new HTTP endpoints. [#3687](https://github.com/pnp/powershell/pull/3687)
+- Fixed `Add-PnPHubSiteAssociation` cmdlet to allow support for multi-geo scenario. [#3568](https://github.com/pnp/powershell/pull/3568)
+- Fixed `Enable/Disable-PnPPageScheduling` cmdlet to also work with Viva connections enabled site. [#3713](https://github.com/pnp/powershell/pull/3713)
+- Fixed `Register-PnPManagementShellAccess` and `Register-PnPAzureADApp` cmdlets to also work with custom environment. [#3763](https://github.com/pnp/powershell/pull/3763)
+- Fixed `Set-PnPPPage` cmdlet to only change layout of the page if the parameter is specified. [#3777](https://github.com/pnp/powershell/pull/3777)
+- Fixed `New-PnPGroup` cmdlet to correctly show the group description with HTML making it similar to `Set-PnPGroup`.
+
+### Changed
+
+- `-IsFavoriteByDefault` parameter is now obsolete in `Add-PnPTeamsChannel` cmdlet due to deprecation by Microsoft Graph API. [#3712](https://github.com/pnp/powershell/pull/3712)
+- `Get-PnPSiteTemplate` will now only contain `PersistPublishingFiles`, `IncludeNativePublishingFiles`, `IncludeTermGroupsSecurity`, `IncludeSearchConfiguration`, `SkipVersionCheck` and `PersistMultiLanguageResources` if these are provided with the cmdlet as switch parameters [#3715](https://github.com/pnp/powershell/pull/3715)
+- Due to backend changes in Microsoft Graph, `Get-PnPUnifiedAuditLog` cmdlet requires some more permissions. Updated the cmdlet to handle that. [#3745](https://github.com/pnp/powershell/pull/3745)
+
+### Contributors
+
+- Arleta Wanat [PowershellScripts]
+- Jenny Wu [msjennywu]
+- Aimery Thomas [a1mery]
+- Nils Andresen [nils-a]
+- Gautam Sheth [gautamdsheth]
+- Nishkalank Bezawada [NishkalankBezawada]
+- Konrad K. [wilecoyotegenius]
+- Leon Armston [LeonArmston]
+- Daniel Cecil [danielcecil]
+- Rohit Devmore [rohit404404]
+- Konrad K. [wilecoyotegenius]
+- Kunj Balkrishna Sangani [kunj-sangani]
+- Koen Zomers [koenzomers]
+- Reshmee Auckloo [reshme011]
+- Nishkalank Bezawada [NishkalankBezawada]
+- Jørgen Wiik [joHKwi]
+- Siddharth Vaghasia [siddharth-vaghasia]
+- Jürgen Rosenthal-Buroh [JuergenRB]
+
+## [2.3.0]
+
+### Added
+
+- Added `-MediaTranscription` and `-MediaTranscriptionAutomaticFeatures` to `Set-PnPTenant` which allows for configuring the media transcription settings. [#3238](https://github.com/pnp/powershell/pull/3238)
+- Added `-Includes` option to `Get-PnPListItem` which allows for specifying additional fields to be retrieved. [#3270](https://github.com/pnp/powershell/pull/3270)
+- Added `-AllowCommentsTextOnEmailEnabled` parameter to `Set-PnPTenant` which allows including the surrounding document context in email notification when user is mentioned in document comments. [#3268](https://github.com/pnp/powershell/pull/3268)
+- Added `Export-PnPPowerApp` cmdlet which will export a specified PowerApp as zip package. [#2990](https://github.com/pnp/powershell/pull/2990)
+- Added `AzureADLoginEndPoint` and `MicrosoftGraphEndPoint` parameters to `Connect-PnPOnline` cmdlet for use in custom Azure environments. [#2925](https://github.com/pnp/powershell/pull/2925)
+- Added `Get-PnPFolder` cmdlet without any parameters to return the folder representing the root of the current web [#3319](https://github.com/pnp/powershell/pull/3319)
+- Added `Get-PnPFileInFolder` cmdlet which allows retrieval of all files in a folder or site and optionally request additional properties from them [#3319](https://github.com/pnp/powershell/pull/3319)
+- Added `Get-PnPFolderInFolder` cmdlet which allows retrieval of all folders in a folder or site and optionally request additional properties from them [#3319](https://github.com/pnp/powershell/pull/3319)
+- Added `-SharingStatus` parameter to `Get-PnPFlow` which allows for filtering flows based on their sharing status. [#3287](https://github.com/pnp/powershell/pull/3287)
+- Added `-AzureADLoginEndPoint` and `-MicrosoftGraphEndPoint` parameters to `Connect-PnPOnline` cmdlet for use in custom Azure environments. [#2925](https://github.com/pnp/powershell/pull/2925)
+- Added `SiteOwnerManageLegacyServicePrincipalEnabled` parameter to `Set-PnPTenant` cmdlet. With this parameter site owners will not be able to register/update apps unless the tenant admin explicitly allows it. [#3318](https://github.com/pnp/powershell/pull/3318)
+- Added `-EnableAutoExpirationVersionTrim`, `-ExpireVersionsAfterDays`, `-MajorVersions`, `-MinorVersions`, `-InheritTenantVersionPolicySettings`, `-StartApplyVersionPolicySettingToExistingDocLibs` and `-CancelApplyVersionPolicySettingToExistingDocLibs` to `Set-PnPSite` to allow for time based version expiration on the site level [#3373](https://github.com/pnp/powershell/pull/3373)
+- Added `-ReduceTempTokenLifetimeEnabled`, `-ReduceTempTokenLifetimeValue`, `-ViewersCanCommentOnMediaDisabled`, `-AllowGuestUserShareToUsersNotInSiteCollection`, `-ConditionalAccessPolicyErrorHelpLink`, `-CustomizedExternalSharingServiceUrl`, `-IncludeAtAGlanceInShareEmails` and `-MassDeleteNotificationDisabled` to `Set-PnPTenant` [#3348](https://github.com/pnp/powershell/pull/3348)
+- Added `Add-PnPFlowOwner` and `Remove-PnPFlowOwner` cmdlets which allow granting or removing permissions to a Power Automate flow [#3343](https://github.com/pnp/powershell/pull/3343)
+- Added `Get-PnPFlowOwner` cmdlet which allows retrieving the owners of a Power Automate flow [#3314](https://github.com/pnp/powershell/pull/3314)
+- Added `-AvailableForTagging` to `Set-PnPTerm` which allows the available for tagging property on a Term to be set [#3321](https://github.com/pnp/powershell/pull/3321)
+- Added `Get-PnPPowerPlatformConnector` cmdlet which allows for all custom connectors to be retrieved [#3309](https://github.com/pnp/powershell/pull/3309)
+- Added `Set-PnPSearchExternalItem` cmdlet which allows ingesting external items into the Microsoft Search index for custom connectors. [#3420](https://github.com/pnp/powershell/pull/3420)
+- Added `Get-PnPTenantInfo` which allows retrieving tenant information by its Id or domain name [#3414](https://github.com/pnp/powershell/pull/3414)
+- Added option to create a Microsoft 365 Group with dynamic membership by passing in `-DynamicMembershipRule` [#3426](https://github.com/pnp/powershell/pull/3426)
+- Added option to pass in a Stream or XML string to `Read-PnPTenantTemplate` allowing the tenant template to be modified before being applied. [#3431](https://github.com/pnp/powershell/pull/3431)
+- Added `Get-PnPTenantInfo` which allows retrieving tenant information by its Id or domain name. [#3414](https://github.com/pnp/powershell/pull/3414)
+- Added option to create a Microsoft 365 Group with dynamic membership by passing in `-DynamicMembershipRule` [#3426](https://github.com/pnp/powershell/pull/3426)
+- Added `Get-PnPSiteVersionPolicy` which allows retrieval of the version policy settings for a site [#3470](https://github.com/pnp/powershell/pull/3470)
+- Added `RestrictedAccessControl`, `ClearRestrictedAccessControl`, `RemoveRestrictedAccessControlGroups`, `AddRestrictedAccessControlGroups` and `RestrictedAccessControlGroups` parameters to `Set-PnPTenantSite` cmdlet to handle restricted access control. [#3463](https://github.com/pnp/powershell/pull/3463)
+- Added `Get-PnPRetentionLabel` cmdlet to retrieve Purview retention labels. [#3459](https://github.com/pnp/powershell/pull/3459)
+- Added GCC support for `Get-PnPAzureADUser` , `Add-PnPFlowOwner` , `Remove-PnPFlowOwner`, `Sync-PnPSharePointUserProfilesFromAzureActiveDirectory`, `New-PnPAzureADUserTemporaryAccessPass` and `Get-PnPAvailableSensitivityLabel` cmdlets. [#3484](https://github.com/pnp/powershell/pull/3484)
+- Added `-Detailed` option to `Get-PnPTenantDeletedSite` to optionally fetch more information on the deleted sites [#3550](https://github.com/pnp/powershell/pull/3550)
+- Added a devcontainer for easily building a minimal environment necessary to contribute to the project. [#3497](https://github.com/pnp/powershell/pull/3497)
+- Added `-RelativeUrl` parameter to `Connect-PnPOnline` cmdlet to allow specifying custom URLs for usage with `-WebLogin` method. [#3530](https://github.com/pnp/powershell/pull/3530)
+- Added `-RetryCount` to `Submit-PnPSearchQuery` which allows for specifying the number of retries to perform when an exception occurs [#3528](https://github.com/pnp/powershell/pull/3528)
+- Added `-MailNickname` parameter to `Set-PnPMicrosoft365Group` cmdlet to allow changing of this property on a Microsoft 365 Group [#3529](https://github.com/pnp/powershell/pull/3529)
+- Added `-SanNames` to `New-PnPAzureCertificate` which allows for controlling the Subject Alternative Names set on the generated certificate [#3555](https://github.com/pnp/powershell/pull/3555)
+- Added Information Barriers information to the output of `Get-PnPTenantSite` [#3556](https://github.com/pnp/powershell/pull/3556)
+- Added `RequestFilesLinkEnabled` and `RequestFilesLinkExpirationInDays` to the output of `Get-PnPSite` [#3557](https://github.com/pnp/powershell/pull/3557)
+- Added `CoreRequestFilesLinkEnabled`, `CoreRequestFilesLinkExpirationInDays`, `OneDriveRequestFilesLinkEnabled`, `OneDriveRequestFilesLinkExpirationInDays`, `BusinessConnectivityServiceDisabled` to the output of `Get-PnPTenant` [#3557](https://github.com/pnp/powershell/pull/3557)
+- Added `-BusinessConnectivityServiceDisabled` parameter to `Set-PnPTenant` cmdlt to allow disabling the Business Connectivity Service [#3562](https://github.com/pnp/powershell/pull/3562)
+- Added support for executing the 'Invoke-PnPSPRestMethod' cmdlet in a batch [#3565](https://github.com/pnp/powershell/pull/3565)
+- Added `Get-PnPSiteSetVersionPolicyProgress` cmdlet which allows for getting the progress of setting a version policy for existing document libraries on a site [#3564](https://github.com/pnp/powershell/pull/3564)
+- Added `EnableSensitivityLabelForPDF` to `Set-PnPTenant` and `Get-PnPTenant` [#3581](https://github.com/pnp/powershell/pull/3581)
+- Changed `Restore-PnPRecycleBinItem` , made `-Identity` parameter as non-mandatory. [#2499](https://github.com/pnp/powershell/pull/2499)
+- Added the ability to set Manage and FullControl permissions directly when using Sites.Selected with `Grant-PnPAzureADAppSitePermission` [#3617](https://github.com/pnp/powershell/pull/3617)
+- Added `Remove-PnPMicrosoft365GroupPhoto` cmdlet which allows removal of profile picture of M365 Group. [#3607](https://github.com/pnp/powershell/pull/3607)
+
+### Fixed
+
+- Fixed `Add-PnPContentTypeToList` cmdlet to better handle piped lists. [#3244](https://github.com/pnp/powershell/pull/3244)
+- Fixed `Get-PnPUserProfileProperty` cmdlet not allowing basic user profile properties to be retrieved using `-Properties` [#3247](https://github.com/pnp/powershell/pull/3247)
+- Fixed `Export-PnPTermGroupToXml` cmdlet issue with exporting site collection term groups. [#3256](https://github.com/pnp/powershell/pull/3256)
+- Fixed `Register-PnPAzureADApp` cmdlet issue with creation of Azure AD application. [#3265](https://github.com/pnp/powershell/pull/3265)
+- Fixed `Get-PnPServiceHealthIssue` cmdlet issue with null reference objection. [#3286](https://github.com/pnp/powershell/pull/3286)
+- Fixed `New-PnPSite` cmdlet issue with team site creation when using a connection object. [#3285](https://github.com/pnp/powershell/pull/3285)
+- Fixed issue with colliding assemblies when using PnP PowerShell with other modules. [#3280](https://github.com/pnp/powershell/pull/3280)
+- Fixed issue with `-ArchiveRedirectUrl` parameter not working correctly in `Set-PnPTenant` cmdlet. [#3289](https://github.com/pnp/powershell/pull/3289)
+- Fixed `New-PnPAzureADGroup` cmdlet throwing null reference error when owners and members are not specified. [#3308](https://github.com/pnp/powershell/pull/3308)
+- Fixed `New-PnPTeamsTeam` cmdlet, it will now throw error if it fails to teamify a Microsoft 365 group. [#3310](https://github.com/pnp/powershell/pull/3310)
+- Fixed `Get-PnPFolderItem` cmdlet not accepting piping a folder instance to it [#3319](https://github.com/pnp/powershell/pull/3319)
+- Fixed `Get-PnPFolderItem` cmdlet not working well with the `-Recursive` and `-Identity` parameters provided together [#3319](https://github.com/pnp/powershell/pull/3319)
+- Fixed `Get-PnPFolderItem` cmdlet not working well with the `-ItemName` parameter [#3319](https://github.com/pnp/powershell/pull/3319)
+- Fixed `Connect-PnPOnline` cmdlet throwing host not reachable errors. [#3337](https://github.com/pnp/powershell/pull/3337)
+- Fixed `Set-PnPTerm` cmdlet throwing object reference error when only the term Id is specified. [#3341](https://github.com/pnp/powershell/pull/3341)
+- Fixed `New-PnPTeamsTeam` cmdlet throwing an error when specifying members [#3351](https://github.com/pnp/powershell/pull/3351)
+- Fixed `New-PnPTeamsTeam` cmdlet not working well with a managed identity [#3351](https://github.com/pnp/powershell/pull/3351)
+- Fixed `Copy-PnPFile`, `Copy-PnPFolder` and `Move-PnPFile` to better handle copying or moving operations to OneDrive or Multi-geo environments. [#3245](https://github.com/pnp/powershell/pull/3245)
+- Fixed `Get-PnPTenantTemplate` not doing anything when the `-SiteUrl` parameter had not been specified. It will now use the currently connected site when the parameter is omitted. [#3431](https://github.com/pnp/powershell/pull/3431)
+- Fixed `Enable-PnPPageScheduling` and `Disable-PnPPageScheduling` cmdlets not working due to changes in backend code. [#3469](https://github.com/pnp/powershell/pull/3469)
+- Fixed an issue when trying to download a file using `Get-PnPFile` from a location that's deeply nested into folders and/or has a really long filename [PnP Core #1290](https://github.com/pnp/pnpcore/pull/1290)
+- Fixed retrieving error detail in `Get-UPABulkImportStatus` cmdlet. [#3494](https://github.com/pnp/powershell/pull/3494)
+- Fixed `Rename-PnPTenantSite` cmdlet to allow support for vanity tenant URLs. [#3533](https://github.com/pnp/powershell/pull/3533)
+- Fixed `Get-PnPAzureADUser`, `Get-PnPEntraIDUser`, `Add-PnPFlowOwner` and `Remove-PnPFlowOwner` not working when an UPN containing an apostrophe was passed in [#3570](https://github.com/pnp/powershell/pull/3570)
+
+### Changed
+
+- Improved `Set-PnPListItem` cmdlet handling of Purview labels. [#3340](https://github.com/pnp/powershell/pull/3340)
+- The `Publish-PnPCompanyApp` cmdlet is now obsolete. It will be removed in the next version. [#3349](https://github.com/pnp/powershell/pull/3349)
+- Verbose output will no longer show the access token [#3352](https://github.com/pnp/powershell/pull/3352)
+- Improved `Add-PnPFile` cmdlet. It will now automatically checkout the file if `-CheckinType` parameter is specified. [#3403](https://github.com/pnp/powershell/pull/3403)
+- Improved the error message thrown when using `-ValidateConnection` with `Connect-PnPOnline` and it failing due to i.e. an expired ClientSecret so the reason of the failed connect becomes more clear. [#3440](https://github.com/pnp/powershell/pull/3440)
+- If a cmdlet gets renamed and an alias gets added for it for backwards compatibility, a cmdlet page for the alias will automatically be created so it can still be found in the documentation [#3455](https://github.com/pnp/powershell/pull/3455)
+- Improved `Remove-PnPFlow` cmdlet to throw error if the Flow doesn't exist and also added verbose logging. [#3474](https://github.com/pnp/powershell/pull/3474)
+- Changed `Get-PnPContentType` to now also support `-Includes` to allow retrieval of additional properties of the content type [#3518](https://github.com/pnp/powershell/pull/3518)
+- `Get-PnPTeamsTeam` cmdlet throws error message if the team isn't found when `-Identity` parameter is specified. [#3502](https://github.com/pnp/powershell/pull/3502)
+- Improved `Get-PnPSiteCollectionAdmin ` cmdlet to allow retrieval of additional properties when `-Includes` parameter is specified. [#3521](https://github.com/pnp/powershell/pull/3521)
+
+### Removed
+
+- Removed `-DisableListSync` and `-SyncAadB2BManagementPolicy` from `Set-PnPTenant` as the underlying properties have been removed from SharePoint CSOM as well [#3388](https://github.com/pnp/powershell/pull/3388)
+
+### Contributors
+
+- Pieter Veenstra [Pieter-Veenstra]
+- Konrad K. [wilecoyotegenius]
+- Dan Cecil [danielcecil]
+- Antti K. Koskela [koskila]
+- Christian Veenhuis [ChVeen]
+- Kunj Balkrishna Sangani [kunj-sangani]
+- Dave Paylor [paylord]
+- [smsdaniel]
+- Jim Duncan [sparkitect]
+- Jonathan Smith [jonathan-m-smith]
+- Carl Joakim Damsleth [damsleth]
+- Rodel Pacurib [ryder-cayden]
+- [CatSchneider]
+- [msjennywu]
+- Reshmee Auckloo [reshmee011]
+- Per Østergaard [per-oestergaard]
+- Nishkalank Bezawada [NishkalankBezawada]
+- [PowerBugi]
+- Ganesh Sanap [ganesh-sanap]
+- Siddharth Vaghasia [siddharth-vaghasia]
+- Giacomo Pozzoni [jackpoz]
+- Martin Lingstuyl [martinlingstuyl]
+- Arleta Wanat [PowershellScripts]
+- Nils Andresen [nils-a]
+- Koen Zomers [koenzomers]
+
+## [2.2.0]
+
+### Added
+
+- Added `DisableDocumentLibraryDefaultLabeling`, `DisableListSync`, `IsEnableAppAuthPopUpEnabled`, `ExpireVersionsAfterDays`, `MajorVersionLimit` and `EnableAutoExpirationVersionTrim`, `OneDriveLoopSharingCapability`, `OneDriveLoopDefaultSharingLinkScope`, `OneDriveLoopDefaultSharingLinkRole`, `CoreLoopSharingCapability`, `CoreLoopDefaultSharingLinkScope`, `CoreLoopDefaultSharingLinkRole` , `DisableVivaConnectionsAnalytics` , `CoreDefaultLinkToExistingAccess`, `HideSyncButtonOnTeamSite` , `CoreBlockGuestsAsSiteAdmin`, `IsWBFluidEnabled`, `IsCollabMeetingNotesFluidEnabled`, `AllowAnonymousMeetingParticipantsToAccessWhiteboards`, `IBImplicitGroupBased`, `ShowOpenInDesktopOptionForSyncedFiles` , `OneDriveRequestFilesLinkExpirationInDays` and `ShowPeoplePickerGroupSuggestionsForIB` parameters to the `Set-PnPTenant` cmdlet. [#2979](https://github.com/pnp/powershell/pull/2979) and [#3015](https://github.com/pnp/powershell/pull/3015)
+- Added `-OutFile` to `Invoke-PnPGraphMethod` which allows for the response to be written to a file [#2971](https://github.com/pnp/powershell/pull/2971)
+- Added `-OutStream` to `Invoke-PnPGraphMethod` which allows for the response to be written to a memory stream [#2976](https://github.com/pnp/powershell/pull/2976)
+- Added `-PreviousNode` to `Add-PnPNavigationNode` which allows for adding a navigation node after a specific node [#2940](https://github.com/pnp/powershell/pull/2940)
+- Added `EnableAzureADB2BIntegration` to be returned by `Get-PnPTenant` [#3022](https://github.com/pnp/powershell/pull/3022)
+- Added `-SkipUrlValidation` to `Get-PnPSiteCollectionAppCatalog` which allows for skipping the URL validation when retrieving the site collection app catalog making it faster but potentially returning URLs that have been renamed [#2305](https://github.com/pnp/powershell/pull/3025)
+- Added `Get-PnPLargeListOperationStatus` cmdlet to retrieve the status of a large list operation. [#3033](https://github.com/pnp/powershell/pull/3033)
+- Added `-BlockDownloadFileTypePolicy`, `-BlockDownloadFileTypeIds` and `-ExcludedBlockDownloadGroupIds` parameters to `Set-PnPTenant` cmdlet. [#3081](https://github.com/pnp/powershell/pull/3081)
+- Added `-BlockDownloadPolicy`, `-ExcludeBlockDownloadPolicySiteOwners` and `ExcludedBlockDownloadGroupIds` parameters to `Set-PnPTenantSite` and `Set-PnPSite` cmdlets. [#3084](https://github.com/pnp/powershell/pull/3084)
+- Added `-OpenInNewTab` parameter to `Add-PnPNavigationNode` cmdlet to allow links to be opened in a new tab. [#3094](https://github.com/pnp/powershell/pull/3094)
+- Added `-ArchiveRedirectUrl` to `Set-PnPTenant` allowing the configuration of a custom page to be shown when navigating to an archived SharePoint Online site [#3100](https://github.com/pnp/powershell/pull/3100)
+- Added `-BlockSendLabelMismatchEmail` to `Set-PnPTenant` allowing the warning e-mail being sent when uploading a file with a higher sensitivity label than the site it is being uploaded to to be disabled. [#3113](https://github.com/pnp/powershell/pull/3113)
+- Added `Move-PnPTerm` and `Move-PnPTermSet` cmdlets to allow moving the terms and termsets. [#2989](https://github.com/pnp/powershell/pull/2989)
+- Added `-VerticalZoneEmphasis` parameter to `Add-PnPPageSection` cmdlet to allow setting the emphasis value for vertical columns. [#3129](https://github.com/pnp/powershell/pull/3129)
+- Added `-AllowDeletion` parameter to `Set-PnPList` cmdlet to allow or prevent deletion of list from the SharePoint UI. [#3142](https://github.com/pnp/powershell/pull/3142)
+- Added `EnableClassicAudienceTargeting` and `EnableModernAudienceTargeting` parameters to `Set-PnPList` cmdlet to enable audience targeting in lists. [#3153](https://github.com/pnp/powershell/pull/3153)
+- Added `-Attachments` parameter to `Send-PnPMail` cmdlet to allow sending attachments via Microsoft Graph API. [#3157](https://github.com/pnp/powershell/pull/3157)
+- Added cmdlets for list item version history: `Get-PnPListItemVersion`, `Restore-PnPListItemVersion` and `Remove-PnPListItemVersion`. [#3086](https://github.com/pnp/powershell/pull/3086)
+- Added `Add-PnPFileOrganizationalSharingLink` and `Add-PnPFolderOrganizationalSharingLink` cmdlets to allow creating organizational sharing links for files and folders. [#3177](https://github.com/pnp/powershell/pull/3177)
+- Added `Add-PnPFileUserSharingLink` and `Add-PnPFolderUserSharingLink` cmdlets to allow creating sharing links for files and folders to share them with specified list of users. [#3178](https://github.com/pnp/powershell/pull/3178)
+- Added `Get-PnPFileSharingLink` and `Get-PnPFolderSharingLink` cmdlets to retrieve sharing links for files and folders respectively. [#3181](https://github.com/pnp/powershell/pull/3181)
+- Added `Add-PnPFileAnonymousSharingLink` and `Add-PnPFolderAnonymousSharingLink` cmdlets to create anonymous sharing links. [#3198](https://github.com/pnp/powershell/pull/3198)
+- Added `Add-PnPFileSharingInvite` and `Add-PnPFolderSharingInvite` cmdlets to invite users to a file or a folder. [#3199](https://github.com/pnp/powershell/pull/3199)
+- Added `Remove-PnPFileSharingLink` and `Remove-PnPFolderSharingLink` cmdlets to delete sharing links associated with files and folders. [#3200](https://github.com/pnp/powershell/pull/3200)
+- Added `Get-PnPUnfurlLink` cmdlet to support unfurling a link to get more information about the link. [#3224](https://github.com/pnp/powershell/pull/3224)
+- Added `ListsShowHeaderAndNavigation` parameter to always show lists with site elements intact when specified in `Set-PnPTenantSite` and `Set-PnPSite` cmdlets. [#3233](https://github.com/pnp/powershell/pull/3233)
+- Added `-AzureADWorkloadIdentity` parameter to `Connect-PnPOnline` cmdlet to support Azure AD Workload Identity authentication. [#3097](https://github.com/pnp/powershell/pull/3097)
+- Added Managed identity support for Power Platform related cmdlets. [#3097](https://github.com/pnp/powershell/pull/3097)
+- Added `-ShowInPublishDate` parameter to `Set-PnPPage` to allow the publication date to be shown or hidden on a page [#3417](https://github.com/pnp/powershell/pull/3417)
+
+### Fixed
+
+- Fixed issue with `Grant-PnPAzureADAppSitePermission` cmdlet where users are not able to set selected site in the `Sites.Selected` permission. [#2983](https://github.com/pnp/powershell/pull/2983)
+- Fixed issue with `Get-PnPList` cmdlet not working with site-relative URL as identity. [#3005](https://github.com/pnp/powershell/pull/3005)
+- Fixed issue with `Add-PnPNavigationNode` cmdlet where the target audience would not correctly be set when creating a node as a child of a parent node [#2940](https://github.com/pnp/powershell/pull/2940)
+- Fixed regressions within the following cmdlets `Get-PnPTenantCdnEnabled`, `Get-PnPTenantCdnOrigin`, `Get-PnPTenantCdnPolicies`, `Get-PnPTenantDeletedSite`, `Get-PnPTenantInstance` [#3030](https://github.com/pnp/powershell/pull/3030)
+- Fixed issue where `Add-PnPSiteCollectionAdmin -PrimarySiteCollectionAdmin <user>` would require owners to be specified as well. [#3035](https://github.com/pnp/powershell/pull/3035)
+- Fixed `Get-PnPAzureADGroup` returns only 100 results even if there are more groups present in Azure AD. [#3085](https://github.com/pnp/powershell/pull/3085)
+- Fixed `Get-PnPAccessToken` cmdlet to correctly retrieve the access token for the specified resource URL. [#3091](https://github.com/pnp/powershell/pull/3091)
+- Fixed issue with `Get-PnPTenantSyncClientRestriction` cmdlet not populating the necessary properties. [#3099](https://github.com/pnp/powershell/pull/3099)
+- Fixed `Add/Set/Get-PnPPage` cmdlets when using multilingual translation parameters which caused some exceptions. [#3120](https://github.com/pnp/powershell/pull/3120)
+- Fixed `New-PnPSite` cmdlet now supports creating Team site in non-commercial cloud environments. [#885](https://github.com/pnp/pnpframework/pull/885)
+- Fixed issue where `Get-PnPField` cmdlet was throwing error in case `-Includes` parameter was used. [#3225](https://github.com/pnp/powershell/pull/3225)
+- Fixed issue with `Add-PnPDataRowsToSiteTemplate` cmdlet where it would throw property not initialized error when using `-IncludeSecurity` parameter. [#3226](https://github.com/pnp/powershell/pull/3226)
+
+### Changed
+
+- Improved `Set-PnPSite` cmdlet when using the `ScriptSafeDomainName` parameter. If a domain is already existing, it will now throw a warning. [#3073](https://github.com/pnp/powershell/pull/3073)
+- Change `Set-PnPWebhookSubscription` to use the same default expiration date as `Add-PnPWebhookSubsription` cmdlet which is 180 days instead of 6 months.[#3106](https://github.com/pnp/powershell/pull/3106)
+- Improved `Set-PnPHomePage` cmdlet to handle forward slash issue. [#3128](https://github.com/pnp/powershell/pull/3128)
+- Improved `Connect-PnPOnline` cmdlet to handle ping on the destination server to check if it exists. [PR](https://github.com/pnp/powershell/commit/cc3c5564fca9ce96b1a2ac47c7aabdc8b90136d0) and [#3154](https://github.com/pnp/powershell/pull/3154)
+- Improved `Invoke-PnPGraphMethod` cmdlet to show a better error message when sufficient permissions are not available. [#3133](https://github.com/pnp/powershell/pull/3133)
+- Improved `Add-PnPDataRowsToSiteTemplate` cmdlet to retrieve list item with pagination. [#3152](https://github.com/pnp/powershell/pull/3152)
+- Improved error message when caused using Graph endpoints used via PnP Core SDK. [#3179](https://github.com/pnp/powershell/pull/3179)
+- Improved `Add-PnPDataRowsToSiteTemplate` cmdlet performance to not load and execute every list item. [#3226](https://github.com/pnp/powershell/pull/3226)
+
+### Removed
+
+- Removed alias `Get-PnPSiteCollectionAppCatalogs` for `Get-PnPSiteCollectionAppCatalog` [#2305](https://github.com/pnp/powershell/pull/3025)
+- Removed alias `Export-PnPClientSidePage`, please use `Export-PnPPage` cmdlet. [#3158](https://github.com/pnp/powershell/pull/3158)
+- Removed alias `Export-PnPClientSidePageMapping`, please use `Export-PnPPageMapping` cmdlet. [#3158](https://github.com/pnp/powershell/pull/3158)
+- Removed alias `Get-PnPClientSideComponent`, please use `Get-PnPPageComponent` cmdlet. [#3158](https://github.com/pnp/powershell/pull/3158)
+- Removed alias `Remove-PnPClientSideComponent`, please use `Remove-PnPPageComponent` cmdlet. [#3158](https://github.com/pnp/powershell/pull/3158)
+- Removed alias `Set-PnPClientSideText`, please use `Set-PnPPageTextPart` cmdlet. [#3158](https://github.com/pnp/powershell/pull/3158)
+- Removed alias `Set-PnPClientSideWebPart`, please use `Set-PnPPageWebPart` cmdlet. [#3158](https://github.com/pnp/powershell/pull/3158)
+
+### Contributors
+
+- Arleta Wanat [PowershellScripts]
+- Michał Romiszewski [mromiszewski]
+- Kasper Larsen [kasperbolarsen]
+- Ganesh Sanap [ganesh-sanap]
+- Giacomo Pozzoni [jackpoz]
+- James Eccles [jameseccles]
+- Kunj Balkrishna Sangani [kunj-sangani]
+- Dayana Hristova [makarovv]
+- Rodrigo Pinto [ScoutmanPt]
+- Reshmee Auckloo [reshmee011]
+- Dan Toft [Tanddant]
+- [reusto]
+- [dhiabedoui]
+- Koen Zomers [koenzomers]
+
+## [2.1.1]
+
+### Fixed
+
+- Fixed an issue with the signing of the PnP PowerShell 2.1.0 release
+
+## [2.1.0]
+
+### Added
+
+- Added support for `.NET 6.0` since `.NET Core 3.1` support is getting deprecated. We have **removed** support for .NET Core 3.1, so users will have to update from `PowerShell 7.0.x` to `PowerShell 7.2.x or later` [#2292](https://github.com/pnp/powershell/pull/2292)
+- Added default table formatted output for `Get-PnPVivaConnectionsDashboardACE`
+- Added `Get-PnPAzureADServicePrincipal` which allows for service principals/application registrations to be retrieved from Azure Active Directory [#2551](https://github.com/pnp/powershell/pull/2551)
+- Added `Get-PnPAzureADServicePrincipalAssignedAppRole` which allows for the assigned app roles of a service principal/application registration to be retrieved from Azure Active Directory [#2551](https://github.com/pnp/powershell/pull/2551)
+- Added `Get-PnPAzureADServicePrincipalAvailableAppRole` which allows for the available app roles of a service principal/application registration to be retrieved from Azure Active Directory [#2551](https://github.com/pnp/powershell/pull/2551)
+- Added `Add-PnPAzureADServicePrincipalAppRole` which allows for app roles to be assigned to a service principal/application registration in Azure Active Directory [#2551](https://github.com/pnp/powershell/pull/2551)
+- Added `Remove-PnPAzureADServicePrincipalAppRole` which allows for app roles to be removed from a service principal/application registration in Azure Active Directory [#2551](https://github.com/pnp/powershell/pull/2551)
+- Added latest added SharePoint Online Site Templates to `Set-PnPBuiltInSiteTemplateSettings` allowing them to be hidden or shown [#2586](https://github.com/pnp/powershell/pull/2586)
+- Added `-EnableAzureADB2BIntegration` and `-SyncAadB2BManagementPolicy` parameters to `Set-PnPTenant` [#2631](https://github.com/pnp/powershell/pull/2631)
+- Added `-ShowInFiltersPane` to `Set-PnPField` which allows fields to be shown or hidden in the filters pane [#2623](https://github.com/pnp/powershell/pull/2632)
+- Added `-KeyColumn` to `Add-PnPDataRowsToSiteTemplate` which allows for overwriting existing list items in a site template [#2616](https://github.com/pnp/powershell/pull/2616)
+- Added `Get-PnPFolderStorageMetric` which allows storage usage of a specific folder to be retrieved [#2646](https://github.com/pnp/powershell/pull/2646)
+- Added `IsTeamsConnected`, `IsTeamsChannelConnected` and `TeamChannelType` to be returned when `Get-PnPTenantSite` cmdlet is executed. [#2656](https://github.com/pnp/powershell/pull/2656)
+- Added `HTTP/2` support for all HTTP requests to improve performance for HTTP requests. [#2687](https://github.com/pnp/powershell/pull/2687)
+- Added `-EnvironmentVariable` parameter to `Connect-PnPOnline` to connect using Azure environment variables. [#2681](https://github.com/pnp/powershell/pull/2681)
+- Added `ResponseHeadersVariable` parameter to the `Invoke-PnPSPRestMethod` which if specified will store the response headers values in the PowerShell variable name that is specified. [#2711](https://github.com/pnp/powershell/pull/2711)
+- Added `-Filter` parameter to `Get-PnPAzureADServicePrincipal` cmdlet to retrieve specific application registrations based on filter conditions. It supports simple and advanced queries. [#2710](https://github.com/pnp/powershell/pull/2710)
+- Added `-Filter` parameter to `Get-PnPMicrosoft365Group` cmdlet to retrieve specific M365 groups based on filter conditions. It supports simple and advanced queries. [#2709](https://github.com/pnp/powershell/pull/2709)
+- Added `-CoreRequestFilesLinkExpirationInDays` and `-CoreRequestFilesLinkEnabled` to `Set-PnPTenant` and `-RequestFilesLinkExpirationInDays` to `Set-PnPSite` to allow configuration of the new receive files to SharePoint Online folder feature [#2719](https://github.com/pnp/powershell/pull/2719)
+- Added `PSVersion` tracking, which tracks the PowerShell version being used. [#Commit](https://github.com/pnp/powershell/commit/1c6c787883cb45f65c217f7fc68969e44ec73283)
+- Added `-Bcc` option to `Send-PnPMail` [#2726](https://github.com/pnp/powershell/pull/2726)
+- Added `-AudienceIds` option to `Add-PnPNavigationNode` to allow setting the audience for a navigation node [#2736](https://github.com/pnp/powershell/pull/2736)
+- Added `-PrimarySiteCollectionAdmin` to `Add-PnPSiteCollectionAdmin` to allow for the primary site collection admin to be set on the current site [#2750](https://github.com/pnp/powershell/pull/2750)
+- Added `-PrimarySiteCollectionAdmin` to `Set-PnPTenantSite` to allow for the primary site collection admin to be set on a provided site [#2750](https://github.com/pnp/powershell/pull/2750)
+- Added additional fallback logic for retrieving tokens in Azure VM scenario using well-know endpoint when using Managed Identity authentication. [#2761](https://github.com/pnp/powershell/pull/2761)
+- Added `-IsVivaConnectionsDefaultStartForCompanyPortalSiteEnabled` parameter to `Get-PnPHomeSite` which returns information on whether Viva Connections landing experience is set to the SharePoint home site. [#2779](https://github.com/pnp/powershell/pull/2779)
+- Added `-VivaConnectionsDefaultStart` parameter to `Set-PnPHomeSite` which sets the home site to the provided site collection url and keeps the Viva Connections landing experience to the SharePoint home site. [#2779](https://github.com/pnp/powershell/pull/2779)
+- Added `-LargeList` parameter to `Remove-PnPList` cmdlet which improves the list recycling experience for Lists containing huge number of items. [#2778](https://github.com/pnp/powershell/pull/2778)
+- Added support for specifying the ContentUrl and WebsiteUrl configuration in `Add-PnPTeamsTab` cmdlet when trying to add a SharePoint page or list as a tab in Teams channel. [#2807](https://github.com/pnp/powershell/pull/2807)
+- Added `-CheckinType` parameter to `Add-PnPFile` cmdlet which provides the option to specify the checkin type for a file. The default value is set to `MinorCheckIn`. [#2806](https://github.com/pnp/powershell/pull/2806)
+- Added `-DefaultSensitivityLabelForLibrary` to `Set-PnPList` which allows setting the default sensitivity label for a library. [#2825](https://github.com/pnp/powershell/pull/2825)
+- Added `-ApplicationId` as alias for `-ClientId` in `Connect-PnPOnline` and `Request-PnPAccessToken` cmdlets. [#2805](https://github.com/pnp/powershell/pull/2805)
+- Added `-Connection` option to `Connect-PnPOnline` which allows of reusing an authenticated connection to connect to a different site [#2821](https://github.com/pnp/powershell/pull/2821)
+- Added `-UserAssignedManagedIdentityAzureResourceId` and `-UserAssignedManagedIdentityClientId` as alternatives to `-UserAssignedManagedIdentityObjectId` for `Connect-PnPOnline -ManagedIdentity` to provide an user managed identity to authenticate with. [#2813](https://github.com/pnp/powershell/pull/2813)
+- Added clearer error message when connecting using an expired client secret and trying to execute a command.[#2828](https://github.com/pnp/powershell/pull/2828)
+- Added `Undo-PnPFileCheckedOut` which allows a checked out file to discard its changes and revert to the last checked in version. [#2837](https://github.com/pnp/powershell/pull/2837)
+- Added option for sending e-mail using Microsoft Graph and through a SMTP server of choice in the `Send-PnPMail` cmdlet [#2880](https://github.com/pnp/powershell/pull/2880)
+- Added `-OpenDocumentsMode` option to `Set-PnPList` which allows configuring if documents should be opened in the browser or in the local client [#2873](https://github.com/pnp/powershell/pull/2873)
+- Added `-Properties` parameter to `Get-PnPUserProfileProperty` cmdlet which allows retrieval of specific properties if specified. [#2840](https://github.com/pnp/powershell/pull/2840)
+- Added support for specifying the `-ContentUrl` configuration in `Add-PnPTeamsTab` cmdlet when trying to add a Planner as a tab in Teams channel. [#2850](https://github.com/pnp/powershell/pull/2850)
+- Added `Get-PnPSharePointAddIn` cmdlet to retrive list of SharePoint addins installed in the site collection. [#2920](https://github.com/pnp/powershell/pull/2920)
+- Added `Get-PnPAzureACSPrincipal` cmdlet to retrieve list of installed Azure ACS Principals in the site collection or tenant. [#2920](https://github.com/pnp/powershell/pull/2920)
+- Added `-LogoFilePath` parameter to `Register-PnPAzureADApp` cmdlet to allow setting the logo for the Azure AD app. [#2881](https://github.com/pnp/powershell/pull/2881)
+- Added support for `-Verbose` in `Move-PnPFile` which will show if it has problems determining if the destination location is a folder or a file [#2888](https://github.com/pnp/powershell/pull/2888)
+- Added `CalendarMemberReadOnly` and `ConnectorsDisabled` as `-ResourceBehaviorOptions` to `New-PnPMicrosoft365Group` [#2929](https://github.com/pnp/powershell/pull/2929)
+- Added `-Identity` option to `Get-PnPPowerPlatformEnvironment` which allows retrieval of one specific environment by its displayname or id. [#2794](https://github.com/pnp/powershell/pull/2794)
+- Added `Get-PnPPowerApp` which allows PowerApps to be retrieved [#2794](https://github.com/pnp/powershell/pull/2794)
+- Added `-DisableCommenting` to `Set-PnPList` which allows enabling or disabling commenting on a list. [#2939](https://github.com/pnp/powershell/pull/2939)
+- Added `-EnableAutoExpirationVersionTrim` and `-ExpireVersionsAfterDays` to `Set-PnPList` which allows enabling or disabling auto expiration of versions on a list or library based on the days passed. [#2869](https://github.com/pnp/powershell/pull/2869)
+- Added `-Detailed` parameter to `Get-PnPHomeSite` which will return detailed information on all home sites configured on the tenant [#2954](https://github.com/pnp/powershell/pull/2954)
+
+### Changed
+
+- `Update-PnPVivaConnectionsDashboardACE` is now called `Set-PnPVivaConnectionsDashboardACE` but `Update-PnPVivaConnectionsDashboardACE` will still work as an alias.
+- All `Set|Get|Remove-PnPVivaConnectionsDashboardACE` cmdlets now take either the InstanceId (preferred), Title, the Id, or an actual ACE for the Identity property. If multiple ACEs of the same id or with the same title are found a warning will be shown if Id or Title is used to find the ACE.
+- Made PropertiesJSON an optional parameter on `Add-PnPVivaConnectionsDashboardACE` as it is not always required when adding an ACE
+- Added a 10 second timeout on the new version check on `Connect-PnPOnline` to prevent the cmdlet from hanging when the connection is slow, GitHub being blocked by a firewall or GitHub being unavailable [#2550](https://github.com/pnp/powershell/pull/2550)
+- Improved `Add-PnPField`, `Get-PnPListItem` and `Get-PnPSiteDesignRun` cmdlets by improving null checks based on warnings from compiler. [#PR1](https://github.com/pnp/powershell/commit/791b031d5fa844f1e6961b1136df9f79f19bfdcd) and [#PR2](https://github.com/pnp/powershell/commit/d56f3cd497be79170f68b29be490b222bf042aaa)
+- Improved `Register-PnPAzureADApp` and `Register-PnPManagementShellAccess` cmdlets to reuse existing HTTP client instead of creating a new one. [#2682](https://github.com/pnp/powershell/pull/2682)
+- Improved `Register-PnPAzureADApp` cmdlet based on compiler warnings. [#2682](https://github.com/pnp/powershell/pull/2682)
+- `Connect-PnPOnline` will now throw a much clearer error message if the site to be connected doesn't exist when using the legacy Client Id with Secret (ACS) authentication mode. [#2707](https://github.com/pnp/powershell/pull/2707)
+- Properties of `Get-PnPAzureADServicePrincipal` are now all typed instead of some of them returning unparsed JSON fragments. [#2717](https://github.com/pnp/powershell/pull/2717)
+- Changed `Add-PnPTeamsChannel` to no longer require an `-OwnerUPN` to be provided when specifying `-ChannelType Standard` [#2786](https://github.com/pnp/powershell/pull/2786)
+- Changed `Add-PnPFile` by default to upload a file as a draft with a minor version now instead of publishing it as a major version. `-CheckinType MajorCheckIn` can be used to still upload the file as a major published version [#2806](https://github.com/pnp/powershell/pull/2806)
+- Changed `Send-PnPMail` to support `-Verbose` and provide feedback if sending the e-mail has failed [#2880](https://github.com/pnp/powershell/pull/2880)
+- Improved `Restore-PnPRecycleBinItem` and `Clear-PnPRecycleBinItem` cmdlets to better work with large items in recycle bin. [#2866] (https://github.com/pnp/powershell/pull/2866)
+- Changed `Get-PnPUserProfileProperty` to no longer return additional user profile properties under UserProfileProperties but instead directly on the returned instance. [#2840](https://github.com/pnp/powershell/pull/2840)
+
+### Removed
+
+- Removed support for PowerShell 5, only PowerShell 7.2 and later will be supported from here onwards [#2764](https://github.com/pnp/powershell/pull/2764)
+- Removed `Get-PnPSubscribeSharePointNewsDigest` and `Set-PnPSubscribeSharePointNewsDigest` as the implementation behind these features has been changed in SharePoint Online causing them no longer to work. At present, there's no alternative for this that we can call into thus we will have to remove these in a future version. There is a Design Change Request open with the Program Group to add back APIs for doing this. If that will be accepted and implemented, we will add these back again. [#2720](https://github.com/pnp/powershell/pull/2720)
+- Removed `-ReturnTyped` parameter from the `Get-PnPField` cmdlet. The retrieved fields will always be returned by their `TypeKind`. [#2849](https://github.com/pnp/powershell/pull/2849)
+- Removed alias `Get-PnPFlowEnvironment` from `Get-PnPPowerPlatformEnvironment`. Please use the latter going forward. [#2794](https://github.com/pnp/powershell/pull/2794)
+- Marked `BlockEdit` and `BlockDeletion` parameters as obsolete in `Set-PnPLabel` cmdlet. [#2934](https://github.com/pnp/powershell/pull/2934)
+
+### Fixed
+
+- Fixed issue with -CreateDrive on `Connect-PnPOnline` throwing exception on non-existing context
+- Fixed issue with non-existing ItemProxy cmdlet aliases being registered
+- Fixed issue with `-TranslationLanguageCode` failures in `Add-PnPPage` and `Set-PnpPage` cmdlets. [#2634](https://github.com/pnp/powershell/pull/2634)
+- Fixed issue with `Export-PnPUserInfo` and `Remove-PnPUserInfo` cmdlets not working due to issue with parameter validation. [#2688](https://github.com/pnp/powershell/pull/2688)
+- Fixed issue with `Add-PnPNavigationNode` not always showing the new navigation node without requiring a manual edit and save of the menu first [#2736](https://github.com/pnp/powershell/pull/2736)
+- Fixed issue with `Get-PnPFolder` ignoring `-Includes` parameter when passing in a specific list through `-List` [#2735](https://github.com/pnp/powershell/pull/2735)
+- Fixed the handling of `-ErrorAction` so it follows the standard PowerShell behavior [#2741](https://github.com/pnp/powershell/pull/2741)
+- Fixed issue with `Set-PnPContentType` not allowing you to update basic properties of a content type [#2760](https://github.com/pnp/powershell/pull/2760)
+- Fixed `Add-PnPField` not supporting a ReturnType to be set for calculated fields when created on the site level [#2765](https://github.com/pnp/powershell/pull/2765)
+- Fixed issue with `Invoke-PnPSPRestMethod` throwing error when the response string is empty. [#2784](https://github.com/pnp/powershell/pull/2784)
+- Removed `Get-PnPSubscribeSharePointNewsDigest` and `Set-PnPSubscribeSharePointNewsDigest` cmdlet as the implementation behind these features has been changed in SharePoint Online causing them no longer to work. At present, there's no alternative for this that we can call into.
+- Fixed issue with `Invoke-PnPSPRestMethod` and `Invoke-PnPGraphMethod` throwing error when passing complex JSON object as payload. [#2802](https://github.com/pnp/powershell/pull/2802)
+- Fixed issue with `Add-PnPListItem` and `Set-PnPListItem` not correctly setting the Purview `Unlocked by default`. [#2800](https://github.com/pnp/powershell/pull/2800)
+- Fixed issue with `Get-PnPListItem` cmdlet not respecting `RowLimit` in the CAML query. [#2804](https://github.com/pnp/powershell/pull/2804)
+- Fixed `Connect-PnPOnline -ManagedIdentity -UserAssignedManagedIdentityClientId` not working in Azure Automation Runbooks as it required usage of the object_id parameter instead of the principal_id to get an access token. [#2813](https://github.com/pnp/powershell/pull/2813)
+- Fixed issue with `Send-PnPMail` not being able to send out e-mail due to the deprecation of basic authentication on Exchange Online [#2880](https://github.com/pnp/powershell/pull/2880)
+- Fixed `Register-PnPAzureADApp` cmdlet to not change or generate certificate if `-CertificatePath` parameter is already specified. [#2878](https://github.com/pnp/powershell/pull/2878)
+- Fixed `New-PnPSite` cmdlet to work with non-commercial cloud environments.
+- Fixed `Set-PnPSearchSettings` cmdlet not working with vanity domain tenants [#2884](https://github.com/pnp/powershell/pull/2884)
+- Fixed `Add-PnPFieldFromXml` cmdlet. It will now return the correct typed field if the added field was of type `Taxonomy`. [#2926](https://github.com/pnp/powershell/pull/2926)
+- Fixed `New-PnPSitetemplateFromFolder` removing the first character of filenames [#2944](https://github.com/pnp/powershell/pull/2944)
+
+### Contributors
+
+- Sumit Kumar [sumitkumar0608]
+- [msjennywu]
+- [enthusol]
+- Chris R. [ChrisRo89]
+- Aimery Thomas [a1mery]
+- Ganesh Sanap [ganesh-sanap]
+- Markus Hanisch [m-hanisch]
+- Kasper Larsen [kasperbolarsen]
+- Arnaud Rompen [rompenar]
+- [reusto]
+- Ronald Mavarez [ronaldmavarez]
+- [lilealdai]
+- Martin Lingstuyl [martinlingstuyl]
+- Reshmee Auckloo [reshmee011]
+- Arleta Wanat [PowershellScripts]
+- Leon Armston [LeonArmston]
+- Robin Meure [robinmeure]
+- Rohit Varghese [rohitvarghese96]
+- Erwin van Hunen [erwinvanhunen]
+- Marc Studer [studermarc]
+- [vin-ol]
+- Koen Zomers [koenzomers]
+
+## [1.12.0]
+### Added
+
+- Added `-DisableGridEditing` option to `Set-PnPList` which allows gridview editing to be enabled or disabled on a list [#2188](https://github.com/pnp/powershell/pull/2188)
+- Added verbose logging for `Invoke-PnPSiteSwap`, `Restore-PnPTenantSite` and cmdlets which depend on `SpoOperation`. [#2207](https://github.com/pnp/powershell/pull/2207)
+- Added support for `DisplayNamesOfFileViewers` and `DisplayNamesOfFileViewersInSpo` properties in `Get-PnPTenant` and `Set-PnPTenant` cmdlets to show/hide viewers in property pane for a file. [#2271](https://github.com/pnp/powershell/pull/2271)
+- Added `MailEnabled`, `PreferredDataLocation`, `PreferredLanguage` and `SecurityEnabled` parameters to `New-PnPMicrosoft365Group` cmdlet. [#2268](https://github.com/pnp/powershell/pull/2268)
+- Added `-DraftVersionVisibility` parameter to the `Set-PnPList` cmdlet to specify draft item security for list items. [#2285](https://github.com/pnp/powershell/pull/2285)
+- Added support for `-ErrorAction:Stop` to PnP PowerShell cmdlets. Notice that if you were using this in combination with the specific try/catch [System.Management.Automation.PSInvalidOperationException], it will no longer catch the exception. It will throw an `System.Management.Automation.ErrorRecord` exception instead. Remove the `-ErrorAction:Stop` parameter from your cmdlet or catch this new exception type to avoid this behavior. [#2288](https://github.com/pnp/powershell/pull/2288)
+- Added ability to create shared Teams channels using `Add-PnPTeamsChannel -ChannelType Shared` [#2308](https://github.com/pnp/powershell/pull/2308)
+- Added support for `IsLoopEnabled` properties in `Get-PnPTenant` and `Set-PnPTenant` cmdlets to to enable/disable loop components in the tenant. [#2307](https://github.com/pnp/powershell/pull/2307)
+- Added support for `SubscribeMembersToCalendarEventsDisabled` resource behavior option in `New-PnPMicrosoft365Group` and `New-PnPTeamsTeam` cmdlet. [#2349](https://github.com/pnp/powershell/pull/2349)
+- Added `-OneDriveRequestFilesLinkEnabled` option to `Set-PnPTenant` to allow configuring the request files anonymously feature on the tenant level [#2360](https://github.com/pnp/powershell/pull/2360)
+- Added `-RequestFilesLinkEnabled` option to `Set-PnPSite` to allow configuring the request files anonymously feature on a per site collection level [#2360](https://github.com/pnp/powershell/pull/2360)
+- Added `ScriptSafeDomainName` option to `Set-PnPSite` to allow contributors to insert iframe from specified domains only. [#2363](https://github.com/pnp/powershell/pull/2363)
+- Added `AlertTemplateName` paramter to `Add-PnPAlert` to allow configuring the Alert Template type name in the email. [#2362](https://github.com/pnp/powershell/pull/2362)
+- Added `Get-PnPAzureADActivityReportDirectoryAudit` to retrieve the audit logs generated by Azure AD. [#2095](https://github.com/pnp/powershell/pull/2095)
+- Added `-Path` option to `Set-PnPList` which allows the url of a list to be changed within the same site [#2381](https://github.com/pnp/powershell/pull/2381)
+- Added `-Force` option to `Set-PnPListem` to force it to update a list item even without changing something. Can be useful in i.e. triggering a webhook. [#2396](https://github.com/pnp/powershell/pull/2396)
+- Added `ImageUrl`, `PageImageAlignment`, `ImageHeight` and `ImageWidth` parameters to `Add-PnPPageTextPart` cmdlet so that users can add an inline image into a text webpart. [#2401](https://github.com/pnp/powershell/pull/2401)
+- Added `TextBeforeImage` and `TextAfterImage` parameters to `Add-PnPPageTextPart` cmdlet so that users can add before and after text for an inline image into a text webpart. [#2403](https://github.com/pnp/powershell/pull/2403)
+- Added `Add-PnPPageImageWebPart` cmdlet to allow users to easily add Image to a modern page. [#2406](https://github.com/pnp/powershell/pull/2406)
+- Added system assigned Managed Identity support for SharePoint Online cmdlets. [#2354](https://github.com/pnp/powershell/pull/2354)
+- Added user assigned Managed Identity support for Microsoft Graph and SharePoint Online cmdlets. [#2491](https://github.com/pnp/powershell/pull/2491)
+- Added `Get-PnPTeamsTag` cmdlet to retrieve Team tags information. [#2414](https://github.com/pnp/powershell/pull/2414)
+- Added `Properties` attribute to `Update-PnPVivaConnectionsDashboardACE` to allow for updating the properties of a Viva Connections dashboard ACE component using its typed properties [#2433](https://github.com/pnp/powershell/pull/2433)
+- Added `Set-PnPTeamsTag` cmdlet to update Team tags information. [#2419](https://github.com/pnp/powershell/pull/2419)
+- Added `Remove-PnPTeamsTag` cmdlet to delete a Team tag. [#2419](https://github.com/pnp/powershell/pull/2419)
+- Added `Disable-PnPPowerShellTelemetry` cmdlet to disable telemetry collection. [#2432](https://github.com/pnp/powershell/pull/2432)
+- Added `Enable-PnPPowerShellTelemetry` cmdlet to enable telemetry collection. [#2432](https://github.com/pnp/powershell/pull/2432)
+- Added `Get-PnPAzureADActivityReportSignIn` cmdlet to enable retrieving of Azure AD sign ins. [#2436](https://github.com/pnp/powershell/pull/2436)
+- Added support to remove the site collection app catalog by using Id of the site collection in `Remove-PnPSiteCollectionAppCatalog` cmdlet. [#2452](https://github.com/pnp/powershell/pull/2452)
+- Added support for the `EnableRestrictedAccessControl` parameter to `Set-PnPTenant` and `RestrictedAccessControl` for `Set-PnPSite` to restrict site access to members of a Microsoft 365 group. [#2462](https://github.com/pnp/powershell/pull/2462)
+- Added `Set-PnPImageListItemColumn` cmdlet to support setting of the new image/thumbnail value for a SharePoint list item.[#2468](https://github.com/pnp/powershell/pull/2468)
+- Added `-Filter` parameter to `Get-PnPTeamsTeam` cmdlet to retrieve specific teams based on filter conditions. It supports simple and advanced queries. [#2467](https://github.com/pnp/powershell/pull/2467) , [#2474](https://github.com/pnp/powershell/pull/2474)
+- Added `Get-PnPMicrosoft365ExpiringGroup` cmdlet to retrieve Microsoft 365 groups which are nearing expiration.[#2466](https://github.com/pnp/powershell/pull/2466)
+- Added additional parameters to `Set-PnPContentType` cmdlet to support SPFx form customizer related properties.[#2456](https://github.com/pnp/powershell/pull/2456)
+- Added `-Filter` parameter to `Get-PnPAzureADApp` cmdlet to retrieve specific Azure AD apps based on filter conditions. It suppports simple and advanced queries. [#2477](https://github.com/pnp/powershell/pull/2477)
+- Added `Get-PnPDeletedTeam` cmdlet to retrieve all deleted Microsoft Teams teams [#2487](https://github.com/pnp/powershell/pull/2487)
+- Added `-ServerRelativePath` and `-Path` parameters to `Set-PnPImageListItemColumn` cmdlet to allow for file to be uploaded for the Image type column. [#2503](https://github.com/pnp/powershell/pull/2503)
+- Added support for sovereign tenants in `Get-PnPTenandId` by utilizing the `-AzureEnvironment` parameter. [#2512](https://github.com/pnp/powershell/pull/2512)
+- Added `Set-PnPTeamsTeamPicture` which allows setting the picture of a Teams team [#3590](https://github.com/pnp/powershell/pull/3590)
+
+### Changed
+
+- Changed to no longer require `https://` to be prefixed when using `Connect-PnPOnline -Url tenant.sharepoint.com` [#2139](https://github.com/pnp/powershell/pull/2139)
+- `Get-PnPAvailableSensitivityLabel` cmdlet now uses the non-deprecated Graph API to retrieve sensitivity label. [#2234](https://github.com/pnp/powershell/pull/2234)
+- Improved `Get-PnPMicrosoft365Group` cmdlet to better check the Id, DisplayName and MailNickname of Microsoft 365  Group. [#2258](https://github.com/pnp/powershell/pull/2258)
+- Improved `Get-PnPStorageEntity` cmdlet when `Key` parameter is specified. [#2275](https://github.com/pnp/powershell/pull/2275)
+- Improved `Get-PnPAuthenticationRealm` cmdlet to use `HTTP Client` instead of `WebRequest`. [#2304](https://github.com/pnp/powershell/pull/2304)
+- Changed `Get-PnPRoleDefinition` so that it now also supports the role definition Id to be used with `-Identity` as well as the role definition name [#2336](https://github.com/pnp/powershell/pull/2336)
+- Creating private Teams channels formerly using  `Add-PnPTeamsChannel -Private` should now use `Add-PnPTeamsChannel -ChannelType Private` instead [#2308](https://github.com/pnp/powershell/pull/2308)
+- Improved `Get-PnPAuthenticationRealm` cmdlet to use `HTTPClient` instead of `WebRequest`. [#2304](https://github.com/pnp/powershell/pull/2304)
+- Improved `Connect-PnPOnline` with ACS method. Replace the usage of `WebRequest` with `HTTPClient`. [#2352](https://github.com/pnp/powershell/pull/2352)
+- Improved `Remove-PnPFieldFromContentType` cmdlet to ensure proper null check for non-existing fields. It will now throw proper `Field not found` error. [#2407](https://github.com/pnp/powershell/pull/2407)
+- Changed the Microsoft 365 Groups cmdlets to use the `v1.0` endpoint instead of the `beta` [#2426](https://github.com/pnp/powershell/pull/2426)
+- Changed `Add-PnPMicrosoft365GroupToSite` to longer require the `-Url` parameter to be specified. If its not provided, the currently connected to site will be groupified. [#2496](https://github.com/pnp/powershell/pull/2496)
+
+### Removed
+
+- Marked `-Resource` parameter from `Get-PnPAccessToken` cmdlet as obsolete as it was not used anymore anyway. It will be removed in a future version. [#2182](https://github.com/pnp/powershell/pull/2182)
+- Removed `-SystemUpdate` option from `Set-PnPListItem` as it has been deprecated two years ago. Use `-UpdateType SystemUpdate` instead [#2396](https://github.com/pnp/powershell/pull/2396)
+- Removed `-Force` parameter from `New-PnPTenantSite`. It was marked obsolete and not used anymore in the code.
+- Removed `-BlockDownloadOfNonViewableFiles` parameter from `Set-PnPTenantSite` cmdlet. It was marked obsolete. Instead use `-AllowDownloadingNonWebViewableFiles` parameter.
+- Removed `-NoTelemetry` and `-NoVersionCheck` parameters from `Connect-PnPOnline` cmdlet. They were marked obsolete. Instead you need to specify `PNP_DISABLETELEMETRY` and `PNPPOWERSHELL_UPDATECHECK` as environment variable.
+- Removed `-Connection` parameter from `Disconnect-PnPOnline` cmdlet. For more information on how to deal with this, please read [this documentation](https://pnp.github.io/powershell/cmdlets/Disconnect-PnPOnline.html).
+- Removed `-Web` parameter support for cmdlets that are currently using it. Instead you should use `Connect-PnPOnline` to connect to a specific Web instance like a sub-site or a site under a sub-site.
+- Removed `-Resource` parameter from `Get-PnPAccessToken` cmdlet. It was marked as obsolete and not used anymore.
+- Removed `-SkipSourceFolderName` parameter from `Copy-PnPFile` cmdlet. It was marked as obsolete and not used anymore.
+- Removed `-ExcludeSiteUrl` , `-IncludeClassification` and `-IncludeHasTeam` parameters from `Get-PnPMicrosoft365Group` cmdlet. They were marked as obsolete. The site URL(s) are excluded by default, instead use `-IncludeSiteUrl` parameter if you want to retrieve site URL(s). The classification will always be retrieved. The `HasTeam` value is always retrieved.
+- The `UserType` and `Environment` properties will not be retrieved when using `Get-PnPFlow` and `Remove-PnPFlow` cmdlets. They were marked as obsolete. You should used `Properties.Creator.UserType` and `EnvironmentDetails` instead.
+- The `OnlyAllowMembersViewMembership` and `SetAssociatedGroup` parameters have been removed. They were already marked as obsolete. You should use `-DisallowMembersViewMembership` parameter to disallow group members viewing membership and use `Set-PnPGroup` cmdlet to set groups as associated groups.
+- Removed `-Owner` paramter from `New-PnPTeamsTeam` cmdlet. It was marked as obsolete. You should instead use `-Owners` parameter.
+- Removed support for `2019-03` version of the PnP Provisioning Schema from `Convert-PnPSiteTemplate` , `New-PnPSiteTemplateFromFolder` and other cmdlets which are using this schema. It was already marked as deprecated in the PnP Provisioning engine. You should use a newer version of the schema.
+- Removed `-NoBaseTemplate` parameter from `Get-PnPSiteTemplate` cmdlet. It was marked as obsolete. It will not use the default web base template of the connected site.
+- Removed `-Private` parameter from `Add-PnPTeamsChannel` cmdlet. It was marked as obsolete. You should use `TeamMembershipType` parameter instead.
+
+
+### Fixed
+
 - Fixed issue where passing in `-Connection` to `Disconnect-PnPOnline` would throw an exception [#2093](https://github.com/pnp/powershell/pull/2093)
 - Fixed `Get-PnPSiteSearchQueryResults` throwing `Value cannot be null` exception [#2138](https://github.com/pnp/powershell/pull/2138)
 - Fixed `New-PnPUPABulkImportJob` not returing the job Id [#2144](https://github.com/pnp/powershell/pull/2144)
 - Fixed `Get-PnPSiteCollectionAppCatalog` throwing an exception when the site was deleted [#2201](https://github.com/pnp/powershell/pull/2201)
+- Fixed `Set-PnPTermGroup` throwing an exception even when the group existed. [#2232](https://github.com/pnp/powershell/pull/2232)
+- Fixed `Remove-PnPFile` cmdlet parameter set error. [#2230](https://github.com/pnp/powershell/pull/2230)
+- Fixed `Get-PnPAccessToken` cmdlet to be able to work with different site collections as well as require an actual connection first. [#2270](https://github.com/pnp/powershell/pull/2270)
+- Fixed `Copy-PnPList` cmdlet to be able to copy the list structure to the destination web. [#2313](https://github.com/pnp/powershell/pull/2313)
+- Fixed `Add-PnPField` cmdlet , it was throwing null reference error when `-Type` was not specified and after the prompt you entered the correct type. [#2338](https://github.com/pnp/powershell/pull/2338)
+- Fixed regression issue with `New-Microsoft365Group` cmdlet. [#2349](https://github.com/pnp/powershell/pull/2349)
+- Fixed issue with `Add-PnPTaxonomyField`, it was throwing error when using `-TaxonomyItemId` parameter. [#2351](https://github.com/pnp/powershell/pull/2351)
+- Fixed `Import-PnPTermGroupFromXml` issue where a valid template was not working. [#2353](https://github.com/pnp/powershell/pull/2353)
+- Fixed `Set-PnPTenant` cmdlet not working when `-Force` parameter is specified. [#2373](https://github.com/pnp/powershell/pull/2373)
+- Fixed `Add-PnPTeamsTab` cmdlet not working with certain types when using dynamic parameters. [#2405](https://github.com/pnp/powershell/pull/2405)
+- Fixed `Get-PnPVivaConnectionsDashboardACE` missing the `isVisible` property under `CardButtonActions` causing using `Update-PnPVivaConnectionsDashboardACE` to hide card buttons [#2433](https://github.com/pnp/powershell/pull/2433
+- Fixed issue with `Set-PnPTeamsChannel -IsFavoriteByDefault` throwing a `Nullable object must have a value` under certain circumstances [#2425](https://github.com/pnp/powershell/pull/2425)
+- Fixed `Register-PnPManagementShellAccess` for non-commercial cloud environment. Users must enter the tenant name if the environment is a non-commercial cloud environment. [#2437](https://github.com/pnp/powershell/pull/2437)
+- Fixed issue with writing warning or error messages in Azure automation or screens with small width. [#2438](https://github.com/pnp/powershell/pull/2438)
+- Fixed issue with `Enable-PnPTenantServicePrincipal` not respecting `-Force` parameter. [#2448](https://github.com/pnp/powershell/pull/2448)
+- Fixed issue with `Get-PnPRecycleBinItem` not working when there are large number of items in recycle bin.[#2472](https://github.com/pnp/powershell/pull/2472)
+- Fixed Microsoft Graph based cmdlets not showing detailed error results when a call fails [#2490](https://github.com/pnp/powershell/pull/2490)
+- Fixed `Restore-PnPRecycleBinItem` cmdlet not working with `-RowLimit` parameter. [#2499](https://github.com/pnp/powershell/pull/2499)
+- Fixed cmdlets throwing error when `-ErrorAction SilentlyContinue` was specified. [#2510](https://github.com/pnp/powershell/pull/2510)
+- Fixed `Get-PnPAzureADAppSitePermission` not returning the roles assigned to each permission [#2523](https://github.com/pnp/powershell/pull/2523)
+- Fixed `Add-PnPListItem` cmdlet issue when using `-Batch` cmdlet, we were not able to set the SharePoint group in people or group fields. [#2879] (https://github.com/pnp/powershell/pull/2879)
 
 ### Contributors
+
+- Valeras Narbutas [ValerasNarbutas]
+- Russell Gove [russgove]
+- Jasper Beerens
+- Aleksandr Sapozhkov [shurick81]
+- James Eccles [jameseccles]
+- Martin Lingstuyl [martinlingstuyl]
+- Antti K. Koskela [koskila]
+- Dan Toft [tandddant]
+- Yannick Plenevaux [ypcode]
+- Rob Lempens [RobLempens]
+- Marc Studer [Studermarc]
+- Giacomo Pozzoni [jackpoz]
+- Adam Wójcik [Adam-it]
+- reusto
+- Mikael Svenson [wobba]
+- Josef Benda [SmarterJB]
+- Alex Grover [groveale]
 - Nik Charlebois [NikCharlebois]
 - Milan Holemans [milanholemans]
 - Miguel A. Tena [mikewaretena]
@@ -77,7 +936,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 - Added `Add-PnPListItemAttachment` cmdlet to provide ability to upload a file as an attachment to a SharePoint list item. [#1932](https://github.com/pnp/powershell/pull/1932)
 - Added `Remove-PnPListItemAttachment` cmdlet to provide ability to delete a list item attachment. [#1932](https://github.com/pnp/powershell/pull/1932)
 - Added `Get-PnPListItemAttachment` cmdlet to download the attachments from a list item. [#1932](https://github.com/pnp/powershell/pull/1932)
-- Added `-ReturnTyped` parameter to `Get-PnPField` cmdlet so that it returns specific type instead of the generic field type. [#1888] (https://github.com/pnp/powershell/pull/1888)
+- Added `-ReturnTyped` parameter to `Get-PnPField` cmdlet so that it returns specific type instead of the generic field type. [#1888](https://github.com/pnp/powershell/pull/1888)
 - Added `Add-PnPViewsFromXML` cmdlet to create one or more views in a list based on an XML string. [#1963](https://github.com/pnp/powershell/pull/1963)
 - Added `-ExemptFromBlockDownloadOfNonViewableFiles` parameter to `Set-PnPList` cmdlet to configure access capabilites for unmanaged devices at list level. [#1973](https://github.com/pnp/powershell/pull/1973)
 - Added `-PercentComplete`, `-Priority`, `-StartDateTime`, `-DueDateTime` and `-Description` to `Add-PnPPlannerTask` [#1964](https://github.com/pnp/powershell/pull/1964)
@@ -103,7 +962,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 ### Changed
 
 - Changed `Sync-PnPSharePointUserProfilesFromAzureActiveDirectory` to map users based on their Ids instead which should resolve some issues around user identities reporting not to exist. You can use the new `-IdType` option to switch it back to `PrincipalName` if needed.  [#1752](https://github.com/pnp/powershell/pull/1752)
-- Changed `Add-PnPField` now returns specific type taxonomy field type instead of the generic type. [#1888] (https://github.com/pnp/powershell/pull/1888)
+- Changed `Add-PnPField` now returns specific type taxonomy field type instead of the generic type. [#1888](https://github.com/pnp/powershell/pull/1888)
 - Changed `Get-PnPOrgAssetsLibrary` to return a proper value of the organisation assets libraries. [#1889](https://github.com/pnp/powershell/pull/1889)
 - Bumped .NET Framework version to 4.6.2 as the 4.6.1 is not supported anymore. [#1856](https://github.com/pnp/powershell/pull/1856)
 - Changed `Add-PnPDataRowsToSiteTemplate`, it will now export a datetime field value as UTC string. [#1900](https://github.com/pnp/powershell/pull/1900)
@@ -304,7 +1163,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 - Added `Get\Set-PnPPlannerConfiguration` to allow working with the Microsoft Planner tenant configuration
 - Added `Get\Set-PnPPlannerUserPolicy` to allow setting Microsoft Planner user policies for specific users
 - Added `Get\Add\Remove-PnPPlannerRoster` which allows a Microsoft Planner Roster to be created, retrieved or removed
-- Added `Get\Add\Remove-PnPPlannerRosterMember` to be able to read, add and remove members from a Microsft Planner Roster
+- Added `Get\Add\Remove-PnPPlannerRosterMember` to be able to read, add and remove members from a Microsoft Planner Roster
 - Added `Get-PnPPlannerRosterPlan` to be able to retrieve the Microsoft Planner plans inside a Microsoft Planner Roster or the ones belonging to a specific user
 - Added support for off peak SharePoint Syntex content classification and extraction for lists and folders via new `-OffPeak` and `-Folder` parameters for `Request-PnPSyntexClassifyAndExtract`
 - Added `Invoke-PnPSiteScript` which allows for a Site Script to be executed on a site without needing to have it registered in a site design or site script first

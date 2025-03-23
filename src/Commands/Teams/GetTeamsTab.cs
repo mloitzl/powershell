@@ -5,10 +5,11 @@ using PnP.PowerShell.Commands.Base.PipeBinds;
 using PnP.PowerShell.Commands.Utilities;
 using System.Management.Automation;
 
-namespace PnP.PowerShell.Commands.Graph
+namespace PnP.PowerShell.Commands.Teams
 {
     [Cmdlet(VerbsCommon.Get, "PnPTeamsTab")]
-    [RequiredMinimalApiPermissions("Group.Read.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/Group.Read.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/Group.ReadWrite.All")]
     public class GetTeamsTab : PnPGraphCmdlet
     {
 
@@ -23,29 +24,37 @@ namespace PnP.PowerShell.Commands.Graph
 
         protected override void ExecuteCmdlet()
         {
-            var groupId = Team.GetGroupId(Connection, AccessToken);
+            var groupId = Team.GetGroupId(GraphRequestHelper);
             if (groupId != null)
             {
-                var channelId = Channel.GetId(Connection, AccessToken, groupId);
+                var channelId = Channel.GetId(GraphRequestHelper, groupId);
                 if (!string.IsNullOrEmpty(channelId))
                 {
                     if (ParameterSpecified(nameof(Identity)))
                     {
-                        WriteObject(Identity.GetTab(this,Connection, AccessToken, groupId, channelId));
+                        var tab = Identity.GetTab(GraphRequestHelper, groupId, channelId);
+                        if (tab != null)
+                        {
+                            WriteObject(tab);
+                        }
+                        else
+                        {
+                            LogError(new PSArgumentException("Cannot find tab"));
+                        }
                     }
                     else
                     {
-                        WriteObject(TeamsUtility.GetTabsAsync(AccessToken, Connection, groupId, channelId).GetAwaiter().GetResult(), true);
+                        WriteObject(TeamsUtility.GetTabs(GraphRequestHelper, groupId, channelId), true);
                     }
                 }
                 else
                 {
-                    this.WriteError(new PSArgumentException("Channel not found"), ErrorCategory.ObjectNotFound);
+                    this.LogError(new PSArgumentException("Channel not found"));
                 }
             }
             else
             {
-                this.WriteError(new PSArgumentException("Team not found"), ErrorCategory.ObjectNotFound);
+                this.LogError(new PSArgumentException("Team not found"));
             }
         }
     }

@@ -21,10 +21,12 @@ Returns members from the specified Microsoft Teams private Channel.
 
 ```powershell
 Get-PnPTeamsChannelUser -Team <TeamsTeamPipeBind> -Channel <TeamsChannelPipeBind> [-Identity <TeamsChannelMemberPipeBind>] [-Role <String>]
-  [<CommonParameters>]
+  
 ```
 
 ## DESCRIPTION
+
+Allows to retrieve list of members of the specified private channel.
 
 ## EXAMPLES
 

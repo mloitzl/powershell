@@ -16,10 +16,12 @@ Removes a file from a PnP Provisioning Template
 
 ```powershell
 Remove-PnPFileFromSiteTemplate [-Path] <String> [-FilePath] <String>
- [[-TemplateProviderExtensions] <ITemplateProviderExtension[]>] [<CommonParameters>]
+ [[-TemplateProviderExtensions] <ITemplateProviderExtension[]>] 
 ```
 
 ## DESCRIPTION
+
+Allows to remove a file from a PnP Provisioning Template.
 
 ## EXAMPLES
 

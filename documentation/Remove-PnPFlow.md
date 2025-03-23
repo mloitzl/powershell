@@ -14,32 +14,38 @@ schema: 2.0.0
 
 * Azure: management.azure.com
 
-Removes the specified flow
+Removes the specified flow.
 
 ## SYNTAX
 
-```
-Remove-PnPFlow -Environment <PowerAutomateEnvironmentPipeBind> -Identity <PowerAutomateFlowPipeBind> [-AsAdmin]
- [-Force] [-Connection <PnPConnection>] [<CommonParameters>]
+```powershell
+Remove-PnPFlow [-Environment <PowerAutomateEnvironmentPipeBind>] -Identity <PowerAutomateFlowPipeBind> [-AsAdmin]
+ [-Force] [-ThrowExceptionIfPowerAutomateNotFound] [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
-This cmdlet removes the specified flow
+This cmdlet removes the specified flow.
 
 ## EXAMPLES
 
 ### Example 1
 ```powershell
-$environment = Get-PnPFlowEnvironment
-Remove-PnPFlow -Environment $environment -Identity fba63225-baf9-4d76-86a1-1b42c917a182
+Remove-PnPFlow -Identity fba63225-baf9-4d76-86a1-1b42c917a182
 ```
 
-This removes the specified flow.
+This removes the specified flow from the default environment.
+
+### Example 2
+```powershell
+Remove-PnPFlow -Environment (Get-PnPPowerPlatformEnvironment -Identity "myenvironment") -Identity fba63225-baf9-4d76-86a1-1b42c917a182 -ThrowExceptionIfPowerAutomateNotFound
+```
+
+This removes the specified flow located in the specified environment and throws an exception if the specified flow is not present.
 
 ## PARAMETERS
 
 ### -AsAdmin
-If specified removes the flow as an administrator
+If specified removes the flow as an administrator.
 
 ```yaml
 Type: SwitchParameter
@@ -70,17 +76,17 @@ Accept wildcard characters: False
 ```
 
 ### -Environment
-The name of the environment which contains the flow.
+The name of the Power Platform environment or an Environment instance. If omitted, the default environment will be used.
 
 ```yaml
-Type: PowerAutomateEnvironmentPipeBind
+Type: PowerPlatformEnvironmentPipeBind
 Parameter Sets: (All)
 Aliases:
 
-Required: True
+Required: False
 Position: Named
-Default value: None
-Accept pipeline input: False
+Default value: The default environment
+Accept pipeline input: True
 Accept wildcard characters: False
 ```
 
@@ -99,8 +105,22 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -ThrowExceptionIfPowerAutomateNotFound
+Switch parameter if an exception should be thrown if the requested flow does not exist (true) or if omitted, nothing will be returned in case the flow does not exist
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Force
-If specified the no confirmation question will be asked.
+If specified, no confirmation question will be asked.
 
 ```yaml
 Type: SwitchParameter

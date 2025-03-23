@@ -1,15 +1,13 @@
 ﻿using PnP.PowerShell.Commands.Attributes;
 using PnP.PowerShell.Commands.Base;
-using PnP.PowerShell.Commands.Base.PipeBinds;
 using PnP.PowerShell.Commands.Model.Graph;
-using PnP.PowerShell.Commands.Model.Teams;
 using PnP.PowerShell.Commands.Utilities;
 using System.Management.Automation;
 
-namespace PnP.PowerShell.Commands.Graph
+namespace PnP.PowerShell.Commands.Teams
 {
     [Cmdlet(VerbsCommon.New, "PnPTeamsApp")]
-    [RequiredMinimalApiPermissions("AppCatalog.ReadWrite.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/AppCatalog.ReadWrite.All")]
     public class NewTeamsApp : PnPGraphCmdlet
     {
         [Parameter(Mandatory = true)]
@@ -27,7 +25,7 @@ namespace PnP.PowerShell.Commands.Graph
                 try
                 {
                     var bytes = System.IO.File.ReadAllBytes(Path);
-                    TeamsUtility.AddAppAsync(Connection, AccessToken, bytes).GetAwaiter().GetResult();
+                    TeamsUtility.AddApp(GraphRequestHelper, bytes);
                 }
                 catch (GraphException ex)
                 {

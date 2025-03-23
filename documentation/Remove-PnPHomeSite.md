@@ -20,10 +20,12 @@ Removes the currently set site as the home site
 ## SYNTAX
 
 ```powershell
-Remove-PnPHomeSite [-Force] [-Connection <PnPConnection>] [<CommonParameters>]
+Remove-PnPHomeSite [-Force] [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
+
+Allows to remove a site which currently is set as home site.
 
 ## EXAMPLES
 

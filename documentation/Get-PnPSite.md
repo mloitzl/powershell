@@ -15,10 +15,12 @@ Returns the current site collection from the context.
 ## SYNTAX
 
 ```powershell
-Get-PnPSite [-Connection <PnPConnection>] [-Includes <String[]>] [<CommonParameters>]
+Get-PnPSite [-Connection <PnPConnection>] [-Includes <String[]>] 
 ```
 
 ## DESCRIPTION
+
+Allows to retrieve current site collection from the context.
 
 ## EXAMPLES
 
@@ -34,7 +36,7 @@ Gets the current site
 Get-PnPSite -Includes RootWeb,ServerRelativeUrl
 ```
 
-Gets the current site specifying to include RootWeb and ServerRelativeUrl properties. For the full list of properties see https://docs.microsoft.com/previous-versions/office/sharepoint-server/ee538579(v%3doffice.15)
+Gets the current site specifying to include RootWeb and ServerRelativeUrl properties. For the full list of properties see https://learn.microsoft.com/previous-versions/office/sharepoint-server/ee538579(v%3doffice.15)
 
 ## PARAMETERS
 
@@ -43,6 +45,20 @@ Optional connection to be used by the cmdlet. Retrieve the value for this parame
 
 ```yaml
 Type: PnPConnection
+Parameter Sets: (All)
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Includes
+Optionally allows properties to be retrieved for the returned site which are not included in the response by default
+
+```yaml
+Type: String[]
 Parameter Sets: (All)
 
 Required: False

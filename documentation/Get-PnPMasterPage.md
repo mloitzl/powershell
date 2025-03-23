@@ -15,10 +15,12 @@ Returns the URLs of the default Master Page and the custom Master Page.
 ## SYNTAX
 
 ```powershell
-Get-PnPMasterPage [-Connection <PnPConnection>] [<CommonParameters>]
+Get-PnPMasterPage [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
+
+Allows to retrieve urls of the default Master Page and custom Master Page of the current site.
 
 ## EXAMPLES
 

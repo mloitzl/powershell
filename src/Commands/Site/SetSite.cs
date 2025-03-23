@@ -11,6 +11,7 @@ using System.Management.Automation;
 namespace PnP.PowerShell.Commands.Site
 {
     [Cmdlet(VerbsCommon.Set, "PnPSite")]
+    [OutputType(typeof(void))]
     public class SetSite : PnPSharePointCmdlet
     {
         private const string ParameterSet_LOCKSTATE = "Set Lock State";
@@ -90,12 +91,48 @@ namespace PnP.PowerShell.Commands.Site
 
         [Parameter(Mandatory = false, ParameterSetName = ParameterSet_PROPERTIES)]
         public SwitchParameter OverrideTenantAnonymousLinkExpirationPolicy;
-        
+
         [Parameter(Mandatory = false, ParameterSetName = ParameterSet_PROPERTIES)]
-        public MediaTranscriptionPolicyType? MediaTranscription { get; set; }
+        public MediaTranscriptionPolicyType? MediaTranscription;
 
         [Parameter(Mandatory = false, ParameterSetName = ParameterSet_PROPERTIES)]
         public Guid? SensitivityLabel;
+
+        [Parameter(Mandatory = false, ParameterSetName = ParameterSet_PROPERTIES)]
+        public bool? RequestFilesLinkEnabled;
+
+        [Parameter(Mandatory = false, ParameterSetName = ParameterSet_PROPERTIES)]
+        public int? RequestFilesLinkExpirationInDays;
+
+        [Parameter(Mandatory = false, ParameterSetName = ParameterSet_PROPERTIES)]
+        public string ScriptSafeDomainName;
+
+        [Parameter(Mandatory = false, ParameterSetName = ParameterSet_PROPERTIES)]
+        public bool? RestrictedAccessControl;
+
+        [Parameter(Mandatory = false, ParameterSetName = ParameterSet_PROPERTIES)]
+        public bool? BlockDownloadPolicy;
+
+        [Parameter(Mandatory = false, ParameterSetName = ParameterSet_PROPERTIES)]
+        public bool? ExcludeBlockDownloadPolicySiteOwners;
+
+        [Parameter(Mandatory = false, ParameterSetName = ParameterSet_PROPERTIES)]
+        public Guid[] ExcludedBlockDownloadGroupIds;
+
+        [Parameter(Mandatory = false, ParameterSetName = ParameterSet_PROPERTIES)]
+        public bool? ListsShowHeaderAndNavigation;
+
+        [Parameter(Mandatory = false, ParameterSetName = ParameterSet_PROPERTIES)]
+        public bool? RestrictContentOrgWideSearch;
+
+        [Parameter(Mandatory = false, ParameterSetName = ParameterSet_PROPERTIES)]
+        public bool? HidePeoplePreviewingFiles;
+
+        [Parameter(Mandatory = false, ParameterSetName = ParameterSet_PROPERTIES)]
+        public bool? HidePeopleWhoHaveListsOpen;
+
+        [Parameter(Mandatory = false, ParameterSetName = ParameterSet_PROPERTIES)]
+        public SwitchParameter? CanSyncHubSitePermissions;
 
         [Parameter(Mandatory = false, ParameterSetName = ParameterSet_LOCKSTATE)]
         public SwitchParameter Wait;
@@ -121,14 +158,48 @@ namespace PnP.PowerShell.Commands.Site
                 context.ExecuteQueryRetry();
             }
 
-            if(ParameterSpecified(nameof(SensitivityLabel)) && SensitivityLabel.HasValue)
+            if (ParameterSpecified(nameof(SensitivityLabel)) && SensitivityLabel.HasValue)
             {
                 site.SensitivityLabel = SensitivityLabel.Value;
-                context.ExecuteQueryRetry();                
+                context.ExecuteQueryRetry();
+            }
+
+            if (ParameterSpecified(nameof(ScriptSafeDomainName)) && !string.IsNullOrEmpty(ScriptSafeDomainName))
+            {
+                ScriptSafeDomain safeDomain = null;
+                try
+                {
+                    safeDomain = ClientContext.Site.CustomScriptSafeDomains.GetByDomainName(ScriptSafeDomainName);
+                    ClientContext.Load(safeDomain);
+                    ClientContext.ExecuteQueryRetry();
+                }
+                catch { }
+                if (safeDomain.ServerObjectIsNull == null)
+                {
+                    ScriptSafeDomainEntityData scriptSafeDomainEntity = new ScriptSafeDomainEntityData
+                    {
+                        DomainName = ScriptSafeDomainName
+                    };
+
+                    safeDomain = context.Site.CustomScriptSafeDomains.Create(scriptSafeDomainEntity);
+                    context.Load(safeDomain);
+                    context.ExecuteQueryRetry();
+                    WriteObject(safeDomain);
+                }
+                else
+                {
+                    LogWarning($"Unable to add Domain Name as there is an existing domain name with the same name. Will be skipped.");
+                }
+            }
+
+            if (ParameterSpecified(nameof(CanSyncHubSitePermissions)) && CanSyncHubSitePermissions.HasValue)
+            {
+                site.CanSyncHubSitePermissions = CanSyncHubSitePermissions.Value;
+                context.ExecuteQueryRetry();
             }
 
             if (ParameterSpecified(nameof(LogoFilePath)))
-            {                
+            {
                 if (!System.IO.Path.IsPathRooted(LogoFilePath))
                 {
                     LogoFilePath = System.IO.Path.Combine(SessionState.Path.CurrentFileSystemLocation.Path, LogoFilePath);
@@ -172,17 +243,17 @@ namespace PnP.PowerShell.Commands.Site
                     var uploadedFile = createdList.RootFolder.UploadFile(logoFileName, LogoFilePath, true);
                     context.Web.SiteLogoUrl = uploadedFile.ServerRelativeUrl;
                     context.Web.Update();
-                    context.ExecuteQueryRetry();                    
+                    context.ExecuteQueryRetry();
                 }
                 else
                 {
                     throw new Exception("Logo file does not exist");
-                }                
+                }
             }
 
             if (IsTenantProperty())
             {
-                var tenantAdminUrl = UrlUtilities.GetTenantAdministrationUrl(context.Url);
+                var tenantAdminUrl = Connection.TenantAdminUrl ?? UrlUtilities.GetTenantAdministrationUrl(context.Url);
                 context = context.Clone(tenantAdminUrl);
 
                 executeQueryRequired = false;
@@ -205,7 +276,7 @@ namespace PnP.PowerShell.Commands.Site
                 if (LockState.HasValue)
                 {
                     tenant.SetSiteLockState(siteUrl, LockState.Value, Wait, Wait ? timeoutFunction : null);
-                    WriteWarning("You changed the lockstate of this site. This change is not guaranteed to be effective immediately. Please wait a few minutes for this to take effect.");
+                    LogWarning("You changed the lockstate of this site. This change is not guaranteed to be effective immediately. Please wait a few minutes for this to take effect.");
                 }
                 if (Owners != null && Owners.Count > 0)
                 {
@@ -304,6 +375,71 @@ namespace PnP.PowerShell.Commands.Site
                     executeQueryRequired = true;
                 }
 
+                if (RequestFilesLinkEnabled.HasValue)
+                {
+                    siteProperties.RequestFilesLinkEnabled = RequestFilesLinkEnabled.Value;
+                    executeQueryRequired = true;
+                }
+
+                if (RequestFilesLinkExpirationInDays.HasValue)
+                {
+                    if (RequestFilesLinkExpirationInDays.Value < 0 || RequestFilesLinkExpirationInDays > 730)
+                    {
+                        throw new PSArgumentException($"{RequestFilesLinkExpirationInDays} must have a value between 0 and 730", nameof(RequestFilesLinkExpirationInDays));
+                    }
+
+                    siteProperties.RequestFilesLinkExpirationInDays = RequestFilesLinkExpirationInDays.Value;
+                    executeQueryRequired = true;
+                }
+
+                if (ParameterSpecified(nameof(RestrictedAccessControl)) && RestrictedAccessControl.HasValue)
+                {
+                    siteProperties.RestrictedAccessControl = RestrictedAccessControl.Value;
+                    executeQueryRequired = true;
+                }
+
+                if (ParameterSpecified(nameof(BlockDownloadPolicy)) && BlockDownloadPolicy.HasValue)
+                {
+                    siteProperties.BlockDownloadPolicy = BlockDownloadPolicy.Value;
+                    executeQueryRequired = true;
+                }
+
+                if (ParameterSpecified(nameof(ExcludeBlockDownloadPolicySiteOwners)) && ExcludeBlockDownloadPolicySiteOwners.HasValue)
+                {
+                    siteProperties.ExcludeBlockDownloadPolicySiteOwners = ExcludeBlockDownloadPolicySiteOwners.Value;
+                    executeQueryRequired = true;
+                }
+
+                if (ParameterSpecified(nameof(ExcludedBlockDownloadGroupIds)) && ExcludedBlockDownloadGroupIds.Length > 0)
+                {
+                    siteProperties.ExcludedBlockDownloadGroupIds = ExcludedBlockDownloadGroupIds;
+                    executeQueryRequired = true;
+                }
+
+                if (ParameterSpecified(nameof(ListsShowHeaderAndNavigation)) && ListsShowHeaderAndNavigation.HasValue)
+                {
+                    siteProperties.ListsShowHeaderAndNavigation = ListsShowHeaderAndNavigation.Value;
+                    executeQueryRequired = true;
+                }
+
+                if (ParameterSpecified(nameof(RestrictContentOrgWideSearch)) && RestrictContentOrgWideSearch.HasValue)
+                {
+                    siteProperties.RestrictContentOrgWideSearch = RestrictContentOrgWideSearch.Value;
+                    executeQueryRequired = true;
+                }
+
+                if (ParameterSpecified(nameof(HidePeoplePreviewingFiles)) && HidePeoplePreviewingFiles.HasValue)
+                {
+                    siteProperties.HidePeoplePreviewingFiles = HidePeoplePreviewingFiles.Value;
+                    executeQueryRequired = true;
+                }
+
+                if (ParameterSpecified(nameof(HidePeopleWhoHaveListsOpen)) && HidePeopleWhoHaveListsOpen.HasValue)
+                {
+                    siteProperties.HidePeopleWhoHaveListsOpen = HidePeopleWhoHaveListsOpen.Value;
+                    executeQueryRequired = true;
+                }
+
                 if (executeQueryRequired)
                 {
                     siteProperties.Update();
@@ -349,10 +485,16 @@ namespace PnP.PowerShell.Commands.Site
                 LocaleId.HasValue ||
                 RestrictedToGeo.HasValue ||
                 SocialBarOnSitePagesDisabled.HasValue ||
-                 AnonymousLinkExpirationInDays.HasValue ||
+                AnonymousLinkExpirationInDays.HasValue ||
                 ParameterSpecified(nameof(OverrideTenantAnonymousLinkExpirationPolicy)) ||
-                LocaleId.HasValue ||
                 DisableCompanyWideSharingLinks.HasValue ||
-                MediaTranscription.HasValue;
+                MediaTranscription.HasValue ||
+                RestrictedAccessControl.HasValue ||
+                RequestFilesLinkExpirationInDays.HasValue ||
+                RequestFilesLinkEnabled.HasValue ||
+                BlockDownloadPolicy.HasValue ||
+                ExcludeBlockDownloadPolicySiteOwners.HasValue ||
+                ParameterSpecified(nameof(ExcludedBlockDownloadGroupIds)) ||
+                ListsShowHeaderAndNavigation.HasValue;
     }
 }

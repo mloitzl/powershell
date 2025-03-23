@@ -1,11 +1,8 @@
-﻿using PnP.Framework.Graph;
-using PnP.PowerShell.Commands.Attributes;
+﻿using PnP.PowerShell.Commands.Attributes;
 using PnP.PowerShell.Commands.Base;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 using PnP.PowerShell.Commands.Model;
-using PnP.PowerShell.Commands.Properties;
 using PnP.PowerShell.Commands.Utilities;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Management.Automation;
@@ -13,7 +10,7 @@ using System.Management.Automation;
 namespace PnP.PowerShell.Commands.Microsoft365Groups
 {
     [Cmdlet(VerbsCommon.New, "PnPMicrosoft365GroupSettings")]
-    [RequiredMinimalApiPermissions("Directory.ReadWrite.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/Directory.ReadWrite.All")]
     public class NewPnPMicrosoft365GroupSettings : PnPGraphCmdlet
     {
         [Parameter(Mandatory = false)]
@@ -32,17 +29,17 @@ namespace PnP.PowerShell.Commands.Microsoft365Groups
         {
             if (Identity != null)
             {
-                var groupId = Identity.GetGroupId(Connection, AccessToken);
+                var groupId = Identity.GetGroupId(GraphRequestHelper);
                 var groupSettingObject = GroupSettingsObject();
 
-                var responseValue = Microsoft365GroupsUtility.CreateGroupSetting(Connection, AccessToken, groupId.ToString(), groupSettingObject).GetAwaiter().GetResult();
+                var responseValue = Microsoft365GroupsUtility.CreateGroupSetting(GraphRequestHelper, groupId.ToString(), groupSettingObject);
                 WriteObject(responseValue);
             }
             else
             {
                 var groupSettingObject = GroupSettingsObject();
 
-                var responseValue = Microsoft365GroupsUtility.CreateGroupSetting(Connection, AccessToken, groupSettingObject).GetAwaiter().GetResult();
+                var responseValue = Microsoft365GroupsUtility.CreateGroupSetting(GraphRequestHelper, groupSettingObject);
                 WriteObject(responseValue);
             }
         }

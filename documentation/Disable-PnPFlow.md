@@ -1,8 +1,10 @@
 ---
-online version: https://pnp.github.io/powershell/cmdlets/Disable-PnPFlow.html
 Module Name: PnP.PowerShell
-external help file: PnP.PowerShell.dll-Help.xml
 schema: 2.0.0
+applicable: SharePoint Online
+online version: https://pnp.github.io/powershell/cmdlets/Disable-PnPFlow.html
+external help file: PnP.PowerShell.dll-Help.xml
+title: Disable-PnPFlow
 ---
   
 # Disable-PnPFlow
@@ -17,8 +19,8 @@ Disables a specific flow
 
 ## SYNTAX
 
-```
-Disable-PnPFlow -Environment <PowerAutomateEnvironmentPipeBind> -Identity <PowerAutomateFlowPipeBind> [-AsAdmin] [-Connection <PnPConnection>] [<CommonParameters>]
+```powershell
+Disable-PnPFlow [-Environment <PowerAutomateEnvironmentPipeBind>] -Identity <PowerAutomateFlowPipeBind> [-AsAdmin] [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
@@ -28,16 +30,22 @@ This cmdlet disables a specific flow
 
 ### Example 1
 ```powershell
-$environment = Get-PnPFlowEnvironment
-Disable-PnPFlow -Environment $environment -Identity fba63225-baf9-4d76-86a1-1b42c917a182
+Disable-PnPFlow -Identity fba63225-baf9-4d76-86a1-1b42c917a182
 ```
 
-Disables the specified flow
+Disables the specified flow in the default environment
+
+### Example 2
+```powershell
+Disable-PnPFlow -Environment (Get-PnPPowerPlatformEnvironment -Identity "myenvironment") -Identity fba63225-baf9-4d76-86a1-1b42c917a182
+```
+
+Disables the specified flow in the specified environment
 
 ## PARAMETERS
 
 ### -AsAdmin
-Disable the flow as an adminstrator
+Disable the flow as an administrator.
 
 ```yaml
 Type: SwitchParameter
@@ -68,22 +76,22 @@ Accept wildcard characters: False
 ```
 
 ### -Environment
-The name of the environment or an Environment object to retrieve the available flows for.
+The name of the Power Platform environment or an Environment instance. If omitted, the default environment will be used.
 
 ```yaml
-Type: PowerAutomateEnvironmentPipeBind
+Type: PowerPlatformEnvironmentPipeBind
 Parameter Sets: (All)
 Aliases:
 
-Required: True
+Required: False
 Position: Named
-Default value: None
-Accept pipeline input: False
+Default value: The default environment
+Accept pipeline input: True
 Accept wildcard characters: False
 ```
 
 ### -Identity
-Identity of the flow to disable
+Identity of the flow to disable.
 
 ```yaml
 Type: PowerAutomateFlowPipeBind

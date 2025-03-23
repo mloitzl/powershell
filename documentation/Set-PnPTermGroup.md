@@ -10,17 +10,17 @@ online version: https://pnp.github.io/powershell/cmdlets/Set-PnPTermGroup.html
 # Set-PnPTermGroup
 
 ## SYNOPSIS
-Updates an existing term group
+Updates an existing term group.
 
 ## SYNTAX
 
-```
+```powershell
 Set-PnPTermGroup -Identity <TaxonomyTermGroupPipeBind> [-Name <String>] [-Description <String>] 
- [-TermStore <TaxonomyTermStorePipeBind>] [-Connection <PnPConnection>] [<CommonParameters>]
+ [-TermStore <TaxonomyTermStorePipeBind>] [-Connection <PnPConnection>] [-Contributors <string []>] [-Managers <string []>]
 ```
 
 ## DESCRIPTION
-The cmdles allows you to update an existing term group.
+The cmdlet allows you to update an existing term group.
 
 ## EXAMPLES
 
@@ -29,13 +29,19 @@ The cmdles allows you to update an existing term group.
 Set-PnPTermGroup -Identity "Departments" -Name "Company Units"
 ```
 
-Renames the Departments termgroup to "Company Units"
+Renames the Departments termgroup to "Company Units".
+
+### Example 2
+```powershell
+Set-PnPTermGroup -Identity "Departments" -Name "Company Units" -Contributors @("i:0#.f|membership|pradeepg@gautamdev.onmicrosoft.com","i:0#.f|membership|adelev@gautamdev.onmicrosoft.com") -Managers @("i:0#.f|membership|alexw@gautamdev.onmicrosoft.com","i:0#.f|membership|diegos@gautamdev.onmicrosoft.com")
+```
+
+Renames the Departments termgroup to "Company Units" and adds contributors and managers of the term group. **The user names for contributors and managers need to be encoded claim for the specified login names.**
 
 ## PARAMETERS
 
-
 ### -Description
-Optional description of the term group
+Optional description of the term group.
 
 ```yaml
 Type: String
@@ -101,6 +107,36 @@ Optional connection to be used by the cmdlet. Retrieve the value for this parame
 ```yaml
 Type: PnPConnection
 Parameter Sets: (All)
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Managers
+The manager of the term group who can create/edit term sets in the group as well as add/remove contributors. **The user names for managers need to be encoded claim for the specified login names.**
+
+```yaml
+Type: string[]
+Parameter Sets: (All)
+Aliases: 
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Contributors
+The contributor to the term group who can create/edit term sets in the group. **The user names for contributors need to be encoded claim for the specified login names.**
+
+```yaml
+Type: string[]
+Parameter Sets: (All)
+Aliases: 
 
 Required: False
 Position: Named

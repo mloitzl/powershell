@@ -1,16 +1,17 @@
 ﻿
+using PnP.PowerShell.Commands.Attributes;
 using PnP.PowerShell.Commands.Base;
 using PnP.PowerShell.Commands.Base.PipeBinds;
+using PnP.PowerShell.Commands.Model.Graph;
 using PnP.PowerShell.Commands.Model.Teams;
 using PnP.PowerShell.Commands.Utilities;
 using System.Management.Automation;
-using PnP.PowerShell.Commands.Attributes;
-using PnP.PowerShell.Commands.Model.Graph;
+using System.Text.RegularExpressions;
 
-namespace PnP.PowerShell.Commands.Graph
+namespace PnP.PowerShell.Commands.Teams
 {
     [Cmdlet(VerbsCommon.Add, "PnPTeamsTab")]
-    [RequiredMinimalApiPermissions("Group.ReadWrite.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/Group.ReadWrite.All")]
     public class AddTeamsTab : PnPGraphCmdlet, IDynamicParameters
     {
         [Parameter(Mandatory = true, ValueFromPipeline = true)]
@@ -19,17 +20,17 @@ namespace PnP.PowerShell.Commands.Graph
         [Parameter(Mandatory = true, ValueFromPipeline = true)]
         public TeamsChannelPipeBind Channel;
 
-
         [Parameter(Mandatory = true)]
         public string DisplayName;
 
         [Parameter(Mandatory = true)]
         public TeamTabType Type;
 
-
         private OfficeFileParameters officeFileParameters;
         private DocumentLibraryParameters documentLibraryParameters;
+        private SharePointPageAndListParameters sharePointPageAndListParameters;
         private CustomParameters customParameters;
+
         public object GetDynamicParameters()
         {
             switch (Type)
@@ -43,10 +44,16 @@ namespace PnP.PowerShell.Commands.Graph
                         return officeFileParameters;
                     }
                 case TeamTabType.DocumentLibrary:
+                case TeamTabType.Planner:
                 case TeamTabType.WebSite:
                     {
                         documentLibraryParameters = new DocumentLibraryParameters();
                         return documentLibraryParameters;
+                    }
+                case TeamTabType.SharePointPageAndList:
+                    {
+                        sharePointPageAndListParameters = new SharePointPageAndListParameters();
+                        return sharePointPageAndListParameters;
                     }
                 case TeamTabType.Custom:
                     {
@@ -57,13 +64,12 @@ namespace PnP.PowerShell.Commands.Graph
             return null;
         }
 
-
         protected override void ExecuteCmdlet()
         {
-            var groupId = Team.GetGroupId(Connection, AccessToken);
+            var groupId = Team.GetGroupId(GraphRequestHelper);
             if (groupId != null)
             {
-                var channelId = Channel.GetId(Connection, AccessToken, groupId);
+                var channelId = Channel.GetId(GraphRequestHelper, groupId);
                 if (channelId != null)
                 {
                     try
@@ -80,27 +86,40 @@ namespace PnP.PowerShell.Commands.Graph
                             case TeamTabType.PowerPoint:
                             case TeamTabType.PDF:
                                 {
+                                    EnsureDynamicParameters(officeFileParameters);
                                     entityId = officeFileParameters.EntityId;
                                     contentUrl = officeFileParameters.ContentUrl;
                                     break;
                                 }
                             case TeamTabType.DocumentLibrary:
+                            case TeamTabType.Planner:
                             case TeamTabType.WebSite:
                                 {
+                                    EnsureDynamicParameters(documentLibraryParameters);
                                     contentUrl = documentLibraryParameters.ContentUrl;
+                                    break;
+                                }
+                            case TeamTabType.SharePointPageAndList:
+                                {
+                                    EnsureDynamicParameters(sharePointPageAndListParameters);
+                                    // Using a Regular Expression we'll define the URL to use within Teams allowing for automatic logon to the SharePoint Online component. Result will be a syntax similar to:
+                                    // https://contoso.sharepoint.com/sites/Marketing/_layouts/15/teamslogon.aspx?spfx=true&dest=https%3A%2F%2Fcontoso.sharepoint.com%2Fsites%2FMarketing%2FSitePages%2FHome.aspx
+                                    contentUrl = string.Concat(Regex.Replace(sharePointPageAndListParameters.WebsiteUrl, @"^(.*?://.*?/(?:(?:sites|teams)/.*?/)?)(.*)", "$1", RegexOptions.IgnoreCase), "_layouts/15/teamslogon.aspx?spfx=true&dest=", UrlUtilities.UrlEncode(sharePointPageAndListParameters.WebsiteUrl));
+                                    webSiteUrl = sharePointPageAndListParameters.WebsiteUrl;
                                     break;
                                 }
                             case TeamTabType.Custom:
                                 {
+                                    EnsureDynamicParameters(customParameters);
                                     entityId = customParameters.EntityId;
                                     contentUrl = customParameters.ContentUrl;
                                     removeUrl = customParameters.RemoveUrl;
-                                    webSiteUrl = customParameters.WebSiteUrl;
+                                    webSiteUrl = customParameters.WebsiteUrl;
                                     teamsAppId = customParameters.TeamsAppId;
                                     break;
                                 }
                         }
-                        WriteObject(TeamsUtility.AddTabAsync(Connection, AccessToken, groupId, channelId, DisplayName, Type, teamsAppId, entityId, contentUrl, removeUrl, webSiteUrl).GetAwaiter().GetResult());
+                        WriteObject(TeamsUtility.AddTab(GraphRequestHelper, groupId, channelId, DisplayName, Type, teamsAppId, entityId, contentUrl, removeUrl, webSiteUrl));
                     }
                     catch (GraphException ex)
                     {
@@ -123,7 +142,14 @@ namespace PnP.PowerShell.Commands.Graph
             {
                 throw new PSArgumentException("Group not found");
             }
+        }
 
+        private void EnsureDynamicParameters(object dynamicParameters)
+        {
+            if (dynamicParameters == null)
+            {
+                throw new PSArgumentException($"Please specify the parameter -{nameof(Type)} when invoking this cmdlet", nameof(Type));
+            }
         }
 
         public class OfficeFileParameters
@@ -156,7 +182,13 @@ namespace PnP.PowerShell.Commands.Graph
             public string RemoveUrl;
 
             [Parameter(Mandatory = false)]
-            public string WebSiteUrl;
+            public string WebsiteUrl;
+        }
+
+        public class SharePointPageAndListParameters
+        {
+            [Parameter(Mandatory = true)]
+            public string WebsiteUrl;
         }
     }
 }

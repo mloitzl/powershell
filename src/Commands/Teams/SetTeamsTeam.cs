@@ -1,5 +1,4 @@
-﻿using PnP.Framework.Provisioning.Model.Teams;
-using PnP.PowerShell.Commands.Attributes;
+﻿using PnP.PowerShell.Commands.Attributes;
 using PnP.PowerShell.Commands.Base;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 using PnP.PowerShell.Commands.Model.Graph;
@@ -8,10 +7,10 @@ using PnP.PowerShell.Commands.Utilities;
 using System;
 using System.Management.Automation;
 
-namespace PnP.PowerShell.Commands.Graph
+namespace PnP.PowerShell.Commands.Teams
 {
     [Cmdlet(VerbsCommon.Set, "PnPTeamsTeam")]
-    [RequiredMinimalApiPermissions("Group.ReadWrite.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/Group.ReadWrite.All")]
     public class SetTeamsTeam : PnPGraphCmdlet
     {
         [Parameter(Mandatory = true, ValueFromPipeline = true)]
@@ -72,7 +71,7 @@ namespace PnP.PowerShell.Commands.Graph
         public bool? AllowUserEditMessages;
 
         [Parameter(Mandatory = false, ParameterSetName = ParameterAttribute.AllParameterSets)]
-        public Model.Teams.TeamGiphyContentRating GiphyContentRating;
+        public TeamGiphyContentRating GiphyContentRating;
 
         [Parameter(Mandatory = false, ParameterSetName = ParameterAttribute.AllParameterSets)]
         public bool? ShowInTeamsSearchAndSuggestions;
@@ -82,14 +81,15 @@ namespace PnP.PowerShell.Commands.Graph
 
         [Parameter(Mandatory = false, ParameterSetName = ParameterAttribute.AllParameterSets)]
         public bool? AllowCreatePrivateChannels;
+
         protected override void ExecuteCmdlet()
         {
-            var groupId = Identity.GetGroupId(Connection, AccessToken);
+            var groupId = Identity.GetGroupId(GraphRequestHelper);
             if (groupId != null)
             {
                 try
                 {
-                    var team = TeamsUtility.GetTeamAsync(AccessToken, Connection, groupId).GetAwaiter().GetResult();
+                    var team = TeamsUtility.GetTeam(GraphRequestHelper, groupId);
                     var updateGroup = false;
                     var group = new Group();
                     if (team != null)
@@ -123,9 +123,9 @@ namespace PnP.PowerShell.Commands.Graph
                         }
                         team.IsArchived = null; // cannot update this value;
 
-                        if(updateGroup)
+                        if (updateGroup)
                         {
-                            TeamsUtility.UpdateGroupAsync(Connection, AccessToken, groupId, group).GetAwaiter().GetResult();
+                            TeamsUtility.UpdateGroup(GraphRequestHelper, groupId, group);
                         }
 
                         var teamCI = new TeamCreationInformation();
@@ -145,9 +145,9 @@ namespace PnP.PowerShell.Commands.Graph
                         teamCI.AllowUserDeleteMessages = ParameterSpecified(nameof(AllowUserDeleteMessages)) ? AllowUserDeleteMessages : null;
                         teamCI.AllowUserEditMessages = ParameterSpecified(nameof(AllowUserEditMessages)) ? AllowUserEditMessages : null;
                         teamCI.Classification = ParameterSpecified(nameof(Classification)) ? Classification : null;
-                        teamCI.AllowCreatePrivateChannels = ParameterSpecified(nameof(AllowCreatePrivateChannels)) ? AllowCreatePrivateChannels : null;                        
+                        teamCI.AllowCreatePrivateChannels = ParameterSpecified(nameof(AllowCreatePrivateChannels)) ? AllowCreatePrivateChannels : null;
 
-                        var updated = TeamsUtility.UpdateTeamAsync(Connection, AccessToken, groupId, teamCI.ToTeam(group.Visibility)).GetAwaiter().GetResult();
+                        var updated = TeamsUtility.UpdateTeam(GraphRequestHelper, groupId, teamCI.ToTeam(group.Visibility.Value));
                         WriteObject(updated);
                     }
                 }

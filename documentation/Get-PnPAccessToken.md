@@ -10,17 +10,38 @@ title: Get-PnPAccessToken
 # Get-PnPAccessToken
 
 ## SYNOPSIS
-Returns the current Microsoft Graph OAuth Access token. 
+Returns the current Microsoft Graph OAuth Access token.
 If a Resource Type Name or Resource URL is specified, it will fetch the access token of the specified resource.
 
 ## SYNTAX
 
+### Graph Token
+
 ```powershell
-Get-PnPAccessToken [-ResourceTypeName] [-ResourceUrl] [-Decoded] [-Connection <PnPConnection>] [<CommonParameters>]
+Get-PnPAccessToken [-ResourceTypeName] [-Decoded] [-Scopes] [-Connection <PnPConnection>]
 ```
 
+### Specific resource by type
+
+```powershell
+Get-PnPAccessToken -ResourceTypeName <ResourceTypeName> [-Decoded] [-Scopes] [-Connection <PnPConnection>]
+```
+
+### Specific resource by URL
+
+```powershell
+Get-PnPAccessToken -ResourceUrl <String> [-Decoded] [-Scopes] [-Connection <PnPConnection>]
+```
+
+### List Permission Scopes in current access token
+
+```powershell
+Get-PnPAccessToken -ListPermissionScopes [-ResourceTypeName <String>]
+```
+
+
 ## DESCRIPTION
-Gets the OAuth 2.0 Access Token to consume the Microsoft Graph API. Doesn't work with all Connect-PnPOnline options. To retrieve the SharePoint Online access token, instead use `Get-PnPAppAuthAccessToken`.
+Returns the OAuth 2.0 Access Token.
 
 ## EXAMPLES
 
@@ -59,6 +80,13 @@ Get-PnPAccessToken -ResourceUrl "https://management.azure.com/.default"
 
 Gets the OAuth 2.0 Access Token to consume the SharePoint APIs and perform CSOM operations.
 
+### EXAMPLE 6
+```powershell
+Get-PnPAccessToken -ListPermissionScopes
+```
+
+Lists the current permission scopes for the Microsoft Graph API on the access token. Specify -ResourceTypeName to list permissions for other resource types, like SharePoint.
+
 ## PARAMETERS
 
 ### -ResourceTypeName
@@ -95,7 +123,7 @@ Returns the details from the access token in a decoded manner
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: Default (decoded), Resource Type Name (decoded), Resource Url (decoded)
+Parameter Sets: Resource Type Name (decoded), Resource Url (decoded)
 
 Required: False
 Position: Named
@@ -112,6 +140,33 @@ Type: PnPConnection
 Parameter Sets: (All)
 
 Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Scopes
+The scopes to retrieve the token for. Defaults to AllSites.FullControl
+
+```yaml
+Type: String[]
+Parameter Sets: (All)
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ListPermissionScopes
+If specified the current permission scopes on the access token will be listed
+
+```yaml
+Type: SwitchParameter
+Parameters Set: List Permission Scopes
+Required: True
 Position: Named
 Default value: None
 Accept pipeline input: False

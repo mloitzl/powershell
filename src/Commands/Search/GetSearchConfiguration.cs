@@ -11,7 +11,6 @@ using System.Dynamic;
 using Microsoft.SharePoint.Client;
 using Microsoft.SharePoint.Client.Search.Administration;
 using Microsoft.SharePoint.Client.Search.Portability;
-
 using PnP.PowerShell.Commands.Enums;
 using PnP.PowerShell.Commands.Utilities.REST;
 using Resources = PnP.PowerShell.Commands.Properties.Resources;
@@ -180,7 +179,7 @@ namespace PnP.PowerShell.Commands.Search
                         
                         if (promoResult.IsVisual && ExcludeVisualPromotedResults)
                         {
-                            WriteWarning($"Skipping visual promoted result {bookmark.Title} ({bookmark.Url})");
+                            LogWarning($"Skipping visual promoted result {bookmark.Title} ({bookmark.Url})");
                             continue;
                         }
                         
@@ -190,7 +189,7 @@ namespace PnP.PowerShell.Commands.Search
                         {
                             if (condition.Terms == null || condition.QueryConditionType != "Keyword")
                             {
-                                WriteWarning($"Skipping {bookmark.Title} due to no trigger conditions");
+                                LogWarning($"Skipping {bookmark.Title} due to no trigger conditions");
                                 continue;
                             }
 
@@ -206,7 +205,7 @@ namespace PnP.PowerShell.Commands.Search
                         }
                         if (triggerTerms.Count == 0)
                         {
-                            WriteWarning($"Skipping {bookmark.Title} due to no trigger terms");
+                            LogWarning($"Skipping {bookmark.Title} due to no trigger terms");
                             continue;
                         }
 

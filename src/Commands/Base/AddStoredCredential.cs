@@ -1,14 +1,11 @@
 ﻿using System.Management.Automation;
 using System.Security;
-using PnP.Framework.Utilities;
-
-using PnP.PowerShell.Commands.Enums;
 
 namespace PnP.PowerShell.Commands.Base
 {
     [Cmdlet(VerbsCommon.Add, "PnPStoredCredential")]
     [OutputType(typeof(void))]
-    public class AddStoredCredential : PSCmdlet
+    public class AddStoredCredential : BasePSCmdlet
     {
         [Parameter(Mandatory = true)]
         public string Name;

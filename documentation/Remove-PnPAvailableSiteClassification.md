@@ -20,10 +20,12 @@ Removes one or more existing classic site classification values from the list of
 ## SYNTAX
 
 ```powershell
-Remove-PnPAvailableSiteClassification -Classifications <System.Collections.Generic.List`1[System.String]> [<CommonParameters>]
+Remove-PnPAvailableSiteClassification -Classifications <System.Collections.Generic.List`1[System.String]> 
 ```
 
 ## DESCRIPTION
+
+Allows to remove existing classic site classification values.
 
 ## EXAMPLES
 
@@ -56,7 +58,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Confirm
+### -Force
 If provided or set to $true, a confirmation will be asked before the actual remove takes place. If omitted or set to $false, it will remove the site classification(s) without asking for confirmation.
 
 ```yaml

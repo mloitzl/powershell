@@ -1,11 +1,11 @@
-﻿using System.Linq;
-using System.Management.Automation;
-using Microsoft.SharePoint.Client;
+﻿using System.Management.Automation;
+using PnP.PowerShell.Commands.Base.Completers;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 
 namespace PnP.PowerShell.Commands.Principals
 {
     [Cmdlet(VerbsCommon.Set, "PnPGroupPermissions")]
+    [OutputType(typeof(void))]
     public class SetGroupPermissions : PnPWebCmdlet
     {
         [Parameter(Mandatory = true, Position = 0, ValueFromPipeline = true, ParameterSetName = "By Identity")]
@@ -13,6 +13,7 @@ namespace PnP.PowerShell.Commands.Principals
 
         [Parameter(Mandatory = false)]
         [ValidateNotNullOrEmpty]
+        [ArgumentCompleter(typeof(ListNameCompleter))]
         public ListPipeBind List;
 
         [Parameter(Mandatory = false)]
@@ -23,7 +24,8 @@ namespace PnP.PowerShell.Commands.Principals
 
         protected override void ExecuteCmdlet()
         {
-            var group = Identity.GetGroup(PnPContext);
+            var pnpContext = Connection.PnPContext;
+            var group = Identity.GetGroup(pnpContext);
 
             if (group == null)
                 throw new PSArgumentException("Site group not found", nameof(Identity));
@@ -31,7 +33,7 @@ namespace PnP.PowerShell.Commands.Principals
             PnP.Core.Model.SharePoint.IList list = null;
             if (ParameterSpecified(nameof(List)))
             {
-                list = List.GetListOrThrow(nameof(List), PnPContext);
+                list = List.GetListOrThrow(nameof(List), pnpContext);
             }
             if (AddRole != null)
             {

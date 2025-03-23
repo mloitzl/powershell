@@ -10,16 +10,18 @@ online version: https://pnp.github.io/powershell/cmdlets/Unpublish-PnPApp.html
 # Unpublish-PnPApp
 
 ## SYNOPSIS
-Unpublishes/retracts an available add-in from the app catalog
+Unpublishes/retracts an available add-in from the app catalog.
 
 ## SYNTAX
 
 ```powershell
-Unpublish-PnPApp [-Identity] <AppMetadataPipeBind> [-Scope <AppCatalogScope>] [-Connection <PnPConnection>]
- [<CommonParameters>]
+Unpublish-PnPApp [-Identity] <AppMetadataPipeBind> [-Scope <AppCatalogScope>] [-Connection <PnPConnection>] [-Force <SwitchParameter>]
+ 
 ```
 
 ## DESCRIPTION
+
+Allows to unpublish an available add-in from the site collection app catalog or tenant app catalog.
 
 ## EXAMPLES
 
@@ -28,14 +30,14 @@ Unpublish-PnPApp [-Identity] <AppMetadataPipeBind> [-Scope <AppCatalogScope>] [-
 Unpublish-PnPApp -Identity 99a00f6e-fb81-4dc7-8eac-e09c6f9132fe
 ```
 
-This will retract, but not remove, the specified app from the tenant app catalog
+This will retract, but not remove, the specified app from the tenant app catalog.
 
 ### EXAMPLE 2
 ```powershell
 Unpublish-PnPApp -Identity 99a00f6e-fb81-4dc7-8eac-e09c6f9132fe -Scope Site
 ```
 
-This will retract, but not remove, the specified app from the site collection app catalog
+This will retract, but not remove, the specified app from the site collection app catalog.
 
 ## PARAMETERS
 
@@ -54,7 +56,7 @@ Accept wildcard characters: False
 ```
 
 ### -Identity
-Specifies the Id of the Addin Instance
+Specifies the Id of the Addin Instance.
 
 ```yaml
 Type: AppMetadataPipeBind
@@ -68,12 +70,26 @@ Accept wildcard characters: False
 ```
 
 ### -Scope
-Defines which app catalog to use. Defaults to Tenant
+Defines which app catalog to use. Defaults to Tenant.
 
 ```yaml
 Type: AppCatalogScope
 Parameter Sets: (All)
 Accepted values: Tenant, Site
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Force
+If provided, no confirmation will be asked to change no-script setting.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
 
 Required: False
 Position: Named

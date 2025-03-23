@@ -2,7 +2,6 @@
 using System.Management.Automation;
 using Microsoft.SharePoint.Client;
 using PnP.Framework;
-
 using PnP.PowerShell.Commands.Base;
 using Resources = PnP.PowerShell.Commands.Properties.Resources;
 
@@ -10,7 +9,7 @@ namespace PnP.PowerShell.Commands.RecycleBin
 {
     [Cmdlet(VerbsCommon.Clear, "PnPTenantRecycleBinItem")]
     [OutputType(typeof(void))]
-    public class ClearTenantRecycleBinItem : PnPAdminCmdlet
+    public class ClearTenantRecycleBinItem : PnPSharePointOnlineAdminCmdlet
     {
         [Parameter(Mandatory = true, ValueFromPipeline = false)]
         public string Url;

@@ -15,11 +15,12 @@ Returns the available apps from the app catalog
 ## SYNTAX
 
 ```powershell
-Get-PnPApp [[-Identity] <AppMetadataPipeBind>] [-Scope <AppCatalogScope>] [-Connection <PnPConnection>]
- [<CommonParameters>]
+Get-PnPApp [-Identity <AppMetadataPipeBind>] [-Scope <AppCatalogScope>] [-Connection <PnPConnection>]
 ```
 
 ## DESCRIPTION
+
+Allows to retrieve available apps from the app catalog. In order to get apps from site collection scoped app catalog set `Scope` option to `Site`.
 
 ## EXAMPLES
 

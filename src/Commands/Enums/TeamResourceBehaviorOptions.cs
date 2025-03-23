@@ -5,6 +5,7 @@ namespace PnP.PowerShell.Commands.Enums
     /// <summary>
     /// All allowed options for providing ResourceBehaviorOptions when creating a Microsoft Teams team
     /// </summary>
+    /// <remarks>Documentation: https://learn.microsoft.com/graph/group-set-options#configure-groups</remarks>
     [Flags()]
     public enum TeamResourceBehaviorOptions
     {
@@ -26,6 +27,21 @@ namespace PnP.PowerShell.Commands.Enums
         /// <summary>
         /// Do not send out the out of the box welcome e-mail to members getting added to the Microsoft Teams team
         /// </summary>
-        WelcomeEmailDisabled
+        WelcomeEmailDisabled,
+
+        /// <summary>
+        /// Members are not subscribed to the group's calendar events in Outlook.
+        /// </summary>
+        SubscribeMembersToCalendarEventsDisabled,
+
+        /// <summary>
+        /// Changes made to the group in Exchange Online are not synced back to on-premises Active Directory.
+        /// </summary>
+        ConnectorsDisabled,
+
+        /// <summary>
+        /// Members can view the group calendar in Outlook but cannot make changes.
+        /// </summary>
+        CalendarMemberReadOnly
     }
 }

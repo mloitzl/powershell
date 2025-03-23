@@ -1,12 +1,12 @@
 ﻿using PnP.Framework.Sites;
-
 using System;
 using System.Management.Automation;
 
 namespace PnP.PowerShell.Commands.Site
 {
     [Cmdlet(VerbsLifecycle.Enable, "PnPCommSite")]
-    public class EnableCommSite: PnPSharePointCmdlet
+    [OutputType(typeof(void))]
+    public class EnableCommSite : PnPSharePointCmdlet
     {
         [Parameter(Mandatory = false, ValueFromPipeline = true, Position = 0)]
         public string DesignPackageId;

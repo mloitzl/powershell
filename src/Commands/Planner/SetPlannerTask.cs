@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
 using PnP.PowerShell.Commands.Attributes;
@@ -11,7 +12,9 @@ using PnP.PowerShell.Commands.Utilities.REST;
 namespace PnP.PowerShell.Commands.Planner
 {
     [Cmdlet(VerbsCommon.Set, "PnPPlannerTask")]
-    [RequiredMinimalApiPermissions("Group.ReadWrite.All")]
+    [RequiredApiApplicationPermissions("graph/Tasks.ReadWrite")]
+    [RequiredApiApplicationPermissions("graph/Tasks.ReadWrite.All")]
+    [RequiredApiApplicationPermissions("graph/Group.ReadWrite.All")]
     public class SetPlannerTask : PnPGraphCmdlet
     {
         [Parameter(Mandatory = true)]
@@ -43,7 +46,7 @@ namespace PnP.PowerShell.Commands.Planner
 
         protected override void ExecuteCmdlet()
         {
-            var existingTask = PlannerUtility.GetTaskAsync(Connection, AccessToken, TaskId, false, false).GetAwaiter().GetResult();
+            var existingTask = PlannerUtility.GetTask(GraphRequestHelper, TaskId, false, false);
             if (existingTask != null)
             {
                 var plannerTask = new PlannerTask();
@@ -53,7 +56,7 @@ namespace PnP.PowerShell.Commands.Planner
                 }
                 if (ParameterSpecified(nameof(Bucket)))
                 {
-                    var bucket = Bucket.GetBucket(Connection, AccessToken, existingTask.PlanId);
+                    var bucket = Bucket.GetBucket(GraphRequestHelper, existingTask.PlanId);
                     if (bucket != null)
                     {
                         plannerTask.BucketId = bucket.Id;
@@ -86,15 +89,25 @@ namespace PnP.PowerShell.Commands.Planner
 
                 if (ParameterSpecified(nameof(AssignedTo)))
                 {
+                    var errors = new List<Exception>();
+
                     plannerTask.Assignments = new System.Collections.Generic.Dictionary<string, TaskAssignment>();
-                    var chunks = BatchUtility.Chunk(AssignedTo, 20);
+                    var chunks = GraphBatchUtility.Chunk(AssignedTo, 20);
                     foreach (var chunk in chunks)
                     {
-                        var userIds = BatchUtility.GetPropertyBatchedAsync(Connection, AccessToken, chunk.ToArray(), "/users/{0}", "id").GetAwaiter().GetResult();
-                        foreach (var userId in userIds)
+                        var userIds = GraphBatchUtility.GetPropertyBatched(GraphRequestHelper, chunk.ToArray(), "/users/{0}", "id");
+                        foreach (var userId in userIds.Results)
                         {
                             plannerTask.Assignments.Add(userId.Value, new TaskAssignment());
                         }
+                        if(userIds.Errors.Any())
+                        {
+                            errors.AddRange(userIds.Errors);
+                        }
+                    }
+                    if(errors.Any())
+                    {
+                        throw new AggregateException($"{errors.Count} error(s) occurred in a Graph batch request", errors);
                     }
                     foreach (var existingAssignment in existingTask.Assignments)
                     {
@@ -106,12 +119,12 @@ namespace PnP.PowerShell.Commands.Planner
                 }
 
 
-                PlannerUtility.UpdateTaskAsync(Connection, AccessToken, existingTask, plannerTask).GetAwaiter().GetResult();
+                PlannerUtility.UpdateTask(GraphRequestHelper, existingTask, plannerTask);
 
                 if (ParameterSpecified(nameof(Description)))
                 {
-                    var existingTaskDetails = PlannerUtility.GetTaskDetailsAsync(Connection, AccessToken, TaskId, false).GetAwaiter().GetResult();
-                    PlannerUtility.UpdateTaskDetailsAsync(Connection, AccessToken, existingTaskDetails, Description).GetAwaiter().GetResult();
+                    var existingTaskDetails = PlannerUtility.GetTaskDetails(GraphRequestHelper, TaskId, false);
+                    PlannerUtility.UpdateTaskDetails(GraphRequestHelper, existingTaskDetails, Description);
                 }
             }
             else

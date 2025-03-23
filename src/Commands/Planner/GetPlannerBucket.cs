@@ -7,7 +7,12 @@ using PnP.PowerShell.Commands.Utilities;
 namespace PnP.PowerShell.Commands.Planner
 {
     [Cmdlet(VerbsCommon.Get, "PnPPlannerBucket")]
-    [RequiredMinimalApiPermissions("Group.Read.All")]
+    [RequiredApiApplicationPermissions("graph/Tasks.Read")]
+    [RequiredApiApplicationPermissions("graph/Tasks.ReadWrite")]
+    [RequiredApiApplicationPermissions("graph/Tasks.Read.All")]
+    [RequiredApiApplicationPermissions("graph/Tasks.ReadWrite.All")]
+    [RequiredApiApplicationPermissions("graph/Group.Read.All")]
+    [RequiredApiApplicationPermissions("graph/Group.ReadWrite.All")]
     public class GetPlannerBucket : PnPGraphCmdlet
     {
         private const string ParameterName_BYGROUP = "By Group";
@@ -29,19 +34,19 @@ namespace PnP.PowerShell.Commands.Planner
         {
             if (ParameterSetName == ParameterName_BYGROUP)
             {
-                var groupId = Group.GetGroupId(Connection, AccessToken);
+                var groupId = Group.GetGroupId(GraphRequestHelper);
                 if (groupId != null)
                 {
-                    var planId = Plan.GetIdAsync(Connection, AccessToken, groupId).GetAwaiter().GetResult();
+                    var planId = Plan.GetId(GraphRequestHelper, groupId);
                     if (planId != null)
                     {
                         if (!ParameterSpecified(nameof(Identity)))
                         {
-                            WriteObject(PlannerUtility.GetBucketsAsync(Connection, AccessToken, planId).GetAwaiter().GetResult(), true);
+                            WriteObject(PlannerUtility.GetBuckets(GraphRequestHelper, planId), true);
                         }
                         else
                         {
-                            WriteObject(Identity.GetBucket(Connection, AccessToken, planId));
+                            WriteObject(Identity.GetBucket(GraphRequestHelper, planId));
                         }
                     }
                     else
@@ -56,7 +61,7 @@ namespace PnP.PowerShell.Commands.Planner
             }
             else
             {
-                WriteObject(PlannerUtility.GetBucketsAsync(Connection, AccessToken, PlanId).GetAwaiter().GetResult(), true);
+                WriteObject(PlannerUtility.GetBuckets(GraphRequestHelper, PlanId), true);
             }
         }
     }

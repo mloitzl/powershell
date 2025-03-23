@@ -7,7 +7,7 @@ using PnP.PowerShell.Commands.Base.PipeBinds;
 namespace PnP.PowerShell.Commands.Admin
 {
     [Cmdlet(VerbsCommon.Remove, "PnPSiteUserInvitations")]
-    public class RemoveSiteUserInvitations : PnPAdminCmdlet
+    public class RemoveSiteUserInvitations : PnPSharePointOnlineAdminCmdlet
     {
         [Parameter(Mandatory = false)]
         public SitePipeBind Site;
@@ -27,7 +27,7 @@ namespace PnP.PowerShell.Commands.Admin
                 url = Site.Url;
             }
             var invitations = Tenant.RemoveSPOTenantSiteUserInvitations(url, EmailAddress, CountOnly);
-            ClientContext.ExecuteQueryRetry();
+            AdminContext.ExecuteQueryRetry();
             WriteObject(invitations, true);
         }
     }

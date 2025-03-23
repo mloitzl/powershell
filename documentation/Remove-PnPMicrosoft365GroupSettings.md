@@ -20,10 +20,12 @@ Removes Microsoft 365 Group settings from the tenant or the specified Microsoft 
 ## SYNTAX
 
 ```powershell
-Remove-PnPMicrosoft365GroupSettings -Identity <string> -Group <Microsoft365GroupPipeBind>  [<CommonParameters>]
+Remove-PnPMicrosoft365GroupSettings -Identity <string> -Group <Microsoft365GroupPipeBind>  
 ```
 
 ## DESCRIPTION
+
+Allows to remove Microsoft 365 Group settings from the tenant or the specified group.
 
 ## EXAMPLES
 
@@ -74,5 +76,5 @@ Accept wildcard characters: False
 ## RELATED LINKS
 
 [Microsoft 365 Patterns and Practices](https://aka.ms/m365pnp)
-[Microsoft Graph documentation](https://docs.microsoft.com/graph/api/groupsetting-delete)
+[Microsoft Graph documentation](https://learn.microsoft.com/graph/api/groupsetting-delete)
 

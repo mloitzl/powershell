@@ -1,6 +1,6 @@
 ---
 Module Name: PnP.PowerShell
-title: get-pnpplannertask
+title: Get-PnPPlannerTask
 schema: 2.0.0
 applicable: SharePoint Online
 external help file: PnP.PowerShell.dll-Help.xml
@@ -13,8 +13,7 @@ online version: https://pnp.github.io/powershell/cmdlets/Get-PnPPlannerTask.html
 
 **Required Permissions**
 
-  * Microsoft Graph API: Group.ReadWrite.All
-  * Microsoft Graph API: Group.Read.All
+  * Microsoft Graph API: One of Tasks.Read, Tasks.ReadWrite, Tasks.Read.All, Tasks.ReadWrite.All, Group.Read.All, Group.ReadWrite.All
 
 Returns Planner tasks
 
@@ -23,23 +22,23 @@ Returns Planner tasks
 ### By Group
 ```powershell
 Get-PnPPlannerTask -Group <PlannerGroupPipeBind> -Plan <PlannerPlanPipeBind> [-ResolveUserDisplayNames]
-  [<CommonParameters>]
+  
 ```
 
 ### By Bucket
 ```powershell
 Get-PnPPlannerTask -Bucket <PlannerBucketPipeBind> [-ResolveUserDisplayNames] 
- [<CommonParameters>]
+ 
 ```
 
 ### By Plan Id
 ```powershell
-Get-PnPPlannerTask -PlanId <String> [-ResolveUserDisplayNames]  [<CommonParameters>]
+Get-PnPPlannerTask -PlanId <String> [-ResolveUserDisplayNames]  
 ```
 
 ### By Task Id
 ```powershell
-Get-PnPPlannerTask -TaskId <String> [-ResolveUserDisplayNames]  [<CommonParameters>]
+Get-PnPPlannerTask -TaskId <String> [-ResolveUserDisplayNames]  
 ```
 
 ## DESCRIPTION
@@ -155,7 +154,7 @@ Accept wildcard characters: False
 ```
 
 ### -ResolveUserDisplayNames
-Will resolve userids to usernames
+Will resolve user id's to usernames
 
 ```yaml
 Type: SwitchParameter

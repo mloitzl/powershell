@@ -3,7 +3,7 @@ using System.Management.Automation;
 using Microsoft.SharePoint.Client;
 using Microsoft.SharePoint.Client.Taxonomy;
 using PnP.Framework.Entities;
-
+using PnP.PowerShell.Commands.Base.Completers;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 
 namespace PnP.PowerShell.Commands.Fields
@@ -13,6 +13,7 @@ namespace PnP.PowerShell.Commands.Fields
     public class AddTaxonomyField : PnPWebCmdlet
     {
         [Parameter(Mandatory = false, ParameterSetName = ParameterAttribute.AllParameterSets)]
+        [ArgumentCompleter(typeof(ListNameCompleter))]
         public ListPipeBind List;
 
         [Parameter(Mandatory = true, ParameterSetName = ParameterAttribute.AllParameterSets)]
@@ -53,7 +54,7 @@ namespace PnP.PowerShell.Commands.Fields
         {
             TaxonomyItem taxItem;
             Field field;
-            
+
             if (ParameterSetName == "Path")
             {
                 taxItem = ClientContext.Site.GetTaxonomyItemByPath(TermSetPath, TermPathDelimiter);
@@ -65,19 +66,20 @@ namespace PnP.PowerShell.Commands.Fields
                 try
                 {
                     taxItem = termStore.GetTermSet(TaxonomyItemId);
+                    taxItem.EnsureProperty(t => t.Id);
                 }
                 catch
                 {
                     try
                     {
                         taxItem = termStore.GetTerm(TaxonomyItemId);
+                        taxItem.EnsureProperty(t => t.Id);
                     }
                     catch
                     {
                         throw new Exception($"Taxonomy Item with Id {TaxonomyItemId} not found");
                     }
                 }
-                taxItem.EnsureProperty(t => t.Id);
             }
 
             if (Id == Guid.Empty)
@@ -99,8 +101,8 @@ namespace PnP.PowerShell.Commands.Fields
 
             if (ParameterSpecified(nameof(FieldOptions)))
             {
-                fieldCI.FieldOptions = FieldOptions;                
-            }            
+                fieldCI.FieldOptions = FieldOptions;
+            }
 
             if (List != null)
             {

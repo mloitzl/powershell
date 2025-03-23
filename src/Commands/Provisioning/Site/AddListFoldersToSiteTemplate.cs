@@ -2,16 +2,11 @@
 using PnP.Framework.Provisioning.Model;
 using PnP.Framework.Provisioning.Providers;
 using PnP.Framework.Provisioning.Providers.Xml;
-using PnP.Framework.AppModelExtensions;
-
 using PnP.PowerShell.Commands.Base.PipeBinds;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Management.Automation;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.SharePoint.Client;
 using PnP.PowerShell.Commands.Utilities;
 
@@ -27,6 +22,7 @@ namespace PnP.PowerShell.Commands.Provisioning.Site
         [Parameter(Mandatory = true, Position = 2)]
         public ListPipeBind List;
 
+        [Alias("Recurse")]
         [Parameter(Mandatory = false, Position = 4)]
         public SwitchParameter Recursive;
 
@@ -46,7 +42,7 @@ namespace PnP.PowerShell.Commands.Provisioning.Site
             // Load the template
             var template = ProvisioningHelper.LoadSiteTemplateFromFile(Path, TemplateProviderExtensions, (e) =>
                 {
-                    WriteError(new ErrorRecord(e, "TEMPLATENOTVALID", ErrorCategory.SyntaxError, null));
+                    LogError(e);
                 });
 
             if (template == null)
@@ -62,8 +58,8 @@ namespace PnP.PowerShell.Commands.Provisioning.Site
             var tokenParser = new Framework.Provisioning.ObjectHandlers.TokenParser(ClientContext.Web, template);
 
             //We will remove a list if it's found so we can get the list
-            ListInstance listInstance = template.Lists.Find(l => tokenParser.ParseString(l.Title) == spList.Title);            
-            
+            ListInstance listInstance = template.Lists.Find(l => tokenParser.ParseString(l.Title) == spList.Title);
+
             if (listInstance == null)
             {
                 throw new ApplicationException("List does not exist in the template file.");
@@ -158,6 +154,10 @@ namespace PnP.PowerShell.Commands.Provisioning.Site
                     var roleBindings = roleAssignment.RoleDefinitionBindings;
                     foreach (var roleBinding in roleBindings)
                     {
+                        if (roleBinding.Name == "Limited Access")
+                        {
+                            continue;
+                        }
                         retFolder.Security.RoleAssignments.Add(new PnP.Framework.Provisioning.Model.RoleAssignment() { Principal = principalName, RoleDefinition = roleBinding.Name });
                     }
                 }

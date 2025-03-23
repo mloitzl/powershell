@@ -10,16 +10,18 @@ online version: https://pnp.github.io/powershell/cmdlets/Set-PnPGraphSubscriptio
 # Set-PnPGraphSubscription
 
 ## SYNOPSIS
-Updates an existing Microsoft Graph subscription. Required Azure Active Directory application permission depends on the resource the subscription exists on, see https://docs.microsoft.com/graph/api/subscription-delete#permissions.
+Updates an existing Microsoft Graph subscription. Required Azure Active Directory application permission depends on the resource the subscription exists on, see https://learn.microsoft.com/graph/api/subscription-delete#permissions.
 
 ## SYNTAX
 
 ```powershell
-Set-PnPGraphSubscription -Identity <GraphSubscriptionPipeBind> -ExpirationDate <DateTime>
-  [<CommonParameters>]
+Set-PnPGraphSubscription -Identity <GraphSubscriptionPipeBind> -ExpirationDate <DateTime> [-Connection <PnPConnection>] 
+  
 ```
 
 ## DESCRIPTION
+
+Allows to update an existing Microsoft Graph subscription.
 
 ## EXAMPLES
 
@@ -28,12 +30,26 @@ Set-PnPGraphSubscription -Identity <GraphSubscriptionPipeBind> -ExpirationDate <
 Set-PnPGraphSubscription -Identity bc204397-1128-4911-9d70-1d8bceee39da -ExpirationDate "2020-11-22T18:23:45.9356913Z"
 ```
 
-Updates the Microsoft Graph subscription with the id 'bc204397-1128-4911-9d70-1d8bceee39da' to expire at the mentioned date
+Updates the Microsoft Graph subscription with the id 'bc204397-1128-4911-9d70-1d8bceee39da' to expire at the mentioned date.
 
 ## PARAMETERS
 
+### -Connection
+Optional connection to be used by the cmdlet. Retrieve the value for this parameter by either specifying -ReturnConnection on Connect-PnPOnline or by executing Get-PnPConnection.
+
+```yaml
+Type: PnPConnection
+Parameter Sets: (All)
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -ExpirationDate
-Date and time to set the expiration to. Take notice of the maximum allowed lifetime of the subscription endponts as documented at https://docs.microsoft.com/graph/api/resources/subscription#maximum-length-of-subscription-per-resource-type
+Date and time to set the expiration to. Take notice of the maximum allowed lifetime of the subscription endpoints as documented at https://learn.microsoft.com/graph/api/resources/subscription#maximum-length-of-subscription-per-resource-type
 
 ```yaml
 Type: DateTime
@@ -47,7 +63,7 @@ Accept wildcard characters: False
 ```
 
 ### -Identity
-The unique id or an instance of a Microsoft Graph Subscription
+The unique id or an instance of a Microsoft Graph Subscription.
 
 ```yaml
 Type: GraphSubscriptionPipeBind

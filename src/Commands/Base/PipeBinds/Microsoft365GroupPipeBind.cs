@@ -1,5 +1,6 @@
 ﻿using PnP.PowerShell.Commands.Model;
 using PnP.PowerShell.Commands.Utilities;
+using PnP.PowerShell.Commands.Utilities.REST;
 using System;
 using System.Management.Automation;
 
@@ -44,25 +45,25 @@ namespace PnP.PowerShell.Commands.Base.PipeBinds
 
         public Guid GroupId => _groupId;
 
-        public Microsoft365Group GetGroup(PnPConnection connection, string accessToken, bool includeSite, bool includeOwners)
+        public Microsoft365Group GetGroup(ApiRequestHelper requestHelper, bool includeSite, bool includeOwners, bool detailed, bool includeSensitivityLabels)
         {
             Microsoft365Group group = null;
             if (Group != null)
             {
-                group = Microsoft365GroupsUtility.GetGroupAsync(connection, _group.Id.Value, accessToken, includeSite, includeOwners).GetAwaiter().GetResult();
+                group = Microsoft365GroupsUtility.GetGroup(requestHelper, _group.Id.Value, includeSite, includeOwners, detailed, includeSensitivityLabels);
             }
             else if (_groupId != Guid.Empty)
             {
-                group = Microsoft365GroupsUtility.GetGroupAsync(connection, _groupId, accessToken, includeSite, includeOwners).GetAwaiter().GetResult();
+                group = Microsoft365GroupsUtility.GetGroup(requestHelper, _groupId, includeSite, includeOwners, detailed, includeSensitivityLabels);
             }
             else if (!string.IsNullOrEmpty(DisplayName))
             {
-                group = Microsoft365GroupsUtility.GetGroupAsync(connection, DisplayName, accessToken, includeSite, includeOwners).GetAwaiter().GetResult();
+                group = Microsoft365GroupsUtility.GetGroup(requestHelper, DisplayName, includeSite, includeOwners, detailed, includeSensitivityLabels);
             }
             return group;
         }
 
-        public Guid GetGroupId(PnPConnection connection, string accessToken)
+        public Guid GetGroupId(ApiRequestHelper requestHelper)
         {
             if (Group != null)
             {
@@ -74,7 +75,7 @@ namespace PnP.PowerShell.Commands.Base.PipeBinds
             }
             else if (!string.IsNullOrEmpty(DisplayName))
             {
-                var group = Microsoft365GroupsUtility.GetGroupAsync(connection, DisplayName, accessToken, false, false).GetAwaiter().GetResult();
+                var group = Microsoft365GroupsUtility.GetGroup(requestHelper, DisplayName, false, false, false, false);
                 if (group != null)
                 {
                     return group.Id.Value;
@@ -83,24 +84,24 @@ namespace PnP.PowerShell.Commands.Base.PipeBinds
             throw new PSInvalidOperationException("Group not found");
         }
 
-        public Microsoft365Group GetDeletedGroup(PnPConnection connection, string accessToken)
+        public Microsoft365Group GetDeletedGroup(ApiRequestHelper requestHelper)
         {
             if (_group != null)
             {
-                return Microsoft365GroupsUtility.GetDeletedGroupAsync(connection, _group.Id.Value, accessToken).GetAwaiter().GetResult();
+                return Microsoft365GroupsUtility.GetDeletedGroup(requestHelper, _group.Id.Value);
             }
             else if (_groupId != Guid.Empty)
             {
-                return Microsoft365GroupsUtility.GetDeletedGroupAsync(connection, _groupId, accessToken).GetAwaiter().GetResult();
+                return Microsoft365GroupsUtility.GetDeletedGroup(requestHelper, _groupId);
             }
             else if (!string.IsNullOrEmpty(_displayName))
             {
-                return Microsoft365GroupsUtility.GetDeletedGroupAsync(connection, _displayName, accessToken).GetAwaiter().GetResult();
+                return Microsoft365GroupsUtility.GetDeletedGroup(requestHelper, _displayName);
             }
             return null;
         }
 
-        public Guid GetDeletedGroupId(PnPConnection connection, string accessToken)
+        public Guid GetDeletedGroupId(ApiRequestHelper requestHelper)
         {
             if (_group != null)
             {
@@ -112,7 +113,7 @@ namespace PnP.PowerShell.Commands.Base.PipeBinds
             }
             else if (!string.IsNullOrEmpty(_displayName))
             {
-                var group = Microsoft365GroupsUtility.GetDeletedGroupAsync(connection, _displayName, accessToken).GetAwaiter().GetResult();
+                var group = Microsoft365GroupsUtility.GetDeletedGroup(requestHelper, _displayName);
                 if (group != null)
                 {
                     return group.Id.Value;

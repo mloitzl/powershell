@@ -20,10 +20,12 @@ Unpublishes a content type present on content type hub site.
 ## SYNTAX
 
 ```powershell
-Unpublish-PnPContentType -ContentType <ContentTypePipeBind> [-Connection <PnPConnection>] [<CommonParameters>]
+Unpublish-PnPContentType -ContentType <ContentTypePipeBind> [-Connection <PnPConnection>] 
 ```
 
 ## DESCRIPTION
+
+Allows to unpublish a content type present on content type hub site.
 
 ## EXAMPLES
 

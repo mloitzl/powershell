@@ -5,34 +5,54 @@ using PnP.PowerShell.Commands.Model.Graph;
 using PnP.PowerShell.Commands.Utilities;
 using System.Management.Automation;
 
-namespace PnP.PowerShell.Commands.Graph
+namespace PnP.PowerShell.Commands.Teams
 {
     [Cmdlet(VerbsCommon.Remove, "PnPTeamsUser")]
-    [RequiredMinimalApiPermissions("Group.ReadWrite.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/Group.Read.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/Group.ReadWrite.All")]
+    [RequiredApiDelegatedOrApplicationPermissions("graph/TeamMember.ReadWrite.All")]
     public class RemoveTeamsUser : PnPGraphCmdlet
     {
-        [Parameter(Mandatory = true)]
+        const string ParamSet_ByUser = "By User";
+        const string ParamSet_ByMultipleUsers = "By Multiple Users";
+
+        [Parameter(Mandatory = true, ParameterSetName = ParamSet_ByUser)]
+        [Parameter(Mandatory = true, ParameterSetName = ParamSet_ByMultipleUsers)]
         public TeamsTeamPipeBind Team;
 
-        [Parameter(Mandatory = true)]
+        [Parameter(Mandatory = true, ParameterSetName = ParamSet_ByUser)]
         public string User;
 
-        [Parameter(Mandatory = false)]
+        [Parameter(Mandatory = true, ParameterSetName = ParamSet_ByMultipleUsers)]
+        public string[] Users;
+
+        [Parameter(Mandatory = false, ParameterSetName = ParamSet_ByUser)]
         public string Role = "Member";
 
-        [Parameter(Mandatory = false)]
+        [Parameter(Mandatory = false, ParameterSetName = ParamSet_ByUser)]
+        [Parameter(Mandatory = false, ParameterSetName = ParamSet_ByMultipleUsers)]
         public SwitchParameter Force;
 
         protected override void ExecuteCmdlet()
         {
-            var groupId = Team.GetGroupId(Connection, AccessToken);
+            var groupId = Team.GetGroupId(GraphRequestHelper);
             if (groupId != null)
             {
                 try
                 {
-                    if (Force || ShouldContinue($"Remove user with UPN {User}?", Properties.Resources.Confirm))
+                    if (ParameterSetName == ParamSet_ByUser)
                     {
-                        TeamsUtility.DeleteUserAsync(Connection, AccessToken, groupId, User, Role).GetAwaiter().GetResult();
+                        if (Force || ShouldContinue($"Remove user with UPN {User}?", Properties.Resources.Confirm))
+                        {
+                            TeamsUtility.DeleteUser(GraphRequestHelper, groupId, User, Role);
+                        }
+                    }
+                    else
+                    {
+                        if (Force || ShouldContinue($"Remove specifed users from the team ?", Properties.Resources.Confirm))
+                        {
+                            TeamsUtility.DeleteUsers(GraphRequestHelper, groupId, Users, Role);
+                        }
                     }
                 }
                 catch (GraphException ex)

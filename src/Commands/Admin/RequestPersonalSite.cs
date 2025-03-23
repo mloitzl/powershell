@@ -5,7 +5,7 @@ using System.Management.Automation;
 namespace PnP.PowerShell.Commands.Admin
 {
     [Cmdlet(VerbsLifecycle.Request, "PnPPersonalSite")]
-    public class RequestPersonalSite : PnPAdminCmdlet
+    public class RequestPersonalSite : PnPSharePointOnlineAdminCmdlet
     {
         [Parameter(Mandatory = true, ValueFromPipeline = true)]
         [ValidateNotNull]
@@ -25,8 +25,8 @@ namespace PnP.PowerShell.Commands.Admin
                 }
             }
             var operation = this.Tenant.RequestPersonalSites(UserEmails);
-            ClientContext.Load(operation);
-            ClientContext.ExecuteQueryRetry();
+            AdminContext.Load(operation);
+            AdminContext.ExecuteQueryRetry();
             if (NoWait.IsPresent)
             {
                 PollOperation(operation);

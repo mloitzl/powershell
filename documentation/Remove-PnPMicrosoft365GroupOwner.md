@@ -21,10 +21,12 @@ Removes owners from a particular Microsoft 365 Group
 
 ```powershell
 Remove-PnPMicrosoft365GroupOwner -Identity <Microsoft365GroupPipeBind> -Users <String[]>
-  [<CommonParameters>]
+  
 ```
 
 ## DESCRIPTION
+
+Allows to remove owners from a specified Microsoft 365 Group.
 
 ## EXAMPLES
 
@@ -68,4 +70,4 @@ Accept wildcard characters: False
 ## RELATED LINKS
 
 [Microsoft 365 Patterns and Practices](https://aka.ms/m365pnp)
-[Microsoft Graph documentation](https://docs.microsoft.com/graph/api/group-delete-owners)
+[Microsoft Graph documentation](https://learn.microsoft.com/graph/api/group-delete-owners)

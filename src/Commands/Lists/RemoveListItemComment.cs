@@ -1,4 +1,5 @@
 ﻿using PnP.Core.QueryModel;
+using PnP.PowerShell.Commands.Base.Completers;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 using PnP.PowerShell.Commands.Properties;
 using System.Linq;
@@ -15,6 +16,7 @@ namespace PnP.PowerShell.Commands.Lists
 
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 0, ParameterSetName = ParameterSet_SINGLE)]
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 0, ParameterSetName = ParameterSet_Multiple)]
+        [ArgumentCompleter(typeof(ListNameCompleter))]
         public ListPipeBind List;
 
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 1, ParameterSetName = ParameterSet_SINGLE)]
@@ -33,7 +35,7 @@ namespace PnP.PowerShell.Commands.Lists
 
         protected override void ExecuteCmdlet()
         {
-            var list = List.GetList(PnPContext);
+            var list = List.GetList(Connection.PnPContext);
 
             if (list == null)
             {
@@ -47,7 +49,7 @@ namespace PnP.PowerShell.Commands.Lists
                 throw new PSArgumentException($"Cannot find list item provided through -{nameof(Identity)}", nameof(Identity));
             }
 
-            var commentsCollection = item.GetCommentsAsync().GetAwaiter().GetResult();
+            var commentsCollection = item.GetComments();
 
             var commentsEnumerable = commentsCollection.AsRequested();
 

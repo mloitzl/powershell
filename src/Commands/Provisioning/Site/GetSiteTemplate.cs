@@ -15,8 +15,6 @@ using PnP.PowerShell.Commands.Utilities;
 using System.Collections.Generic;
 using PnP.PowerShell.Commands.Base.PipeBinds;
 using PnP.Framework.Provisioning.Model.Configuration;
-using PnP.PowerShell.Commands.Base;
-using System.Threading.Tasks;
 using PnP.Framework.Provisioning.Providers.Markdown;
 
 
@@ -93,10 +91,6 @@ namespace PnP.PowerShell.Commands.Provisioning.Site
         public SwitchParameter Force;
 
         [Parameter(Mandatory = false)]
-        [Obsolete("Use of this method is generally not required/recommended")]
-        public SwitchParameter NoBaseTemplate;
-
-        [Parameter(Mandatory = false)]
         public System.Text.Encoding Encoding = System.Text.Encoding.Unicode;
 
         [Parameter(Mandatory = false)]
@@ -129,7 +123,7 @@ namespace PnP.PowerShell.Commands.Provisioning.Site
             }
             if (PersistMultiLanguageResources == false && ResourceFilePrefix != null)
             {
-                WriteWarning("In order to export resource files, also specify the PersistMultiLanguageResources switch");
+                LogWarning("In order to export resource files, also specify the PersistMultiLanguageResources switch");
             }
             if (!string.IsNullOrEmpty(Out))
             {
@@ -217,14 +211,26 @@ namespace PnP.PowerShell.Commands.Provisioning.Site
                 creationInformation.PersistBrandingFiles = PersistBrandingFiles;
             }
 #pragma warning restore 618
-            creationInformation.PersistPublishingFiles = PersistPublishingFiles;
-            creationInformation.IncludeNativePublishingFiles = IncludeNativePublishingFiles;
+            if (ParameterSpecified(nameof(PersistPublishingFiles)))
+            {
+                creationInformation.PersistPublishingFiles = PersistPublishingFiles;
+            }
+            if (ParameterSpecified(nameof(IncludeNativePublishingFiles)))
+            {
+                creationInformation.IncludeNativePublishingFiles = IncludeNativePublishingFiles;
+            }
             if (ParameterSpecified(nameof(IncludeSiteGroups)))
             {
                 creationInformation.IncludeSiteGroups = IncludeSiteGroups;
             }
-            creationInformation.IncludeTermGroupsSecurity = IncludeTermGroupsSecurity;
-            creationInformation.IncludeSearchConfiguration = IncludeSearchConfiguration;
+            if (ParameterSpecified(nameof(IncludeTermGroupsSecurity)))
+            {
+                creationInformation.IncludeTermGroupsSecurity = IncludeTermGroupsSecurity;
+            }
+            if (ParameterSpecified(nameof(IncludeSearchConfiguration)))
+            {
+                creationInformation.IncludeSearchConfiguration = IncludeSearchConfiguration;
+            }
             if (ParameterSpecified(nameof(IncludeHiddenLists)))
             {
                 creationInformation.IncludeHiddenLists = IncludeHiddenLists;
@@ -233,12 +239,18 @@ namespace PnP.PowerShell.Commands.Provisioning.Site
             {
                 creationInformation.IncludeAllClientSidePages = IncludeAllPages;
             }
-            creationInformation.SkipVersionCheck = SkipVersionCheck;
+            if (ParameterSpecified(nameof(SkipVersionCheck)))
+            {
+                creationInformation.SkipVersionCheck = SkipVersionCheck;
+            }
             if (ParameterSpecified(nameof(ContentTypeGroups)) && ContentTypeGroups != null)
             {
                 creationInformation.ContentTypeGroupsToInclude = ContentTypeGroups.ToList();
             }
-            creationInformation.PersistMultiLanguageResources = PersistMultiLanguageResources;
+            if (ParameterSpecified(nameof(PersistMultiLanguageResources)))
+            {
+                creationInformation.PersistMultiLanguageResources = PersistMultiLanguageResources;
+            }
             if (extension == ".pnp")
             {
                 // if file is of pnp format, persist all files
@@ -271,16 +283,7 @@ namespace PnP.PowerShell.Commands.Provisioning.Site
                 creationInformation.ExtensibilityHandlers = ExtensibilityHandlers.ToList();
             }
 
-#pragma warning disable CS0618 // Type or member is obsolete
-            if (NoBaseTemplate)
-            {
-                creationInformation.BaseTemplate = null;
-            }
-            else
-            {
-                creationInformation.BaseTemplate = CurrentWeb.GetBaseTemplate();
-            }
-#pragma warning restore CS0618 // Type or member is obsolete
+            creationInformation.BaseTemplate = CurrentWeb.GetBaseTemplate();
 
             creationInformation.ProgressDelegate = (message, step, total) =>
             {
@@ -295,7 +298,7 @@ namespace PnP.PowerShell.Commands.Provisioning.Site
                 {
                     case ProvisioningMessageType.Warning:
                         {
-                            WriteWarning(message);
+                            LogWarning(message);
                             break;
                         }
                     case ProvisioningMessageType.Progress:
@@ -387,7 +390,7 @@ namespace PnP.PowerShell.Commands.Provisioning.Site
                 }
                 else if (extension == ".md")
                 {
-                    WriteWarning("The generation of a markdown report is work in progress, it will improve/grow with later releases.");
+                    LogWarning("The generation of a markdown report is work in progress, it will improve/grow with later releases.");
                     ITemplateFormatter mdFormatter = new MarkdownPnPFormatter();
                     using (var outputStream = mdFormatter.ToFormattedTemplate(template))
                     {

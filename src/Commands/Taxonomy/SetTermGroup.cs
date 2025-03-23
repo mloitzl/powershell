@@ -1,11 +1,8 @@
-﻿using System;
-using System.Linq.Expressions;
-using System.Management.Automation;
-using System.Security.Cryptography;
-using Microsoft.SharePoint.Client;
+﻿using Microsoft.SharePoint.Client;
 using Microsoft.SharePoint.Client.Taxonomy;
-
 using PnP.PowerShell.Commands.Base.PipeBinds;
+using System;
+using System.Management.Automation;
 
 namespace PnP.PowerShell.Commands.Taxonomy
 {
@@ -24,6 +21,12 @@ namespace PnP.PowerShell.Commands.Taxonomy
         [Parameter(Mandatory = false)]
         public string Description { get; set; }
 
+        [Parameter(Mandatory = false)]
+        public string[] Contributors { get; set; }
+
+        [Parameter(Mandatory = false)]
+        public string[] Managers { get; set; }
+
         protected override void ExecuteCmdlet()
         {
             var taxonomySession = TaxonomySession.GetTaxonomySession(ClientContext);
@@ -41,12 +44,19 @@ namespace PnP.PowerShell.Commands.Taxonomy
             if (termStore != null)
             {
                 var group = Identity.GetGroup(termStore);
-                ClientContext.Load(group);
-                ClientContext.ExecuteQueryRetry();
-
-                if (group.ServerObjectIsNull.Value != false)
+                try
                 {
-                    bool updateRequired = false;
+                    ClientContext.Load(group);
+                    ClientContext.ExecuteQueryRetry();
+                }
+                catch (Exception)
+                {
+                    throw new PSArgumentException("Group not found");
+                }
+
+                try
+                {
+                    var updateRequired = false;
                     if (ParameterSpecified(nameof(Name)))
                     {
                         group.Name = Name;
@@ -57,16 +67,37 @@ namespace PnP.PowerShell.Commands.Taxonomy
                         group.Description = Description;
                         updateRequired = true;
                     }
+                    if (Contributors != null && Contributors.Length > 0)
+                    {
+                        foreach (var contributor in Contributors)
+                        {
+                            group.AddContributor(contributor);
+                        }
+                        updateRequired = true;
+                    }
+                    if (Managers != null && Managers.Length > 0)
+                    {
+                        foreach (var manager in Managers)
+                        {
+                            group.AddGroupManager(manager);
+                        }
+                        updateRequired = true;
+                    }
                     if (updateRequired)
                     {
                         termStore.CommitAll();
+                        ClientContext.Load(group, group => group.GroupManagerPrincipalNames, group => group.ContributorPrincipalNames, group => group.Name, group => group.Description, group => group.Id);
+                        ClientContext.Load(termStore);
                         ClientContext.ExecuteQueryRetry();
+
+                        taxonomySession.UpdateCache();
+                        taxonomySession.Context.ExecuteQueryRetry();
                     }
                     WriteObject(group);
                 }
-                else
+                catch (Exception e)
                 {
-                    throw new PSArgumentException("Group not found");
+                    throw new PSArgumentException(e.Message);
                 }
             }
         }

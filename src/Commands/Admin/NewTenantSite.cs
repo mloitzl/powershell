@@ -1,17 +1,14 @@
 ﻿using Microsoft.Online.SharePoint.TenantManagement;
 using Microsoft.SharePoint.Client;
 using PnP.Framework;
-using PnP.Framework.Entities;
-
 using PnP.PowerShell.Commands.Base;
 using System;
 using System.Management.Automation;
-using Resources = PnP.PowerShell.Commands.Properties.Resources;
 
 namespace PnP.PowerShell.Commands
 {
     [Cmdlet(VerbsCommon.New, "PnPTenantSite")]
-    public class NewTenantSite : PnPAdminCmdlet
+    public class NewTenantSite : PnPSharePointOnlineAdminCmdlet
     {
         private const string ParameterSetName_Wait = "By Wait";
 
@@ -52,10 +49,6 @@ namespace PnP.PowerShell.Commands
         [Parameter(Mandatory = false, ParameterSetName = ParameterSetName_Wait)]
         public SwitchParameter Wait;
 
-        [Obsolete("The Force parameter has been deprecated and is no longer required to be provided. It will be removed in a future version.")]
-        [Parameter(Mandatory = false, ParameterSetName = ParameterAttribute.AllParameterSets)]
-        public SwitchParameter Force;
-
         [Parameter(Mandatory = false, ParameterSetName = ParameterSetName_Wait)]
         public SharingCapabilities? SharingCapability;
 
@@ -81,8 +74,8 @@ namespace PnP.PowerShell.Commands
                 props.SharingCapability = SharingCapability.Value;
 
                 var op = props.Update();
-                ClientContext.Load(op, i => i.IsComplete, i => i.PollingInterval);
-                ClientContext.ExecuteQueryRetry();
+                AdminContext.Load(op, i => i.IsComplete, i => i.PollingInterval);
+                AdminContext.ExecuteQueryRetry();
             }
         }
 

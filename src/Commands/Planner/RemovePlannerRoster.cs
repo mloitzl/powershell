@@ -7,7 +7,7 @@ using PnP.PowerShell.Commands.Utilities;
 namespace PnP.PowerShell.Commands.Planner
 {
     [Cmdlet(VerbsCommon.Remove, "PnPPlannerRoster", SupportsShouldProcess = true)]
-    [RequiredMinimalApiPermissions("Tasks.ReadWrite")]
+    [RequiredApiApplicationPermissions("graph/Tasks.ReadWrite")]
     public class RemovePlannerRoster : PnPGraphCmdlet
     {
         [Parameter(Mandatory = true)]
@@ -15,14 +15,14 @@ namespace PnP.PowerShell.Commands.Planner
 
         protected override void ExecuteCmdlet()
         {
-            var roster = Identity.GetPlannerRosterAsync(Connection, AccessToken).GetAwaiter().GetResult();
+            var roster = Identity.GetPlannerRoster(GraphRequestHelper);
 
             if(roster == null)
             {
                 throw new PSArgumentException("Provided Planner Roster could not be found", nameof(Identity));
             }
 
-            PlannerUtility.DeleteRosterAsync(Connection, AccessToken, roster.Id).GetAwaiter().GetResult();
+            PlannerUtility.DeleteRoster(GraphRequestHelper, roster.Id);
         }
     }
 }
